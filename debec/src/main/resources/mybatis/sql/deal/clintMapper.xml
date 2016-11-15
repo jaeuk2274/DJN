@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="clintMapper">
+
+<!-- 	clint_tb, 거래처 테이블-->
+	<resultMap id="clint" type="clintVo">
+		<result property="clintSeq" column="clint_seq"/>
+		<result property="clintRepresntatv" column="clint_represntatv"/>
+		<result property="clintNum" column="clint_num"/>
+		<result property="clintFax" column="clint_fax"/>
+		<result property="clintMangr" column="clint_mangr"/>
+		<result property="clintMangrNum" column="clint_mangr_num"/>
+		<result property="clintAdrs" column="clint_adrs"/>
+		<result property="clintDetl" column="clint_detl"/>
+		<result property="clintBankAcout" column="clint_bank_acout"/>
+		<result property="clintAcoutNum" column="clint_acout_num"/>
+		<result property="clintSurtaxCheck" column="clint_surtax_check"/>
+		<result property="clintNme" column="clint_nme"/>
+		<result property="clintPostcd" column="clint_postcd"/>
+		<result property="clintBridgSeq" column="clint_bridg_seq"/>
+		
+		
+<!-- 	prodct_tb, 상품 테이블	 -->
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="mainImg" column="main_img"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="qunt" column="qunt"/>
+		<result property="purchsPric" column="purchs_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="displyCheck" column="disply_check"/>
+	</resultMap>
+
+	
+<!-- 	거래처 목록 조회 -->
+	<select id="clintList" parameterType="clintVo" resultMap="clint">
+		SELECT clint_seq
+			,  clint_nme
+			,  clint_mangr
+			,  clint_mangr_num
+			,  CONCAT 
+			   ('(',clint_bank_acout,') ',
+			   clint_acout_num)
+			AS clint_acout_num
+			,  clint_surtax_check
+		FROM clint_tb
+		WHERE
+			${clintListSelectBox} LIKE '%${clintListSearchText}%'
+		ORDER BY
+			clint_seq desc
+		LIMIT 
+			${recordCountPerPage} OFFSET ${firstRecordIndex};
+	</select>
+	
+<!-- 	거래처 목록 전체 페이지 수 -->
+	<select id="selectClintCount" parameterType="clintVo" resultType="int">
+		SELECT count(*)
+		FROM clint_tb
+		WHERE ${clintListSelectBox} LIKE '%${clintListSearchText}%';
+	</select>
+	
+<!-- 	거래처 정보 상세조회 -->
+	<select id="clintRead" parameterType="int" resultMap="clint">
+		SELECT clint_seq
+			,  clint_nme
+			,  clint_represntatv
+			,  clint_mangr
+			,  clint_num
+			,  clint_mangr_num
+			,  clint_fax
+			,  clint_bank_acout
+			,  clint_acout_num
+			,  clint_surtax_check
+			,  clint_postcd
+			,  clint_adrs
+			,  clint_detl
+		FROM clint_tb
+		WHERE clint_seq = #{clintSeq};
+	</select>
+	<!-- 상세조회된 거래처 정보 삭제 -->
+	<delete id="clintReadDelete" parameterType="int">
+		DELETE
+		FROM clint_tb
+		WHERE clint_seq = #{clintSeq};
+	</delete>
+
+	<!-- 	상세조회된 거래처 상품 리스트 삭제 -->
+	<delete id="clintProductDelete" parameterType="int">
+		DELETE
+		FROM clint_bridg_tb
+		WHERE clint_seq = #{clintSeq};
+	</delete>
+	
+	
+<!-- 거래처 수정 -->
+	<update id="clintUpdate" parameterType="clintVo">
+		UPDATE clint_tb
+		SET clint_represntatv = #{clintRepresntatv}
+		, 	clint_num = #{clintNum}
+		,	clint_fax = #{clintFax}
+		,	clint_mangr = #{clintMangr}
+		,	clint_mangr_num = #{clintMangrNum}
+		,	clint_adrs = #{clintAdrs}
+		,	clint_detl = #{clintDetl}
+		,	clint_bank_acout = #{clintBankAcout}
+		,	clint_acout_num = #{clintAcoutNum}
+		,	clint_surtax_check = #{clintSurtaxCheck}
+		,	clint_nme = #{clintNme}
+		,	clint_postcd = #{clintPostcd}
+		WHERE clint_seq = ${clintSeq};
+	</update>
+	
+<!-- 상품추가(모달) 거래처가 미등록된 상품을 조회합니다.(왼쪽 테이블) -->
+   <select id="SelectProdctAdList" parameterType="clintVo" resultMap="clint">
+      SELECT p.prodct_seq
+      ,      p.main_img
+      ,      p.prodct_nme
+      ,      p.catgr_seq
+      ,      c1.rot_catgr_seq
+      ,      c2.rot_catgr_seq
+      
+      FROM   prodct_tb p LEFT JOIN
+             clint_bridg_tb c ON p.prodct_seq = c.prodct_seq
+        JOIN   catgr_tb c1
+        ON       p.catgr_seq = c1.catgr_seq
+      JOIN   catgr_tb c2
+        ON       c1.rot_catgr_seq = c2.catgr_seq
+      WHERE  c.prodct_seq IS NULL
+      AND    p.prodct_seq NOT IN (SELECT prodct_seq FROM prodct_clint_tb)
+      <if test="prodctSechText!=''">
+      AND      p.prodct_nme LIKE '%${prodctSechText}%'
+      </if>
+      <if test="catgrSeq!=0">
+      AND      (p.catgr_seq = #{catgrSeq}
+      OR    c1.rot_catgr_seq = #{catgrSeq}
+      OR    c2.rot_catgr_seq = #{catgrSeq})
+      </if>
+      ORDER BY 
+            p.prodct_nme
+      LIMIT 
+            ${recordCountPerPage} OFFSET ${firstRecordIndex};
+   </select>
+	
+<!-- 상품추가(모달) 거래처가 미등록된 상품의 갯수를 조회합니다.(왼쪽 테이블) -->
+	<select id="selectProdctCount" parameterType="clintVo" resultType="int">
+		SELECT count(*)
+	      FROM   prodct_tb p LEFT JOIN
+	             clint_bridg_tb c ON p.prodct_seq = c.prodct_seq
+	        JOIN   catgr_tb c1
+	        ON       p.catgr_seq = c1.catgr_seq
+	      JOIN   catgr_tb c2
+	        ON       c1.rot_catgr_seq = c2.catgr_seq
+	      WHERE  c.prodct_seq IS NULL
+	      AND    p.prodct_seq NOT IN (SELECT prodct_seq FROM prodct_clint_tb)
+	      <if test="prodctSechText!=''">
+	      AND      p.prodct_nme LIKE '%${prodctSechText}%'
+	      </if>
+	      <if test="catgrSeq!=0">
+	      AND      (p.catgr_seq = #{catgrSeq}
+	      OR    c1.rot_catgr_seq = #{catgrSeq}
+	      OR    c2.rot_catgr_seq = #{catgrSeq})
+	      </if>
+	</select>
+	
+<!-- 	상품추가(모달) 임시테이블(오른쪽 테이블) 리스트 조회 -->
+	<select id="selectProdctAdTempList" parameterType="clintVo" resultMap="clint">
+		SELECT 	pe.prodct_seq
+		,	  	p.prodct_nme
+		,	  	p.main_img
+		FROM   	prodct_clint_tb pe 
+		JOIN	prodct_tb p 
+		ON 		pe.prodct_seq = p.prodct_seq
+		<if test="tempSechText!=''">
+		AND	   p.prodct_nme LIKE '%${tempSechText}%'
+		</if>
+		ORDER BY 
+			   p.prodct_nme
+		LIMIT 
+			   ${recordCountPerPage} OFFSET ${firstRecordIndex};
+	</select>
+	
+<!-- 	상품추가(모달) 임시테이블(오른쪽 테이블)에 상품 개수 조회 -->
+	<select id="selectProdctTempCount" parameterType="clintVo" resultType="int">
+		SELECT count(*)
+		FROM prodct_emp_tb pe JOIN
+		     prodct_tb p ON pe.prodct_seq = p.prodct_seq
+		WHERE  pe.type = 'c'
+		<if test="tempSechText!=''">
+		AND	   p.prodct_nme LIKE '%${tempSechText}%'
+		</if>;
+	</select>
+	
+<!-- 	상품추가(모달) 임시테이블(오른쪽테이블)에 상품 추가 -->
+	<insert id="prodctAddTempTableCreate" parameterType="long">
+		INSERT 
+		INTO 		prodct_clint_tb
+		VALUES		(#{prodctSeq})
+	</insert>
+						
+<!-- 	상품추가(모달) 임시테이블(오른쪽 테이블) 에 상품 삭제 -->
+	<delete id="prodctAddTempTableDelete" parameterType="long">
+		DELETE 
+		FROM  prodct_clint_tb
+        WHERE prodct_seq = #{prodctSeq};
+	</delete>
+	
+<!-- 	임시테이블 삭제(완료나 취소 눌렀을때) -->
+	<delete id="deleteTempTable">
+		DELETE
+		FROM prodct_clint_tb
+	</delete>
+	
+<!-- 	임시테이블에 있는 상품을 추가 -->
+	<insert id="insertProdct" parameterType="clintVo">
+		INSERT
+		INTO 	 clint_bridg_tb(clint_bridg_seq, clint_seq, prodct_seq)
+		VALUES   ((SELECT 	IFNULL(MAX(clint_bridg_seq),0)+1
+				   FROM 	clint_bridg_tb AS clint_bridg_seq)
+				 , ${clintSeq}
+				 , ${prodctSeq} );
+	</insert>
+	
+<!-- 	거래처 상세보기에 상품 리스트 -->
+	<select id="prodctList" parameterType="clintVo" resultMap="clint">
+		SELECT 		p.prodct_seq
+				  , p.main_img
+				  , p.prodct_nme
+				  , s.qunt
+				  , p.purchs_pric
+				  , p.sel_pric
+				  , p.disply_check
+				  , c.clint_bridg_seq
+		FROM   clint_bridg_tb c
+		LEFT JOIN
+		  	   prodct_tb p 
+		ON 	   c.prodct_seq = p.prodct_seq
+		LEFT JOIN
+		  	   stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE  c.clint_seq = ${clintSeq}
+		ORDER BY p.disply_check desc, s.qunt asc
+		LIMIT 
+			${recordCountPerPage} OFFSET ${firstRecordIndex};
+	</select>
+	
+<!-- 	거래처 상세보기 - 상품 리스트에 상품 갯수 -->
+	<select id="selectProdctCountPaging" parameterType="clintVo" resultType="int">
+		SELECT count(*)
+        FROM clint_bridg_tb
+        WHERE clint_seq = ${clintSeq};
+	</select>
+	
+<!-- 	거래처 등록 메서드 -->
+	<insert id="insertClint" parameterType="clintVo">
+		INSERT
+		INTO clint_tb
+		VALUES((SELECT IFNULL(MAX(clint_seq),0)+1 FROM clint_tb AS clint_seq)
+		,	   #{clintRepresntatv}
+		,      #{clintNum}
+		,	   #{clintFax}
+		,	   #{clintMangr}
+		,	   #{clintMangrNum}
+		,	   #{clintAdrs}
+		,	   #{clintDetl}
+		,	   #{clintBankAcout}
+		,	   #{clintAcoutNum}
+		,	   #{clintSurtaxCheck}
+		,      #{clintNme}
+		,  	   #{clintPostcd});
+	</insert>
+	
+	<!-- 체크한 거래처 삭제 -->
+	<delete id="deleteClint" parameterType="java.util.List">		
+			DELETE
+			FROM clint_tb
+			WHERE clint_seq in(
+			<foreach collection="list" item="item" separator=", ">
+				 #{item}
+			</foreach>);
+	</delete>
+	
+	<!-- 임시 테이블에 존재하는 상품 seq 리스트 -->
+	<select id="selectTempProdct" resultType="long">
+		SELECT	 prodct_seq as prodct_seq
+        FROM	 prodct_clint_tb
+	</select>
+	
+	<!-- 거래처 상품들 거래처 변경 -->
+	<update id="ClintProductUpdate" parameterType="hashmap">
+	    UPDATE 	clint_bridg_tb 
+	    SET 	clint_seq = #{clintVo.clintSeq}
+	    WHERE  	clint_bridg_seq in (
+		<foreach collection="chkList" item="item"  separator=",">
+		      #{item}  
+		</foreach>);  			  	
+	</update>
+	
+	<!-- 체크한 거래처 상품들 삭제 -->
+	<delete id="ClintProductDelete" parameterType="java.util.List">		
+			DELETE
+			FROM clint_bridg_tb
+			WHERE clint_bridg_seq in(
+			<foreach collection="list" item="item" separator=", ">
+				 #{item}
+			</foreach>);
+	</delete>
+	
+	<!-- 방금 등록한 거래처의 seq 바로 상품추가로 넘어가기 위함 -->
+	<select id="insertClintSeq" resultType="int">
+		SELECT max(clint_seq)
+        FROM clint_tb
+	</select>
+	
+	
+</mapper>

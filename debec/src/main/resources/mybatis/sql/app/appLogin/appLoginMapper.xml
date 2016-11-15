@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="appLoginMapper">
+
+   <resultMap id="appLoginValues" type="loginVo">
+		<result property="empSeq" column="emp_seq"/>
+		<result property="empId" column="id"/>
+		<result property="empPw" column="pw"/>
+		<result property="empNme" column="nme"/>
+		<result property="empMobl" column="mobl"/>
+		<result property="token" column="token"/>
+		<result property="idResult" column="id_result"/>
+		<result property="idCount" column="id_count"/>
+		<result property="custmrSeq" column="custmr_seq"/> 
+		<result property="custmrId" column="custmr_id"/>
+		<result property="custmrPw" column="custmr_pw"/>
+		<result property="custmrNme" column="custmr_nme"/>
+		<result property="selectLogin" column="selectLogin"/>
+		<result property="custmrGendr" column="custmr_gendr"/>
+		<result property="custmrBirth" column="custmr_birth"/>
+		<result property="custmrTelHp" column="custmr_tel_hp"/> 
+		<result property="custmrMobl" column="custmr_mobl"/>
+		<result property="custmrPostcd" column="custmr_postcd"/>
+		<result property="custmrAdrs" column="custmr_adrs"/>
+		<result property="custmrDetalAdrs" column="custmr_detal_adrs"/>
+		<result property="custmrEml" column="custmr_eml"/>
+		<result property="custmrCardNumbr" column="custmr_card_numbr"/>
+		<result property="custmrNumbr" column="custmr_numbr"/>
+		<result property="custmrCardCheck" column="custmr_card_check"/>
+		<result property="custmrQuscncCheck" column="custmr_quscnc_check"/>
+		<result property="custmrNicknme" column="custmr_nicknme"/>
+		<result property="token" column="custmr_token"/>	
+		<result property="shipngPlcSeq" column="shipng_plc_seq"/>
+		<result property="loginDat" column="login_dat"/>
+	</resultMap>
+	
+	<resultMap id="agremtValues" type="agremtVo">
+		<result property="useAgremtSeq" column="use_agremt_seq"/>
+		<result property="titl" column="titl"/>
+		<result property="cnt" column="cnt"/>
+		<result property="standrd" column="standrd"/>		
+		<result property="useCheck" column="use_check"/>				
+	</resultMap>
+	
+	<resultMap type="shipngPlaceVo" id="shipngPlaceValues">
+		<result property="shipngPlcSeq" column="shipng_plc_seq"/>
+		<result property="shipngPlcNme" column="shipng_plc_nme"/>
+		<result property="shipngPlcPostcod" column="shipng_plc_postcod"/>
+		<result property="shipngPlcAdrs" column="shipng_plc_adrs"/>
+		<result property="shipngPlcDetalAdrs" column="shipng_plc_detal_adrs"/>
+		<result property="recvrNme" column="recvr_nme"/>
+		<result property="recvrMobl" column="recvr_mobl"/>
+		<result property="custmrSeq" column="custmr_seq"/>    
+		<result property="existCheck" column="exist_check"/>
+	</resultMap>
+	
+	<!-- 로그인 -->
+	<select id="mobileLogin" parameterType="loginVo" resultMap="appLoginValues">
+		SELECT 
+	    COUNT(*) as idCount, 
+	    <if test="selectLogin == 1">
+	    		ifnull(emp_seq,0) as emp_seq
+	    		, id
+	    		, pw
+	    		, token
+	    	FROM
+			   	emp_tb
+			WHERE id = #{empId} 
+			AND pw = #{empPw};
+	    </if>
+	    <if test="selectLogin == 2">
+	    		ifnull(custmr_seq,0) as custmr_seq
+	    	  , custmr_id
+	    	  , custmr_pw
+	    	  , custmr_token
+	    	FROM custmr_tb
+			WHERE custmr_id = #{empId} 
+			AND custmr_pw = #{empPw};
+	    </if>
+	</select>
+	<!-- 고객 회원가입 -->
+	<insert id="insertCus" parameterType="loginVo">
+		<selectKey keyProperty="custmrSeq" resultType="int" order="BEFORE">
+			SELECT IFNULL(MAX(custmr_seq),0)+1
+			FROM custmr_tb;
+		</selectKey>
+	    INSERT INTO custmr_tb(
+	    			custmr_seq
+	    		 ,  custmr_id
+	    		 ,	custmr_pw
+	    		 ,	custmr_nme
+	    		 ,	custmr_mobl
+	    		 ,  custmr_token
+	    		 ,  custmr_postcd
+	    		 ,  custmr_adrs
+	    		 ,  custmr_detal_adrs
+	    		 ,	custmr_card_check
+	    		 ,	custmr_quscnc_check
+	    		 ,  custmr_gendr
+	    		 ,  custmr_birth
+	    		 ,  custmr_eml
+	    		 )
+	    VALUES(#{custmrSeq}
+	    	,  #{custmrId}
+	    	,  #{custmrPw}
+	    	,  #{custmrNme}
+	    	,  #{custmrMobl}
+	    	,  #{custmrToken}
+	    	,  #{custmrPostcd}
+	    	,  #{custmrAdrs}
+	    	,  #{custmrDetalAdrs}
+	    	,  #{custmrCardCheck}
+	    	,  'N'
+	    	,  #{custmrGendr}
+	    	,  #{custmrBirth}
+	    	,  #{custmrEml}
+	    );
+	</insert>
+	<select id="custmrSeqSelect" parameterType="loginVo" resultType="int">
+	    SELECT custmr_seq 
+	    FROM custmr_tb
+		WHERE custmr_id = #{custmrId}
+		AND custmr_pw = #{custmrPw};
+	</select>
+	<insert id="shipngPlcInsert" parameterType="loginVo">
+	    <selectKey keyProperty="shipngPlcSeq" resultType="int" order="BEFORE">
+			SELECT IFNULL(MAX(shipng_plc_seq),0)+1
+			FROM shipping_place_tb;
+		</selectKey>
+		INSERT INTO 
+		shipping_place_tb(shipng_plc_seq
+						, custmr_seq
+						, shipng_plc_nme
+						, recvr_nme
+						, recvr_mobl
+						, shipng_plc_postcod
+						, shipng_plc_adrs
+						, shipng_plc_detal_adrs
+						, exist_check
+						)
+		VALUES(#{shipngPlcSeq}
+			,  #{custmrSeq}
+			,  #{custmrNme}
+			,  #{custmrNme}
+			,  #{custmrMobl}
+			,  #{custmrPostcd}
+			,  #{custmrAdrs}
+			,  #{custmrDetalAdrs}
+			,  'Y');
+	</insert>
+	
+	<select id="idSearch" parameterType="loginVo" resultType="String">
+		SELECT custmr_id 
+		FROM custmr_tb
+		WHERE custmr_nme = #{custmrNme}
+		AND custmr_mobl = #{custmrMobl};
+	</select>
+	
+	<select id="cusSeqSelect" parameterType="loginVo" resultType="int">
+		SELECT custmr_seq
+		FROM custmr_tb
+		WHERE custmr_nme = #{custmrNme}
+		AND custmr_mobl = #{custmrMobl}
+		AND custmr_id = #{custmrId};
+	</select>
+	
+	<update id="pwUpdate" parameterType="loginVo">
+		UPDATE custmr_tb SET
+		custmr_pw = #{custmrPw}
+		WHERE custmr_seq = #{custmrSeq};
+	</update>
+	
+	<select id="pwSelect" parameterType="loginVo" resultMap="appLoginValues">
+		SELECT custmr_pw
+			,  custmr_nme 
+		FROM custmr_tb
+		WHERE custmr_seq = #{custmrSeq};
+	</select>
+
+	<!-- 이용약관 내용 조회 -->
+	<select id="joinAgremtList" parameterType="agremtVo" resultMap="agremtValues">
+		SELECT use_agremt_seq
+			,  titl
+			,  cnt
+			,  standrd
+			,  use_check
+		FROM use_agremt_tb;
+	</select>
+	<!-- 배송지 등록 -->
+	<insert id="shipngPlcCret" parameterType="shipngPlaceVo">
+   	    <selectKey keyProperty="shipngPlcSeq" resultType="int" order="BEFORE">
+			SELECT IFNULL(MAX(shipng_plc_seq),0)+1
+			FROM shipping_place_tb;
+		</selectKey>
+	    INSERT INTO shipping_place_tb(shipng_plc_seq
+	    					, shipng_plc_nme
+	    					, shipng_plc_postcod
+	    					, shipng_plc_adrs
+	    					, shipng_plc_detal_adrs
+	    					, recvr_nme
+	    					, recvr_mobl
+	    					, custmr_seq
+	    					, exist_check
+	    		 )
+	    VALUES(#{shipngPlcSeq}
+	    	,  #{shipngPlcNme}
+	    	,  #{shipngPlcPostcod}
+	    	,  #{shipngPlcAdrs}
+	    	,  #{shipngPlcDetalAdrs}
+	    	,  #{recvrNme}
+	    	,  #{recvrMobl}
+	    	,  #{custmrSeq}
+	    	,  #{existCheck}
+	    );
+	</insert>
+	<!-- 배송지 리스트 -->
+	<select id="shipngPlcList" parameterType="int" resultMap="shipngPlaceValues">
+	    SELECT shipng_plc_seq
+			,  shipng_plc_nme
+			,  shipng_plc_postcod
+			,  shipng_plc_adrs
+			,  shipng_plc_detal_adrs
+			,  recvr_nme
+			,  recvr_mobl
+			,  custmr_seq
+			,  exist_check
+	    FROM debec.shipping_place_tb
+	    WHERE custmr_seq = #{custmrSeq};
+	</select>
+	
+	<update id="empTokenUpdate" parameterType="loginVo">
+	    UPDATE emp_tb SET
+	    token = #{token}
+	    WHERE emp_seq = #{empSeq};
+	</update>
+	
+	<update id="custmrTokenUpdate" parameterType="loginVo">
+	    UPDATE custmr_tb SET
+	    custmr_token = #{token}
+	    WHERE custmr_seq = #{custmrSeq};
+	</update>
+	
+	<update id="shipngCheck" parameterType="shipngPlaceVo">
+	    UPDATE shipping_place_tb SET
+			exist_check = 'N'
+		WHERE custmr_seq = #{custmrSeq};
+	</update>
+	
+	<update id="shipngUpdate" parameterType="shipngPlaceVo">
+	    UPDATE shipping_place_tb SET
+			shipng_plc_nme = #{shipngPlcNme}
+		,   shipng_plc_postcod = #{shipngPlcPostcod}
+		,   shipng_plc_adrs = #{shipngPlcAdrs}
+		,   shipng_plc_detal_adrs = #{shipngPlcDetalAdrs}
+		,   recvr_nme = #{recvrNme}
+		,   recvr_mobl = #{recvrMobl}
+		,   exist_check = #{existCheck}
+		WHERE shipng_plc_seq = #{shipngPlcSeq}
+		AND custmr_seq = #{custmrSeq};
+	</update>
+	
+	<delete id="shipngDelete" parameterType="shipngPlaceVo">
+	    DELETE FROM shipping_place_tb
+	    WHERE shipng_plc_seq = #{shipngPlcSeq}
+		AND custmr_seq = #{custmrSeq};
+	</delete>
+	
+	<select id="shipngPlcUpdateFrm" parameterType="int" resultMap="shipngPlaceValues">
+	    SELECT shipng_plc_seq
+			,  shipng_plc_nme
+			,  shipng_plc_postcod
+			,  shipng_plc_adrs
+			,  shipng_plc_detal_adrs
+			,  recvr_nme
+			,  recvr_mobl
+			,  custmr_seq
+			,  exist_check
+	    FROM debec.shipping_place_tb
+	    WHERE shipng_plc_seq = #{shipngPlcSeq};
+	</select>
+	
+	<update id="LoginDate" parameterType="loginVo">
+	    UPDATE custmr_tb SET
+	    login_dat = SYSDATE()
+	    WHERE custmr_id = #{empId}
+	    AND custmr_pw = #{empPw};
+	</update>
+</mapper>

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="appDebecChoiceMapper">
+	
+	<!-- 패키지 리스트 SELECT-->
+	<resultMap id="packgValues" type="packgVo">		
+	<!-- 패키지 테이블 (시작) -->
+		<result property="packgSeq" column="packg_seq"/> 
+		<result property="packgType" column="packg_type"/>
+		<result property="packgNme" column="packg_nme"/>
+		<result property="packgCnt" column="packg_cnt"/>
+		<result property="allPric" column="all_pric"/>
+		<result property="packgDisplayCheck" column="packg_display_check"/>
+		<result property="prodctType" column="prodct_type"/>
+	<!-- 패키지 테이블 (종료) -->
+	<!-- 패키지 검색 조건 (시작) -->
+		<result property="packgSechText" column="packgSechText"/>
+		<result property="packgSechType" column="packgSechType"/>	
+	<!-- 패키지 검색 조건 (끝) -->
+	<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+		<result property="tempSechText" column="tempSechText"/>		
+	<!-- 상품 추가 테이블 검색어(끝) -->
+	<!-- 거래처(시작) -->
+		<result property="clintSeq" column="clint_seq"/>
+		<result property="clintNme" column="clint_nme"/>
+		<result property="clintRepresntatv" column="clint_represntatv"/>
+		<result property="clintNum" column="clint_num"/>
+		<result property="clintFax" column="clint_fax"/>
+		<result property="clintMangr" column="clint_mangr"/>
+		<result property="clintMangrNum" column="clint_mangr_num"/>
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="purchsPric" column="purchs_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="qunt" column="qunt"/>	
+		<result property="mainImg" column="main_img"/>
+		<result property="detlImg1" column="detl_img1"/>
+		<result property="detlImg2" column="detl_img2"/>
+		<result property="detlImg3" column="detl_img3"/>
+		<result property="prodctSeqSet" column="prodct_seq_set"/>
+	<!-- 거래처 (끝) -->
+	</resultMap>
+	
+	<!-- 핫딜 상품 리스트 SELECT-->
+	<resultMap id="hotdlValues" type="hotdlVo">		
+	<!-- 핫딜 상품 테이블 (시작) -->
+		<result property="prodctSeq" column="prodct_seq"/> 
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="remngAmont" column="remng_amont"/>
+		<result property="purchsPric" column="purchs_pric"/>
+		<result property="discntPric" column="discnt_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="amont" column="amont"/>
+		<result property="img" column="main_img"/>	 
+		<result property="qunt" column="qunt"/>
+		<result property="prodctType" column="prodct_type"/>
+	<!-- 핫딜 상품 테이블 (종료) -->
+	<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+	<!-- 상품 추가 테이블 검색어(끝) -->
+	<!-- 핫딜 상품 검색 조건 (시작) -->
+		<result property="hotdlSechText" column="hotdlSechText"/>	
+		<result property="hotdlMinPric" column="hotdlMinPric"/>	
+		<result property="hotdlMaxPric" column="hotdlMaxPric"/>	
+	<!-- 핫딜 상품 검색 조건 (끝) -->
+	</resultMap>
+	
+	<!-- 신선 식품 리스트 SELECT-->
+	<resultMap id="freshValues" type="freshVo">		
+	<!-- 신선 식품 테이블 (시작) -->
+		<result property="prodctSeq" column="prodct_seq"/> 
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="selStrtTime" column="sel_strt_time"/>
+		<result property="stat" column="stat"/>
+		<result property="img" column="main_img"/>	
+		<result property="qunt" column="qunt"/>
+		<result property="prodctType" column="prodct_type"/>
+	<!-- 신선 식품 테이블 (종료) -->
+	<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+	<!-- 상품 추가 테이블 검색어(끝) -->
+	<!-- 신선 식품 검색 조건 (시작) -->
+		<result property="freshSechText" column="freshSechText"/>	
+		<result property="freshMinPric" column="freshMinPric"/>	
+		<result property="freshMaxPric" column="freshMaxPric"/>	
+	<!-- 신선 식품 검색 조건 (끝) -->
+	</resultMap>
+	
+	<!-- 앱 신선 식품 목록 갯수 조회 -->
+	<select id="selectAppFreshtCount" resultType="int">
+       SELECT  count(p.prodct_seq)
+		FROM prodct_tb p JOIN fresh_fod_tb f
+		ON p.prodct_seq = f.prodct_seq
+		WHERE  f.stat = 'Y'
+		AND date(now()) <![CDATA[<=]]> date(DATE_ADD(date(f.SEL_STRT_TIME+INTERVAL 1 DAY), INTERVAL 21 HOUR));
+	</select>
+	
+	<!-- 앱 핫딜상품 목록 갯수 조회 -->
+	<select id="selectAppHotdltCount" resultType="int">
+		SELECT 
+		    count(p.prodct_seq)
+		FROM
+		    prodct_tb p
+		        JOIN
+		    hotdl_tb h ON p.prodct_seq = h.prodct_seq
+		        LEFT JOIN
+		    evnt_bridg_tb eb ON p.prodct_seq = eb.prodct_seq
+		        LEFT JOIN
+		    sals_presnt_tb sp ON p.prodct_seq = sp.prodct_seq;
+	</select>
+	
+	<!-- 앱 패키지 상품 목록 갯수 조회 -->
+	<select id="selectAppPackgCount" resultType="int">
+		SELECT 
+		    count(pa.packg_seq)
+		FROM
+		    debec.packg_tb pa
+		        LEFT JOIN
+		    packg_bridg_tb pb ON pa.packg_seq = pb.packg_seq
+		        LEFT JOIN
+		    prodct_tb p ON pb.prodct_seq = p.prodct_seq
+		WHERE
+		    pa.packg_display_check = 'Y';
+	</select>
+	
+	<!-- 앱 신선 식품 목록 조회(검색) -->
+	<select id="selectAppFreshList" parameterType="freshVo" resultMap="freshValues">
+		SELECT  p.prodct_seq
+				, p.main_img
+				, p.prodct_nme
+				, p.sel_pric
+		        , f.SEL_STRT_TIME
+				, f.stat
+                ,now()
+                ,DATE_ADD(date(f.SEL_STRT_TIME+INTERVAL 1 DAY), INTERVAL 21 HOUR)
+		FROM prodct_tb p JOIN fresh_fod_tb f
+		ON p.prodct_seq = f.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		on p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE  f.stat = 'Y'
+		AND date(now())  <![CDATA[<=]]> date(DATE_ADD(date(f.SEL_STRT_TIME+INTERVAL 1 DAY), INTERVAL 21 HOUR))
+		ORDER BY
+		p.prodct_nme;
+	</select>
+	
+	<!-- 앱 핫딜 상품 목록 조회(검색) -->
+	<select id="selectAppHotdlList" parameterType="hotdlVo" resultMap="hotdlValues">
+		SELECT p.prodct_seq
+			  , p.main_img
+			  , p.prodct_nme
+			  , (h.amont - sp.sel_amont) 'remng_amont'
+		      , p.purchs_pric
+		      , h.discnt_pric
+		FROM prodct_tb p JOIN hotdl_tb h
+		ON p.prodct_seq = h.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		on p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${hotdlSechText}%'
+		<choose>
+			<when test="hotdlMinPric == '' and hotdlMaxPric == ''">
+			</when>
+			<when test="hotdlMinPric == null and hotdlMaxPric == null">
+			</when>
+			<when test="hotdlMinPric == ''">
+			    AND h.discnt_pric <![CDATA[<=]]> ${hotdlMaxPric}
+			</when>		
+			<when test="hotdlMaxPric == ''">
+			    AND h.discnt_pric <![CDATA[>=]]> ${hotdlMinPric}
+			</when>			
+			<otherwise>
+			    AND h.discnt_pric BETWEEN ${hotdlMinPric} AND ${hotdlMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			p.prodct_nme;
+	</select>
+	
+	<!-- 앱 패키지 목록 조회(검색) -->
+	<select id="selectAppPackgList"  resultMap="packgValues">
+		SELECT 
+			pa.packg_seq
+			,  pa.packg_nme
+			,  sum(p.sel_pric) 'all_pric'
+			,  p.disply_check
+		    , main_img
+		    , group_concat(pb.prodct_seq) AS prodct_seq_set
+		FROM
+		    debec.packg_tb pa
+		        LEFT JOIN
+		    packg_bridg_tb pb ON pa.packg_seq = pb.packg_seq
+		        LEFT JOIN
+		    prodct_tb p ON pb.prodct_seq = p.prodct_seq
+		WHERE
+		    pa.packg_display_check = 'Y'
+		GROUP BY pa.PACKG_SEQ
+		HAVING p.disply_check = 'Y';
+	</select>
+	
+	<!-- 앱 패키지 상세 조회 -->
+	<select id="selectAppPackgRead" parameterType="int" resultMap="packgValues">
+		SELECT 
+		    p.packg_seq AS packg_seq,
+		    p.packg_nme AS packg_nme,
+		    SUM(pr.sel_pric) AS all_pric,
+		    group_concat(pb.prodct_seq) AS prodct_seq_set
+		FROM
+		    packg_tb p
+		JOIN
+		    packg_bridg_tb pb ON p.packg_seq = pb.packg_seq
+		JOIN
+		    prodct_tb pr ON pb.prodct_seq = pr.prodct_seq
+			AND packg_display_check = 'Y'
+		WHERE
+		    p.packg_seq = #{packgSeq}
+		GROUP BY p.packg_seq
+		ORDER BY p.packg_seq;
+	</select>	
+</mapper>

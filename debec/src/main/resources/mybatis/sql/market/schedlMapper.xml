@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="schedlMapper">
+
+	<resultMap id="schedlValues" type="schedlVo">
+		<result property="id" column="schedl_seq"/>
+		<result property="title" column="schedl_titl"/>
+		<result property="start" column="schedl_start_dat"/>
+		<result property="end" column="schedl_end_dat"/>		
+		<result property="color" column="schedl_col"/>
+				
+		<result property="schedlCnt" column="schedl_cnt"/>
+		<result property="schedlRept" column="schedl_rept"/>
+		<result property="schedlReptDat" column="schedl_rept_dat"/>	
+	</resultMap>
+
+	<!-- 월간 일정 조회 -->
+	<select id="SchedlListRead" resultMap="schedlValues">
+		SELECT 	schedl_seq
+			  , schedl_titl
+			  , schedl_start_dat
+			  , schedl_end_dat
+			  , schedl_col
+		FROM 	schedl_tb;
+	</select>
+	
+	<!-- 반복 일정 등록 -->
+	<insert id="SchedlCreate" parameterType="hashmap">
+	
+		INSERT INTO schedl_tb
+				   (schedl_seq
+				  , schedl_titl
+				  , schedl_start_dat
+				  , schedl_end_dat
+				  , schedl_col
+				  , schedl_cnt
+				  , schedl_rept
+				  , schedl_rept_dat
+				  )
+				  				  
+		VALUES 	   		
+				  <foreach collection="reptCont" item="item" separator=" , "> 						  	 
+				  (  (SELECT IFNULL(max(s1.schedl_seq),0)+1
+					  FROM   schedl_tb s1)
+				  , #{schedlVO.title}
+				  <if test="schedlVO.schedlRept=='Day'">
+					  , (#{schedlVO.start} + INTERVAL #{item} DAY)
+					  , (#{schedlVO.end} + INTERVAL #{item} DAY)
+				  </if>
+				  <if test="schedlVO.schedlRept=='Week'">
+					  , (#{schedlVO.start} + INTERVAL #{item} WEEK)
+					  , (#{schedlVO.end} + INTERVAL #{item} WEEK)
+				  </if>
+				  <if test="schedlVO.schedlRept=='Month'">
+					  , (#{schedlVO.start} + INTERVAL #{item} MONTH)
+					  , (#{schedlVO.end} + INTERVAL #{item} MONTH)
+				  </if>			  
+				  , #{schedlVO.color}
+				  , #{schedlVO.schedlCnt}
+				  , #{schedlVO.schedlRept}
+				  , #{schedlVO.schedlReptDat}				
+				  )
+			 	 </foreach>		  	
+	</insert>
+	
+	<!-- 보통 일정 등록 -->
+	<insert id="notSchedlCreate" parameterType="schedlVo">
+	
+		INSERT INTO schedl_tb
+				   (schedl_seq
+				  , schedl_titl
+				  , schedl_start_dat
+				  , schedl_end_dat
+				  , schedl_col
+				  , schedl_cnt
+				  , schedl_rept				  
+				  )				  				  
+		VALUES 	   						  						  	 
+				  (  (SELECT IFNULL(max(s1.schedl_seq),0)+1
+					  FROM   schedl_tb s1)
+				  , #{title}			
+				  , #{start}
+				  , #{end}
+				  , #{color}
+				  , #{schedlCnt}
+				  , #{schedlRept}				  				
+				  ) 		  	
+	</insert>
+
+	
+	<!-- 일정 상세조회 -->
+	<select id="SchedlReadPopup" parameterType="schedlVo" resultMap="schedlValues">
+		SELECT 	schedl_seq
+			  , schedl_titl
+			  , schedl_start_dat
+			  , schedl_end_dat
+			  , schedl_col
+			  , schedl_cnt
+			  , schedl_rept
+			  , schedl_rept_dat
+		FROM 	schedl_tb	
+		WHERE	schedl_seq = #{id}
+	</select>
+	
+	
+	<!-- 일정 삭제 (행사 TB) -->
+	<delete id="EvntDelete" parameterType="schedlVo">
+		DELETE 
+		FROM 	evnt_tb
+		WHERE 	schedl_seq = #{id}
+	</delete>
+	
+	
+	<!-- 일정 삭제 (휴가 TB) -->
+	<delete id="VactnDelete" parameterType="schedlVo">
+		DELETE 
+		FROM 	vactn_tb
+		WHERE 	schedl_seq = #{id}
+	</delete>
+	
+	
+	<!-- 일정 삭제 (일정 TB) -->
+	<delete id="SchedlDelete" parameterType="schedlVo">
+		DELETE 
+		FROM 	schedl_tb
+		WHERE 	schedl_seq = #{id}
+	</delete>
+	
+	
+	<!-- 일정 수정 -->
+	<update id="SchedlUpdate" parameterType="schedlVo">
+		UPDATE	schedl_tb  
+        SET		schedl_titl = #{title}
+        	 ,  schedl_start_dat = #{start}
+        	 ,  schedl_end_dat = #{end}
+        	 ,  schedl_col = #{color}
+        	 ,  schedl_cnt = #{schedlCnt}
+<!--         	 ,  schedl_rept = #{schedlRept}  	 -->
+<!--         	 <if test="schedlRept!='Not'"> -->
+<!-- 			 ,  schedl_rept_dat = #{schedlReptDat} -->
+<!-- 			 </if> -->
+		WHERE 	schedl_seq = #{id}
+	</update>
+
+	<!-- 반복횟수 구하기 (일 일경우)-->
+	<select id="reptDayCont" parameterType="schedlVo" resultType="int">
+		SELECT  TO_DAYS(#{schedlReptDat}) - TO_DAYS(#{start}) AS reptCont
+		FROM	DUAL ;
+	</select>	
+
+	<!-- 반복횟수 구하기 (주 일경우)-->
+	<select id="reptWeekCont" parameterType="schedlVo" resultType="int">
+		SELECT  (TO_DAYS(#{schedlReptDat}) - TO_DAYS(#{start}))/7 + 1 AS reptCont
+		FROM	DUAL 
+	</select>	
+	
+	<!-- 반복횟수 구하기 (달 일경우)-->
+	<select id="reptMonthCont" parameterType="schedlVo" resultType="int">
+		SELECT   if( day(#{schedlReptDat}) - DAY(#{start})>=0
+			   , MONTH(#{schedlReptDat}) - MONTH(#{start})+1
+			   , MONTH(#{schedlReptDat}) - MONTH(#{start})
+			   )
+		FROM 	 DUAL;
+	</select>
+	
+	
+</mapper>

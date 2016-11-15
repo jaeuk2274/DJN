@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="salsMapper">
+	
+	
+	<resultMap id="salsValues" type="salsVo">		
+		<result property="salsDay" column="ordr_dat"/> <!-- 매출 일자 -->
+		<result property="purchsPric" column="purchsPric"/> <!-- 매입액 -->
+		<result property="salsPric" column="salsPric"/> <!-- 매출액 -->
+		<result property="netinc" column="netinc"/> <!-- 순이익 -->
+		<result property="margnRat" column="margnRat"/> <!-- 마진율 -->
+		
+		<result property="btnDatSech" column="btnDatSech"/> <!-- 일자검색 버튼선택 -->
+		<result property="startDatSech" column="startDatSech"/> <!-- 일자검색 시작일 -->
+		<result property="endDatSech" column="endDatSech"/> <!-- 일자검색 종료일 -->
+		<result property="prodctNmeSech" column="prodctNmeSech"/> <!-- 상품명 검색 -->
+	
+		<result property="topCatgrNme" column="top_catgr_nme"/> <!-- 카테고리 (대) -->
+		<result property="midCatgrNme" column="mid_catgr_nme"/> <!-- 카테고리 (중) -->
+		<result property="botCatgrNme" column="bot_catgr_nme"/> <!-- 카테고리 (소) -->
+	</resultMap>
+	
+
+	<!-- 일별매출의 분석 리스트(검색조건 포함) -->
+   <select id="DaySalsAnal" parameterType="salsVo" resultMap="salsValues">
+      SELECT      DATE_FORMAT(ordr_dat, '%m월 %d일') as 'ordr_dat'
+                , sum(instck_pric*ordr_amont) as 'purchsPric'
+                , sum(sel_pric*ordr_amont) as 'salsPric'
+                , sum(sel_pric*ordr_amont - instck_pric*ordr_amont) as 'netinc'
+                , (1-sum(instck_pric*ordr_amont)/sum(sel_pric*ordr_amont))*100 as 'margnRat'
+      FROM        total_anal_view
+      <choose>
+         <when test="btnDatSech=='3day'">
+            WHERE      DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN now()-INTERVAL 3 day and now()
+         </when>
+         <when test="btnDatSech=='7day'">
+            WHERE      DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN now()-INTERVAL 7 day and now()
+         </when>
+         <when test="btnDatSech=='14day'">
+            WHERE      DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN now()-INTERVAL 14 day and now()
+         </when>
+         <otherwise>
+            WHERE      DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN #{startDatSech} and #{endDatSech}
+         </otherwise>
+      </choose>      
+      <if test="topCatgrNme!='대분류'">
+         AND       top_catgr_nme = #{topCatgrNme}
+      </if>
+      <if test="midCatgrNme!='중분류'">
+         AND       mid_catgr_nme = #{midCatgrNme}
+      </if>
+      <if test="botCatgrNme!='소분류'">
+         AND       bot_catgr_nme = #{botCatgrNme}
+      </if>      
+      AND        prodct_nme LIKE '%${prodctNmeSech}%'
+      GROUP BY   DATE_FORMAT(ordr_dat, '%Y-%m-%d')
+      ORDER BY   ordr_dat ASC
+   </select>
+	
+	
+	<!-- 월별매출의 분석 리스트(검색조건 포함) -->
+	<select id="monthSalsAnal" parameterType="salsVo" resultMap="salsValues">
+		SELECT		DATE_FORMAT(ordr_dat, '%y년 %m월') as ordr_dat  
+				  , sum(instck_pric*ordr_amont) as 'purchsPric'
+				  , sum(sel_pric*ordr_amont) as 'salsPric'
+				  , sum(sel_pric*ordr_amont - instck_pric*ordr_amont) as 'netinc'
+				  , (1-sum(instck_pric*ordr_amont)/sum(sel_pric*ordr_amont))*100 as 'margnRat'
+		FROM		total_anal_view
+		<choose>
+			<when test="btnDatSech=='3month' or btnDatSech=='3day'">
+				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 2 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<when test="btnDatSech=='6month'">
+				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 5 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<when test="btnDatSech=='1year'">
+				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 11 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<otherwise>
+				WHERE		ordr_dat BETWEEN #{startDatSech} and #{endDatSech}
+			</otherwise>
+		</choose>		
+		<if test="topCatgrNme!='대분류'">
+			AND 		top_catgr_nme = #{topCatgrNme}
+		</if>
+		<if test="midCatgrNme!='중분류'">
+			AND 		mid_catgr_nme = #{midCatgrNme}
+		</if>
+		<if test="botCatgrNme!='소분류'">
+			AND 		bot_catgr_nme = #{botCatgrNme}
+		</if>				
+		AND 		prodct_nme LIKE '%${prodctNmeSech}%'
+		GROUP BY	DATE_FORMAT(ordr_dat, '%Y-%m')
+		ORDER BY	ordr_dat ASC
+	</select>
+</mapper>

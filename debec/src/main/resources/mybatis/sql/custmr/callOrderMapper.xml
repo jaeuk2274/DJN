@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="callOrderMapper">
+	<resultMap id="callOrderValues" type="callOrderVo">
+		<result property="ordrNumbrSeq" column="ordr_numbr_seq "/><!-- 일정 고유값 -->
+		<result property="ordrNme" column="ordr_nme"/>
+		<result property="ordrMobl" column="ordr_mobl"/>
+		<result property="ordrDat" column="ordr_dat"/>
+		<result property="recvrNme" column="recvr_nme"/>
+		<result property="recvrMobl" column="recvr_mobl"/>
+		<result property="recvrPostcd" column="recvr_postcd"/>
+		<result property="recvrAddrss" column="recvr_addrss"/>
+		<result property="recvrDetlAddress" column="recvr_detl_address"/>
+		<result property="recvrMethd" column="recvr_methd"/>
+		<result property="pamntMethd" column="pamnt_methd"/>
+		<result property="reqmnt" column="reqmnt"/>
+		<result property="hopDelvrDat" column="hop_delvr_dat"/>
+		<result property="hopDelvrTim" column="hop_delvr_tim"/>
+		<result property="ordrTypeSeq" column="ordr_type_seq"/>
+		<result property="ordrStatSeq" column="ordr_stat_seq"/>
+		<result property="custmrSeq" column="custmr_seq"/>
+		<result property="shipngPlcSeq" column="shipng_plc_seq"/>
+		<result property="shipngPlcNme" column="shipng_plc_nme"/>
+		<result property="shipngPlcPostcod" column="shipng_plc_postcod"/>
+		<result property="shipngPlcAdrs" column="shipng_plc_adrs"/>
+		<result property="shipngPlcDetalAdrs" column="shipng_plc_detal_adrs"/>
+	</resultMap>
+	
+	<resultMap id="custmrValues" type="custmrVo">
+		<result property="custmrSeq" column="custmr_seq"/>
+		<result property="custmrId" column="custmr_id"/>
+		<result property="custmrNme" column="custmr_nme"/>
+		<result property="custmrGendr" column="custmr_gendr"/>
+		<result property="custmrMobl" column="custmr_mobl"/>
+	</resultMap>
+	
+	<resultMap id="prodctValues" type="prodctVo">
+		<result property="prodctSeq" column="prodct_seq"/><!-- 상품 고유값 -->
+		<result property="prodctNme" column="prodct_nme"/><!-- 상품 이름 -->
+		<result property="qunt" column="qunt"/><!-- 재고량 -->
+		<result property="prodctSelPric" column="sel_pric"/><!-- 판매가 -->
+		<result property="displyCheck" column="disply_check"/><!-- 진열 여부 -->	
+		<result property="prodctNum" column="prodct_number"/><!-- 상품 수량 -->	
+		<result property="prodctMainImage" column="main_img"/><!-- 메인 이미지 -->	
+	</resultMap>
+	
+	<!-- 회원 선택 리스트 조회 -->
+	<select id="custmrList" resultMap="custmrValues" parameterType="custmrVo">
+			SELECT custmr_seq
+				, custmr_id
+			    , custmr_nme
+			    , custmr_gendr
+			    , custmr_mobl
+			FROM custmr_tb
+			<choose>
+				<when test="custmrSechOption == 'ID'">
+				 	WHERE custmr_id LIKE '%${custmrSechText}%'
+				</when>
+				<when test="custmrSechOption == '이름'">
+					WHERE custmr_nme LIKE '%${custmrSechText}%'
+				</when>
+				<when test="custmrSechOption == '연락처'">
+					WHERE custmr_mobl LIKE '%${custmrSechText}%'
+				</when>
+			</choose>
+			LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 행사 리스트 카운트 -->
+	<select id="custmrListCount" parameterType="custmrVo" resultType="int">
+		SELECT 	count(*)
+		FROM custmr_tb
+		<choose>
+			<when test="custmrSechOption == 'ID'">
+			 	WHERE custmr_id LIKE '%${custmrSechText}%'
+			</when>
+			<when test="custmrSechOption == '이름'">
+				WHERE custmr_nme LIKE '%${custmrSechText}%'
+			</when>
+			<when test="custmrSechOption == '연락처'">
+				WHERE custmr_mobl LIKE '%${custmrSechText}%'
+			</when>
+		</choose>
+	;
+	</select>
+	
+	<!-- 배송지명 리스트 조회 -->
+	<select id="shippingPlaceList" resultMap="callOrderValues" parameterType="int">
+		SELECT shipng_plc_seq
+				, shipng_plc_nme
+		FROM shipping_place_tb
+		WHERE custmr_seq =#{custmrSeq};
+	</select>
+	
+	<!--배송지 정보 조회 -->
+	<select id="shipngPlcInfo" parameterType="int" resultMap="callOrderValues">
+		SELECT shipng_plc_postcod
+				, shipng_plc_adrs
+				, shipng_plc_detal_adrs
+		FROM shipping_place_tb
+		WHERE shipng_plc_seq =#{shipngPlcSeq};
+	</select>
+	
+	<!--고객 정보 조회 -->
+	<select id="custmrInfo" parameterType="int" resultMap="custmrValues">
+		SELECT custmr_seq
+				, custmr_id
+				, custmr_nme
+				, custmr_mobl
+		FROM custmr_tb
+		WHERE custmr_seq =#{custmrSeq};
+	</select>
+	
+		<!-- 상품 임시 테이블1 리스트 카운트 -->
+	<select id="prodctAddListCount" parameterType="prodctVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN catgr_tb c1 ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq NOT IN (SELECT prodct_seq FROM prodct_evnt_tb)
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme;
+	</select>
+	
+		<!-- 상품 임시 테이블1 리스트 조회 -->
+	<select id="prodctAddList" resultMap="prodctValues">
+		SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+		FROM prodct_tb p JOIN catgr_tb c1 ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM prodct_evnt_tb)
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+		<!-- 상품 임시 테이블2 리스트 카운트 -->
+	<select id="prodctAdTempCount" parameterType="prodctVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p 
+ 		JOIN prodct_evnt_tb pe ON p.prodct_seq = pe.prodct_seq
+        JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+        WHERE p.prodct_nme LIKE '%${tempSechText}%'
+		ORDER BY pe.prodct_seq;
+	</select>
+	
+	<!-- 상품 임시 테이블2 리스트 조회 -->
+	<select id="prodctAdTempList" resultMap="prodctValues">
+	    SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+        FROM prodct_tb p 
+		JOIN prodct_evnt_tb pe ON p.prodct_seq = pe.prodct_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+        WHERE p.prodct_nme LIKE '%${tempSechText}%'
+        ORDER BY pe.prodct_seq
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex}
+	</select>
+	
+	<!-- 상품 추가 임시 테이블 추가 -->
+	<insert id="prodctAdTempCreate" parameterType="int">	    
+		INSERT INTO prodct_evnt_tb(prodct_seq)
+		VALUES(#{prodctSeq});
+	</insert>
+	
+	<!-- 상품 추가 임시 테이블 선택 삭제 -->
+	<delete id="prodctAddTempDelete" parameterType="int">
+        DELETE FROM prodct_evnt_tb
+        WHERE prodct_seq = #{prodctSeq};
+	</delete>
+	
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 전체삭제 -->
+	<delete id="prodctTempAllDelete">
+        DELETE FROM prodct_evnt_tb;
+	</delete>
+	
+	<!-- 상품 리스트 조회 -->
+	<select id="prodctTempList" resultMap="prodctValues">
+		SELECT p.prodct_seq
+					, main_img
+					, qunt
+					, prodct_nme
+					, sel_pric
+		FROM prodct_tb p 
+		LEFT JOIN stck_tb s ON p.prodct_seq = s.prodct_seq 
+		WHERE p.prodct_seq in( SELECT prodct_seq FROM prodct_evnt_tb);
+	</select>
+	
+	
+	<!-- 전화주문 최종 등록시 임시테이블 수량 수정 -->
+	<update id="callOrderProdctTempUpdate" parameterType="prodctVo">
+		UPDATE prodct_evnt_tb 
+		SET prodct_number = #{prodctNum} 	
+		WHERE 
+			prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 임시테이블 조회 -->
+	<select id="prodctAdTempList2" resultMap="prodctValues">
+	    SELECT p.prodct_seq, prodct_nme, sel_pric, prodct_number
+        FROM prodct_tb p 
+		JOIN prodct_evnt_tb pe ON p.prodct_seq = pe.prodct_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq;
+	</select>
+	
+	<!-- 전화주문 상단 정보 회원일 경우 최종 등록 -->
+	<insert id="custmrCallOrderCreate" parameterType="callOrderVo">
+		INSERT INTO ordr_num_tb
+				(ordr_numbr_seq
+				, custmr_seq
+				, ordrr_nme
+		        , ordrr_mobl
+		        , ordr_dat
+		        , recvr_nme
+		        , recvr_mobl
+		        , recvr_postcd
+		        , recvr_addrss
+		        , recvr_detl_addrss
+		        , recv_methd
+		        , pamnt_methd
+		        , reqmnt
+		        , hop_delvr_dat
+		        , hop_delvr_tim
+		        , ordr_stat_seq
+		        , ordr_type_seq)
+		
+		VALUES((SELECT IFNULL(MAX(ordr_numbr_seq),0)+1 FROM ordr_num_tb o)
+				, ${custmrSeq}
+				, '${recvrNme}'
+				, '${recvrMobl}'
+				, sysdate()
+		        , '${recvrNme}'
+		        , '${recvrMobl}'
+		        , '${recvrPostcd}'
+		        , '${recvrAddrss}'
+		        , '${recvrDetlAddress}'
+		        , '${recvrMethd}'
+		        , '${pamntMethd}'
+		        , '${reqmnt}'
+		        , substr('${hopDelvrTim}', 1, 10)
+		        , substr('${hopDelvrTim}', 12, 5)
+				, '1'
+		        , '1');
+ 	 </insert>
+	
+	<!-- 전화주문 상단 정보 비회원일 경우 최종 등록 -->
+	<insert id="noCustmrCallOrderCreate" parameterType="callOrderVo">
+		INSERT INTO ordr_num_tb
+				(ordr_numbr_seq
+				, ordrr_nme
+		        , ordrr_mobl
+		        , ordr_dat
+		        , recvr_nme
+		        , recvr_mobl
+		        , recvr_postcd
+		        , recvr_addrss
+		        , recvr_detl_addrss
+		        , recv_methd
+		        , pamnt_methd
+		        , reqmnt
+		        , hop_delvr_dat
+		        , hop_delvr_tim
+		        , ordr_stat_seq
+		        , ordr_type_seq)
+		
+		VALUES((SELECT IFNULL(MAX(ordr_numbr_seq),0)+1 FROM ordr_num_tb o)
+				, '${recvrNme}'
+				, '${recvrMobl}'
+				, sysdate()
+		        , '${recvrNme}'
+		        , '${recvrMobl}'
+		        , '${recvrPostcd}'
+		        , '${recvrAddrss}'
+		        , '${recvrDetlAddress}'
+		        , '${recvrMethd}'
+		        , '${pamntMethd}'
+		        , '${reqmnt}'
+		        , substr('${hopDelvrTim}', 1, 10)
+		        , substr('${hopDelvrTim}', 12, 5)
+				, '1'
+		        , '1');
+ 	 </insert>
+ 	 
+	<!-- 전화주문 하단 정보(상품리스트) 최종 등록 -->
+	<insert id="prodctCreate" parameterType="prodctVo">	    				
+		INSERT INTO ordr_recrd_tb
+							(ordr_numbr_seq
+							, ordr_amont
+							, prodct_seq
+					        , sel_pric
+					        , instck_pric)
+		VALUES((SELECT MAX(ordr_numbr_seq) FROM ordr_num_tb AS o)
+					, #{prodctNum}
+					, #{prodctSeq}
+					, (SELECT IF(IFNULL(evnt_discnt_rat,0)=0, p.sel_pric, (p.sel_pric*(100-e.evnt_discnt_rat)/100)) FROM prodct_tb p LEFT JOIN evnt_bridg_tb e ON p.prodct_seq = e.prodct_seq WHERE p.prodct_seq = #{prodctSeq})
+                    , (SELECT purchs_pric FROM prodct_tb WHERE prodct_seq = #{prodctSeq})
+					);
+	</insert>
+	
+</mapper>

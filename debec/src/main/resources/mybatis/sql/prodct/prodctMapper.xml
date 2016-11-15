@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+   <!-- 
+   * 상품 관리에 대한 쿼리가 정리된 Mapper 입니다.
+   * 
+   * history :
+   *        하원식, 1.0, 2016/08/09 – 초기 작성
+   * author : 하원식
+   * version : 1.0, 2016/08/09  - 초기 작성
+   * see : 관련된 모듈을 기술한다.
+   //-->
+<mapper namespace="prodctMapper">
+
+	<resultMap id="prodctValues" type="prodctVo">
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="catgrSeq" column="catgr_seq"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="prodctPurchsPric" column="purchs_pric"/>
+		<result property="prodctMargnrat" column="margn_rat"/>
+		<result property="prodctNetinc" column="netinc"/>
+		<result property="prodctSalePric" column="sale_pric"/>
+		<result property="prodctSelPric" column="sel_pric"/>
+		<result property="prodctStck" column="qunt"/>
+		<result property="prodctDisplyCheck" column="disply_check"/>
+		
+		<!-- 거래처  -->
+		<result property="clintSeq" column="clint_Seq"/>
+		<result property="clintNme" column="clint_nme"/>
+		<result property="clintMangrNum" column="clint_mangr_num"/>
+		
+		<!-- 행사  -->
+		<result property="schedlSeq" column="schedl_seq"/>
+		<result property="evntStat" column="evnt_stat"/>
+		<result property="schedlTitl" column="schedl_titl"/>
+		<result property="schedlSeq" column="schedl_Seq"/>
+		<result property="discntRat" column="evnt_discnt_rat"/>
+		<result property="schedlStartDat" column="schedl_Start_dat"/>
+		<result property="schedlEndDat" column="schedl_end_dat"/>
+		
+		<!-- 상품 이미지  -->
+		<result property="prodctMainImage" column="main_img"/>
+		<result property="prodctDetlImageOne" column="detl_img1"/>
+		<result property="prodctDetlImageTwo" column="detl_img2"/>
+		<result property="prodctDetlImageThree" column="detl_img3"/>
+		
+		<!-- 관련 상품 -->
+		
+		<result property="reltnProdctSeqOne" column="reltn_Prodct_Seq1"/>
+		<result property="reltnProdctSeqTwo" column="reltn_Prodct_Seq2"/>
+		<result property="reltnProdctSeqThree" column="reltn_Prodct_Seq3"/>
+		
+		<!-- 카테고리  -->
+		<result property="topCatgrNme" column="top_catgr_Nme"/>
+		<result property="midCatgrNme" column="mid_catgr_Nme"/>
+		<result property="botCatgrNme" column="bot_catgr_Nme"/>
+		<result property="catgrNme" column="catgrNme"/>
+		<result property="selectedBotCatgrNme" column="selectedBotCatgrNme"/>
+		
+		<!-- 검색 조건 -->
+		<result property="prodctSechOption" column="prodctSechOption"/>
+		<result property="prodctSechText" column="prodctSechText"/>
+		<result property="prodctSechPriceTwo" column="prodctSechPriceTwo"/>
+		<result property="prodctSechPriceOne" column="prodctSechPriceOne"/>
+		
+		<!--중복확인 -->
+		<result property="dupliCheck" column="dupliCheck"/>
+		<result property="pageType" column="pageType"/>
+	</resultMap>
+	<resultMap id="catgrValues" type="catgrVo">    
+		<result property="parent" column="ROT_catgr_seq"/>
+		<result property="id" column="catgr_Seq"/>
+		<result property="text" column="catgr_Nme"/>
+		<result property="icon" column="catgr_Icon"/>
+	</resultMap>
+	<!--  
+	* 주석 양식입니다.
+	* 
+	* history :
+	*        작성자, 1.0, 2001/09/15 – 초기 작성
+	* author : 최종수정자
+	* version : 1.1, 2001/09/23  - Javascript 함수 추가
+	* see : 관련 모듈
+	//-->
+	
+	<!-- 
+	* 상품을 조회해주는 SELECT
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	// -->
+	<select id="selProdctList" parameterType="prodctVo" resultMap="prodctValues">
+		SELECT  p.prodct_seq
+				, p.catgr_seq
+				, p.prodct_nme
+				, p.purchs_pric
+				, p.sel_pric
+				, (p.sel_pric-p.purchs_pric) netinc
+				, (p.sel_pric / p.purchs_pric) * 100 - 100 margn_rat
+				, c1.catgr_nme botCatgrNme
+				, c2.catgr_nme midCatgrNme
+				, c3.catgr_nme topCatgrNme
+				, p.main_img
+				, p.detl_img1
+				, p.detl_img2
+				, p.detl_img3
+				, s.qunt
+				, p.disply_check
+		<if test = "pageType==3">  # stck Table에서 요청한 selProdctList 조회
+				, cl.clint_nme
+				, cl.clint_mangr_num
+		</if>
+		FROM	prodct_tb p
+	    JOIN	stck_tb s
+	    ON		s.prodct_Seq = p.prodct_Seq
+        JOIN 	catgr_tb c1 #소
+        ON 		p.catgr_seq = c1.catgr_seq 
+        JOIN 	catgr_tb c2 #중
+        ON 		c1.ROT_catgr_seq = c2.catgr_seq 
+        JOIN 	catgr_tb c3 #대
+        ON 		c2.ROT_catgr_seq = c3.catgr_seq
+		<if test = "pageType==3">  # stck Table에서 요청한 selProdctList 조회
+        JOIN   clint_bridg_tb clb
+     	ON      clb.prodct_seq = p.prodct_Seq
+            ,   clint_tb cl
+        </if>
+		WHERE	p.disply_check  
+		<if test = "pageType!=3"> 
+		= 'Y' # selProdctList 조회
+		</if>
+		<if test = "pageType==3">
+		IN ('Y','N','D') # stck Table에서 요청한 selProdctList 조회
+		AND cl.clint_seq = clb.clint_seq
+		</if>
+		
+		<if test="selectedTopCatgrNme!='대분류'">
+		AND c3.catgr_nme = '${selectedTopCatgrNme}' 
+		</if>
+		<if test="selectedMidCatgrNme!='중분류'">
+		AND c2.catgr_nme = '${selectedMidCatgrNme}' 
+		</if>
+		<if test="selectedBotCatgrNme!='소분류'">
+		AND c1.catgr_nme = '${selectedBotCatgrNme}' 
+		</if>
+		<if test="prodctSechPriceTwo>= prodctSechPriceOne and prodctSechPriceOne!=0 and prodctSechPriceTwo!=0">
+		AND p.sel_pric between ${prodctSechPriceOne} and ${prodctSechPriceTwo} 
+		</if>
+		<if test="prodctSechText!=null">
+		AND p.prodct_nme LIKE CONCAT ('%', #{prodctSechText},'%')
+		</if>
+		<if test="catgrSeq!=null and catgrSeq neq 'no' and catgrSeq != 0 ">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		<if test="prodctSeq!=0">
+		AND p.prodct_Seq = #{prodctSeq}
+		</if>
+		ORDER BY p.prodct_seq DESC
+		<if test = "pageType==1 or pageType==0">
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};  
+		</if>
+	</select>
+	
+	
+	<!-- 
+	* 조회된 상품의 갯수를 새주는 SELECT
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->	
+	<select id="selProdctCount" parameterType="prodctVo" resultType="int">
+		SELECT 	count(p.prodct_seq)
+		FROM	prodct_tb p
+        JOIN 	catgr_tb c1 #소
+        ON p.catgr_seq = c1.catgr_seq 
+        JOIN 	catgr_tb c2 #중
+        ON 		c1.ROT_catgr_seq = c2.catgr_seq 
+        JOIN 	catgr_tb c3 #대
+        ON 		c2.ROT_catgr_seq = c3.catgr_seq
+	    JOIN	stck_tb s
+	    ON		s.prodct_Seq = p.prodct_Seq
+		WHERE 	p.disply_check = 'y'
+		<if test="selectedTopCatgrNme!='대분류' ">
+		AND c3.catgr_nme = '${selectedTopCatgrNme}' 
+		</if>
+		<if test="selectedMidCatgrNme!='중분류'">
+		AND c2.catgr_nme = '${selectedMidCatgrNme}' 
+		</if>
+		<if test="selectedBotCatgrNme!='소분류'">
+		AND c1.catgr_nme = '${selectedBotCatgrNme}' 
+		</if>
+		<if test="prodctSechPriceTwo>= prodctSechPriceOne and prodctSechPriceOne!=0 and prodctSechPriceTwo!=0">
+		AND p.sel_pric between ${prodctSechPriceOne} and ${prodctSechPriceTwo} 
+		</if>
+		<if test="catgrSeq!=null and catgrSeq neq 'no' and catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		<if test="prodctSechText!=null">
+		AND p.prodct_nme LIKE CONCAT ('%', #{prodctSechText},'%')
+		</if>;
+	</select>
+	
+	<!-- 
+	* 대분류 카테고리를 조회해주는 SELECT
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->
+	<select id="topCatgrList" resultMap="prodctValues">
+	SELECT  CATGR_NME catgrNme 
+	FROM  catgr_tb t
+	WHERE ROT_catgr_seq = '#';
+	</select>
+	
+	<!-- 
+	* 중분류 카테고리를 조회해주는 SELECT
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->
+	<select id="midCatgrList" resultMap="prodctValues" parameterType="String">
+	SELECT 
+	    m.CATGR_NME catgrNme
+	FROM
+	    catgr_tb t
+	        JOIN
+	    catgr_tb m ON t.catgr_seq = m.ROT_catgr_seq
+	        AND t.CATGR_NME = #{catgrNme};
+	</select>
+	
+	<!-- 
+	* 소분류 카테고리를 조회해주는 SELECT
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->
+	<select id="botCatgrList" resultMap="prodctValues" parameterType="String">
+	SELECT 
+	    b.CATGR_NME catgrNme
+	FROM
+	    catgr_tb m
+	        JOIN
+	    catgr_tb b ON m.catgr_seq = b.ROT_catgr_seq
+	        AND m.CATGR_NME = #{catgrNme};
+	</select>
+	
+	<insert id="selProdctCreate" parameterType="prodctVo">
+	INSERT INTO prodct_tb(prodct_seq
+						, prodct_nme
+						, purchs_pric
+						, sel_pric
+						, catgr_Seq
+						, disply_check
+						, main_img
+						, detl_img1
+						, detl_img2
+						, detl_img3)
+	VALUES(${prodctSeq}
+		  , #{prodctNme}
+		  , #{prodctPurchsPric}
+		  , #{prodctSelPric}
+		  , (SELECT MAX(catgr_seq)
+		  	FROM catgr_tb
+		  	WHERE catgr_nme = #{selectedBotCatgrNme})
+		<if test="prodctDisplyCheck eq '판매 중'">
+		  , 'Y'
+		</if>
+		<if test="prodctDisplyCheck eq '판매 중지'">
+		  , 'N'
+		</if>
+		<if test="prodctDisplyCheck eq '판매 종료'">
+		  , 'D'
+		</if>
+		  , #{prodctMainImage}
+		  , #{prodctDetlImageOne}
+		  , #{prodctDetlImageTwo}
+		  , #{prodctDetlImageThree});
+	</insert>
+	<insert id="reltnProdctCreate" parameterType="prodctVo">
+	INSERT INTO reltn_prodct_tb(reltn_prodct_Seq
+								, prodct_seq
+								, reltn_prodct_seq1
+								, reltn_prodct_seq2
+								, reltn_prodct_seq3)
+	VALUES((SELECT IFNULL(MAX(r.reltn_prodct_Seq),0)+1 FROM reltn_prodct_tb r)
+			,${prodctSeq}
+			,${reltnProdctSeqOne}
+			,${reltnProdctSeqTwo}
+			,${reltnProdctSeqThree})
+	</insert>
+	
+	<select id="prodctSeqDuliCheck" resultType="long" parameterType="long">
+	SELECT  COUNT(prodct_seq) prodct_Seq
+	FROM	prodct_tb
+	WHERE	prodct_seq=#{dupliCheck};
+	</select>
+	
+	
+	
+	<select id="catgrProdctList" resultMap="catgrValues">
+	SELECT  rot_catgr_seq,catgr_seq,catgr_nme,catgr_icon
+	FROM	catgr_tb
+	</select>
+	
+	
+	<insert id="clintCreate" parameterType="prodctVo">
+	INSERT INTO clint_bridg_tb(prodct_Seq
+							,  clint_Seq
+							,  clint_bridg_seq)
+	VALUES(${prodctSeq}
+		 , ${clintSeq}
+		 , (SELECT IFNULL(MAX(c.clint_bridg_seq),0)+1 FROM clint_bridg_tb c))
+	</insert>
+	
+	
+	<insert id="schedlCreate" parameterType="prodctVo">
+	INSERT INTO evnt_bridg_tb(evnt_bridg_seq
+								, evnt_discnt_rat
+								, prodct_seq
+								, schedl_seq)
+	VALUES((SELECT IFNULL(MAX(e.evnt_bridg_seq),0)+1 FROM evnt_bridg_tb e)
+			,${discntRat}
+			,${prodctSeq}
+			,${schedlSeq})
+	</insert>
+	
+	<insert id="stckCreate" parameterType="prodctVo">
+	INSERT INTO stck_tb(prodct_Seq
+								, qunt)
+	VALUES(${prodctSeq}
+		,  0)
+	</insert>
+	
+	
+	<update id="selProdctDelete" parameterType="long">
+    UPDATE prodct_tb 
+    SET disply_check='N'
+    WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<select id="selProdctRead" parameterType="long" resultMap="prodctValues">
+	SELECT  p.prodct_seq
+		,   p.prodct_nme
+    	,   p.disply_check
+    	,   p.sel_pric
+		,	p.purchs_pric
+		,	(p.sel_pric-p.purchs_pric)/p.purchs_pric*100 margn_rat
+    	,	p.sel_pric - p.purchs_pric netinc
+		,	p.main_img
+		,	p.detl_img1
+		,	p.detl_img2
+		,	p.detl_img3
+		,	c.catgr_nme	
+		,	(SELECT r.reltn_prodct_seq1 FROM reltn_prodct_tb r WHERE r.prodct_seq = #{prodctSeq}) reltn_prodct_seq1
+		,	(SELECT r.reltn_prodct_seq2 FROM reltn_prodct_tb r WHERE r.prodct_seq = #{prodctSeq}) reltn_prodct_seq2
+		,	(SELECT r.reltn_prodct_seq3 FROM reltn_prodct_tb r WHERE r.prodct_seq = #{prodctSeq}) reltn_prodct_seq3
+		,	(select c.clint_nme from clint_tb c join clint_bridg_tb cb on cb.clint_seq = c.clint_seq where cb.prodct_seq = #{prodctSeq}) clint_nme
+	FROM	prodct_tb p
+    		JOIN catgr_tb c # 카테고리
+    		ON c.catgr_seq = p.catgr_Seq
+	WHERE p.prodct_seq = #{prodctSeq};
+	</select>
+	 
+	<select id="evntInfoRead" parameterType="long" resultMap="prodctValues">
+	SELECT S.schedl_seq
+		,  e.evnt_stat
+		,  s.schedl_titl
+		,  s.schedl_start_dat
+		,  s.schedl_end_dat
+		,  eb.evnt_discnt_rat
+		,  (p.sel_pric*(100-eb.evnt_discnt_rat))/100 sale_pric
+		,  (((p.sel_pric*(100-eb.evnt_discnt_rat))/100)/p.purchs_pric*100)-100 margn_rat
+	FROM evnt_tb e
+	 	 JOIN schedl_tb s
+		 ON s.schedl_seq = e.schedl_seq
+		 JOIN evnt_bridg_tb eb
+		 ON eb.schedl_seq = e.schedl_seq
+		 , prodct_tb p
+	WHERE  p.prodct_seq = eb.prodct_seq
+	AND	   eb.prodct_seq = #{prodctSeq}
+	ORDER BY s.schedl_start_dat DESC
+	LIMIT 1;
+	</select>
+	<select id="catgrProdctRead" parameterType="long" resultMap="prodctValues">
+    SELECT t.CATGR_NME top_catgr_Nme
+    	,  m.catgr_nme mid_catgr_Nme
+    	,  b.catgr_nme bot_catgr_Nme
+	FROM catgr_tb t
+	JOIN catgr_tb m
+	ON t.catgr_seq = m.ROT_catgr_seq
+	JOIN catgr_tb b
+	ON m.catgr_seq = b.ROT_catgr_Seq
+		,  prodct_tb p
+	WHERE p.catgr_seq = b.catgr_seq
+	AND p.prodct_SEq = #{prodctSeq};
+	</select>
+	
+	<update id="selProdctUpdate" parameterType="prodctVo">
+    UPDATE prodct_tb
+    SET prodct_nme = #{prodctNme}
+    ,   purchs_pric = #{prodctPurchsPric}
+    ,   disply_check = 		
+    <if test="prodctDisplyCheck eq '판매 중'">
+	 'Y'
+	</if>
+	<if test="prodctDisplyCheck eq '판매 중지'">
+	 'N'
+	</if>
+	<if test="prodctDisplyCheck eq '판매 종료'">
+	 'D'
+	</if>
+    ,   sel_pric = #{prodctSelPric}
+    ,   catgr_Seq = (SELECT MAX(catgr_seq)
+		  	FROM catgr_tb
+		  	WHERE catgr_nme = #{selectedBotCatgrNme})
+	<if test="updateType == 1">
+	, main_img = #{prodctMainImage}
+	, detl_img1 = #{prodctDetlImageOne}
+	, detl_img2 = #{prodctDetlImageTwo}
+	, detl_img3 = #{prodctDetlImageThree}
+	</if>
+    WHERE prodct_seq = #{prodctSeq}
+	</update>
+	
+	
+	<update id="selProdctReltnUpdate" parameterType="prodctVo">
+    UPDATE reltn_prodct_tb
+    SET reltn_prodct_seq1 = #{reltnProdctSeqOne}
+    ,   reltn_prodct_seq2 = #{reltnProdctSeqTwo}
+    ,   reltn_prodct_seq3 = #{reltnProdctSeqThree}
+    WHERE prodct_seq = #{prodctSeq}
+	</update>
+	
+	
+	<update id="selProdctClintUpdate" parameterType="prodctVo">
+    UPDATE clint_bridg_tb
+    SET clint_Seq = #{clintSeq}
+    WHERE prodct_seq = #{prodctSeq}
+	</update>
+	
+	
+	<update id="selProdctschedlUpdate" parameterType="prodctVo">
+    UPDATE evnt_bridg_tb
+    SET schedl_seq = #{schedlSeq}
+    ,   evnt_discnt_rat = #{discntRat}
+    WHERE prodct_seq = #{prodctSeq}
+	</update>
+	
+	
+	<select id="selStopProdctList" parameterType="prodctVo" resultMap="prodctValues">
+	SELECT  p.prodct_seq
+				, p.catgr_seq
+				, p.prodct_nme
+				, p.purchs_pric
+				, p.sel_pric
+				, (p.sel_pric-p.purchs_pric) netinc
+				, (p.sel_pric / p.purchs_pric) * 100 - 100 margn_rat
+				, p.main_img
+				, p.detl_img1
+				, p.detl_img2
+				, p.detl_img3				
+				, c1.catgr_nme
+				, c2.catgr_nme
+				, c3.catgr_nme
+				, s.qunt
+                , p.disply_checK
+                , cl.clint_nme ## 번호 말고 더 괜찮은게 뭐가 이씅ㄹ
+                , cl.clint_mangr_num
+		FROM	prodct_tb p
+        JOIN 	catgr_tb c1 #소
+        ON		p.catgr_seq = c1.catgr_seq 
+        JOIN 	catgr_tb c2 #중
+        ON 		c1.ROT_catgr_seq = c2.catgr_seq 
+        JOIN 	catgr_tb c3 #대
+        ON 		c2.ROT_catgr_seq = c3.catgr_seq
+	    JOIN	stck_tb s
+	    ON		s.prodct_Seq = p.prodct_Seq
+        ,		clint_tb cl
+        JOIN	clint_bridg_tb cl_b
+        ON		cl_b.clint_Seq  = cl.clint_seq
+		WHERE	p.disply_check NOT IN('Y','D','R')
+		AND		cl_b.prodct_Seq = p.prodct_Seq
+		<if test="selectedTopCatgrNme!='대분류'">
+		AND c3.catgr_nme = '${selectedTopCatgrNme}' 
+		</if>
+		<if test="selectedMidCatgrNme!='중분류'">
+		AND c2.catgr_nme = '${selectedMidCatgrNme}' 
+		</if>
+		<if test="selectedBotCatgrNme!='소분류'">
+		AND c1.catgr_nme = '${selectedBotCatgrNme}' 
+		</if>
+		<if test="prodctSechPriceTwo>= prodctSechPriceOne and prodctSechPriceOne!=0 and prodctSechPriceTwo!=0">
+		AND p.sel_pric between ${prodctSechPriceOne} and ${prodctSechPriceTwo} 
+		</if>
+		<if test="prodctSechText!=null">
+		AND p.prodct_nme LIKE CONCAT ('%', #{prodctSechText},'%')
+		</if>
+		<if test="catgrSeq!=null">
+		AND p.catgr_seq = #{catgrSeq}
+		</if>
+		<if test="prodctSeq!=0">
+		AND p.prodct_Seq = #{prodctSeq}
+		</if>
+		ORDER BY p.prodct_seq DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	
+	<!-- 
+	* 조회된 상품의 갯수를 새주는 SELECT
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->	
+	<select id="selStopProdctCount" parameterType="prodctVo" resultType="int">
+		SELECT 	count(p.prodct_seq)
+		FROM	prodct_tb p
+	    JOIN	catgr_tb c 
+	    ON		p.catgr_seq = c.catgr_seq
+	    JOIN	stck_tb s
+	    ON		s.prodct_Seq = p.prodct_Seq
+        ,		clint_tb cl
+        JOIN	clint_bridg_tb cl_b
+        ON		cl_b.clint_Seq  = cl.clint_seq
+		WHERE	p.disply_check NOT IN('Y','D')
+        AND		cl_b.prodct_Seq = p.prodct_seq
+		<if test="selectedBotCatgrNme!='소분류'">
+		AND c.catgr_nme LIKE '%${selectedBotCatgrNme}%' 
+		</if>
+		<if test="prodctSechPriceTwo>= prodctSechPriceOne and prodctSechPriceOne!=0 and prodctSechPriceTwo!=0">
+		AND p.sel_pric between ${prodctSechPriceOne} and ${prodctSechPriceTwo} 
+		</if>
+		<if test="prodctSechText!=null">
+		AND p.prodct_nme LIKE CONCAT ('%', #{prodctSechText},'%')
+		</if>;
+	</select>
+	<update id="selStopProdctDelete" parameterType="long">
+    UPDATE prodct_tb 
+    SET disply_check='D'
+    WHERE prodct_seq = #{prodctSeq};
+	</update>
+	<delete id="prodctStckDelete" parameterType="long">
+	DELETE FROM stck_tb
+	WHERE prodct_seq = #{prodctSeq};
+	</delete>
+	<delete id="prodctClintDelete" parameterType="long">
+	DELETE FROM clint_bridg_tb
+	WHERE prodct_seq = #{prodctSeq};
+	</delete>
+	<delete id="prodctSchedlDelete" parameterType="long">
+	DELETE FROM evnt_bridg_tb
+	WHERE prodct_seq = #{prodctSeq};    
+	</delete>
+	<delete id="relsProdctDelete" parameterType="long">
+	DELETE FROM reltn_prodct_tb
+	WHERE prodct_seq = #{prodctSeq};    
+	</delete>
+	<delete id="packgProdctDelete" parameterType="long">
+	DELETE FROM packg_bridg_tb
+	WHERE prodct_seq = #{prodctSeq};    
+	</delete>
+	<update id="selStopProdctReSelStrt" parameterType="long">
+    UPDATE prodct_tb 
+    SET disply_check='Y'
+    WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 
+	* 재고 관리 화면에서 선택된 제품의 정보를 조회함
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->
+	<select id="selectedSelProdctView" parameterType="int" resultMap="prodctValues">
+		SELECT  p.prodct_seq
+				, p.prodct_nme
+				, s.qunt
+		FROM	prodct_tb p
+		JOIN	stck_tb s
+		ON		p.prodct_Seq = s.prodct_seq
+		WHERE   p.prodct_Seq =  #{prodctSeq}
+	    
+	</select>
+	<!-- 
+	* 재고 관리 화면에서 선택된 제품의 정보를 조회함
+	* 
+	* history :
+	*        하원식, 1.0, 2016/08/11 – 초기 작성
+	* author : 하원식
+	* version : 1.0, 2016/08/11
+	 -->
+	<select id="selectedSelProdctList" parameterType="map" resultMap="prodctValues">
+		SELECT  p.prodct_seq
+				, p.prodct_nme
+				, s.qunt
+		FROM	prodct_tb p
+		JOIN	stck_tb s
+		ON		p.prodct_Seq = s.prodct_seq
+		WHERE 
+		<foreach item="item" collection="prodctSeqArray"  separator="OR">
+		 p.prodct_Seq =  #{item}
+		</foreach>	
+	    
+	</select>
+	<select id="selProdctSchedlCheck" parameterType="prodctVo" resultType="int">
+	    SELECT count(evnt_bridg_seq)
+		FROM evnt_bridg_tb
+		WHERE prodct_seq = #{prodctSeq};
+	</select>
+	<select id="selProdctReltnCheck" parameterType="prodctVo" resultType="int">
+	    SELECT count(RELTN_PRODCT_SEQ)
+		FROM reltn_prodct_tb
+		WHERE prodct_seq = #{prodctSeq};
+	</select>
+</mapper>

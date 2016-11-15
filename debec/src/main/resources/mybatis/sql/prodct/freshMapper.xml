@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="freshMapper">
+	
+	<!-- 신선 식품 리스트 SELECT-->
+	<resultMap id="freshValues" type="freshVo">		
+	<!-- 신선 식품 테이블 (시작) -->
+		<result property="prodctSeq" column="prodct_seq"/> 
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="selStrtTime" column="sel_strt_time"/>
+		<result property="stat" column="stat"/>
+		<result property="img" column="main_img"/>	
+		<result property="qunt" column="qunt"/>
+	<!-- 신선 식품 테이블 (종료) -->
+	<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+	<!-- 상품 추가 테이블 검색어(끝) -->
+	<!-- 신선 식품 검색 조건 (시작) -->
+		<result property="freshSechText" column="freshSechText"/>	
+		<result property="freshMinPric" column="freshMinPric"/>	
+		<result property="freshMaxPric" column="freshMaxPric"/>	
+	<!-- 신선 식품 검색 조건 (끝) -->
+	</resultMap>
+	
+	<!-- 신선 식품의 카테고리 리스트 SELECT-->
+<!-- 	<resultMap id="catgrValues" type="catgrVo">		 -->
+	<!-- 신선 식품의 카테고리 리스트 (시작) -->
+<!-- 		<result property="id" column="catgr_seq"/>  -->
+<!-- 		<result property="parent" column="rot_catgr_seq"/> -->
+<!-- 		<result property="text" column="catgr_nme"/> -->
+<!-- 		<result property="icon" column="catgr_icon"/> -->
+	<!-- 신선 식품의 카테고리 리스트 (종료) -->
+<!-- 	</resultMap> -->
+	
+	<!-- 신선 식품 목록 조회(검색) -->
+	<select id="selectFreshList" parameterType="freshVo" resultMap="freshValues">
+		SELECT  p.prodct_seq
+				, p.main_img
+				, p.prodct_nme
+				, p.sel_pric
+		        , f.SEL_STRT_TIME
+				, f.stat
+		FROM prodct_tb p JOIN fresh_fod_tb f
+		ON p.prodct_seq = f.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		on p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${freshSechText}%'
+		<choose>
+			<when test="freshMinPric == '' and freshMaxPric == ''">
+			</when>
+			<when test="freshMinPric == null and freshMaxPric == null">
+			</when>
+			<when test="freshMinPric == ''">
+			    AND p.sel_pric <![CDATA[<=]]> ${freshMaxPric}
+			</when>		
+			<when test="freshMaxPric == ''">
+			    AND p.sel_pric <![CDATA[>=]]> ${freshMinPric}
+			</when>			
+			<otherwise>
+			    AND p.sel_pric BETWEEN ${freshMinPric} AND ${freshMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			p.prodct_nme;
+	</select>
+	
+	<!-- 신선 식품 목록 전체 페이지 수 -->
+	<select id="selectFreshCount" parameterType="freshVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN fresh_fod_tb f
+		ON p.prodct_seq = f.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		on p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${freshSechText}%'
+		<choose>
+			<when test="freshMinPric == '' and freshMaxPric == ''">
+			</when>
+			<when test="freshMinPric == null and freshMaxPric == null">
+			</when>
+			<when test="freshMinPric == ''">
+			    AND p.sel_pric <![CDATA[<=]]> ${freshMaxPric}
+			</when>		
+			<when test="freshMaxPric == ''">
+			    AND p.sel_pric <![CDATA[>=]]> ${freshMinPric}
+			</when>			
+			<otherwise>
+			    AND p.sel_pric BETWEEN ${freshMinPric} AND ${freshMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			p.prodct_nme;
+	</select>
+	
+	<!-- 신선 식품 추가 -->
+	<insert id="insertFresh" parameterType="freshVo">
+		INSERT INTO fresh_fod_tb
+		VALUES(SYSDATE(), #{stat}, #{prodctSeq})
+	</insert>
+	
+	<!-- 신선 식품 수정 -->
+	<update id="updateFresh" parameterType="freshVo">
+		UPDATE fresh_fod_tb
+		SET stat = #{stat}
+		WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 신선 식품 삭제 -->
+	<delete id="deleteFresh" parameterType="long">	
+		DELETE FROM fresh_fod_tb
+		WHERE prodct_seq = #{prodctSeq}
+	</delete>
+	
+	<!-- 핫딜상품 추가 리스트 조회(검색) -->
+	<select id="selectFreshAdList" resultMap="freshValues">
+		SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+		FROM prodct_tb p JOIN catgr_tb c1
+		ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2
+		ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3
+		ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s
+		ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM fresh_fod_tb)
+		AND p.prodct_type = 0
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 상품 테이블 전체 페이지 수 -->
+	<select id="selectFreshAdListCount" parameterType="freshVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN catgr_tb c1
+		ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2
+		ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3
+		ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s
+		ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM fresh_fod_tb)
+		AND p.prodct_type = 0
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme;
+	</select>
+	
+	<!-- 신선 식품 상세 조회 -->
+	<select id="selectFreshRead" parameterType="long" resultMap="freshValues">
+		SELECT p.prodct_seq, prodct_nme, sel_pric, sel_strt_time, stat, main_img
+		FROM prodct_tb p JOIN fresh_fod_tb f
+		ON p.prodct_seq = f.prodct_seq
+		WHERE f.prodct_seq = #{prodctSeq}; 
+	</select>
+	
+	<!-- 신선식품 등록 후 상품 타입 업데이트 -->
+	<update id="updateInsertFreshProdctType" parameterType="long">
+	    UPDATE prodct_tb
+	    SET prodct_type = 3
+	    WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 신선식품 삭제 후 상품 타입 업데이트 -->
+	<update id="updateDeleteFreshProdctType" parameterType="long">
+	    UPDATE prodct_tb
+	    SET prodct_type = 0
+	    WHERE prodct_seq = #{prodctSeq};
+	</update>
+</mapper>

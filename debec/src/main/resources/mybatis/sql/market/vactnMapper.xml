@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- 
+* 휴가관리  Mapper입니다.
+* 
+* history : 1.0, 2016/08/16 – 초기 작성
+* author : 이인호
+* version : 1.0, 2016/08/16  - 초기 작성
+* see : 관련된 모듈을 기술한다.
+//-->
+
+<mapper namespace="vactnMapper">
+	<resultMap id="vactnValues" type="empVo">
+			<!-- 직원정보  -->
+			<result property="empSeq" column="emp_seq"/>
+			<result property="nme" column="nme"/>
+			<result property="mobl" column="mobl"/>
+			<result property="duty" column="duty"/>
+			
+			<!-- 휴가정보 -->
+			<result property="schedlSeq" column="schedl_seq"/>
+			<result property="vactnType" column="vactn_type"/>
+			<result property="schedlResn" column="schedl_resn"/>
+			<result property="schedlStartDat" column="schedl_start_dat"/>
+			<result property="schedlEndDat" column="schedl_end_dat"/>
+			<result property="term" column="term"/>
+			
+			<!-- 검색조건 -->
+			<result property="searchDuty" column="searchDuty"/>
+			<result property="searchType" column="searchType"/>
+			<result property="searchStartDat" column="searchStartDat"/>
+			<result property="searchEndDat" column="searchEndDat"/>
+			<result property="searchWrd" column="searchWrd"/>
+			<result property="searchAry" column="searchAry"/>
+			
+			<!-- 페이징 조건 -->
+			<result property="recordCountPerPage" column="recordCountPerPage"/>
+			<result property="firstRecordIndex" column="firstRecordIndex"/>
+	</resultMap>
+	
+	<!-- 휴가  전체 수 조회 -->
+	<select id="selectVactnCount" parameterType="empVo" resultType="int">
+		SELECT 	count(v.schedl_seq)
+		FROM vactn_tb as v
+		LEFT JOIN schedl_tb s 
+			   ON s.schedl_seq = v.schedl_seq
+		LEFT JOIN emp_tb e
+			   ON e.emp_seq = v.emp_seq
+		WHERE e.nme LIKE CONCAT ('%', '${searchWrd}','%')
+		<choose>
+			<when test="searchDuty == 0">
+				AND e.duty LIKE '%%'
+			</when>
+			<when test="searchDuty == 1">
+				AND e.duty LIKE '사장'
+			</when>
+			<when test="searchDuty == 2">
+				AND e.duty LIKE '점장'
+			</when>
+			<when test="searchDuty == 3">
+				AND e.duty LIKE '직원'
+			</when>
+		</choose>
+		<choose>
+			<when test="searchType == 0">
+				AND v.vactn_type LIKE '%%'
+			</when>
+			<when test="searchType == 1">
+				AND v.vactn_type LIKE '연가'
+			</when>
+			<when test="searchType == 2">
+				AND v.vactn_type LIKE '휴가'
+			</when>
+			<when test="searchType == 3">
+				AND v.vactn_type LIKE '병가'
+			</when>
+		</choose>
+		<choose>
+			<when test="searchStartDat == '' and searchEndDat == ''">
+			</when>
+			<when test="searchStartDat == null and searchEndDat == null">
+			</when>
+			<when test="searchStartDat == ''">
+				AND s.schedl_end_dat <![CDATA[<=]]>' ${searchEndDat}'
+			</when>      
+			<when test="searchEndDat == ''">
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+			</when>         
+			<otherwise>
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+				AND s.schedl_end_dat <![CDATA[<=]]>'${searchEndDat}'
+			</otherwise>
+		</choose>
+		;
+	</select>
+	
+	<!-- 개인 휴가  전체 수 조회 -->
+	<select id="selectPersnlVactnCount" parameterType="empVo" resultType="int">
+		SELECT 	count(v.schedl_seq)
+		FROM vactn_tb as v
+		LEFT JOIN schedl_tb s 
+			   ON s.schedl_seq = v.schedl_seq
+		LEFT JOIN emp_tb e
+			   ON e.emp_seq = v.emp_seq
+		WHERE e.emp_seq = ${empSeq}
+		<choose>
+			<when test="searchType == 0">
+				AND v.vactn_type LIKE '%%'
+			</when>
+			<when test="searchType == 1">
+				AND v.vactn_type LIKE '연가'
+			</when>
+			<when test="searchType == 2">
+				AND v.vactn_type LIKE '휴가'
+			</when>
+			<when test="searchType == 3">
+				AND v.vactn_type LIKE '병가'
+			</when>
+		</choose>
+		<choose>
+			<when test="searchStartDat == '' and searchEndDat == ''">
+			</when>
+			<when test="searchStartDat == null and searchEndDat == null">
+			</when>
+			<when test="searchStartDat == ''">
+				AND s.schedl_end_dat <![CDATA[<=]]>' ${searchEndDat}'
+			</when>      
+			<when test="searchEndDat == ''">
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+			</when>         
+			<otherwise>
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+				AND s.schedl_end_dat <![CDATA[<=]]>'${searchEndDat}'
+			</otherwise>
+		</choose>
+		;
+	</select>
+	
+	<!-- 휴가 조회 -->
+	<select id="selectVactnList" resultMap="vactnValues">
+		SELECT e.emp_seq
+			 , e.nme
+			 , v.schedl_seq
+			 , v.vactn_type
+			 , v.schedl_resn
+			 , s.schedl_start_dat
+			 , s.schedl_end_dat
+		FROM vactn_tb as v
+		LEFT JOIN schedl_tb s 
+			   ON s.schedl_seq = v.schedl_seq
+		LEFT JOIN emp_tb e
+			   ON e.emp_seq = v.emp_seq
+		WHERE e.nme LIKE CONCAT ('%', #{searchWrd},'%')
+		<choose>
+			<when test="searchDuty == 0">
+				AND e.duty LIKE '%%'
+			</when>
+			<when test="searchDuty == 1">
+				AND e.duty LIKE '사장'
+			</when>
+			<when test="searchDuty == 2">
+				AND e.duty LIKE '점장'
+			</when>
+			<when test="searchDuty == 3">
+				AND e.duty LIKE '직원'
+			</when>
+		</choose>
+		<choose>
+			<when test="searchType == 0">
+				AND v.vactn_type LIKE '%%'
+			</when>
+			<when test="searchType == 1">
+				AND v.vactn_type LIKE '연가'
+			</when>
+			<when test="searchType == 2">
+				AND v.vactn_type LIKE '휴가'
+			</when>
+			<when test="searchType == 3">
+				AND v.vactn_type LIKE '병가'
+			</when>
+		</choose>
+		<choose>
+			<when test="searchStartDat == '' and searchEndDat == ''">
+			</when>
+			<when test="searchStartDat == null and searchEndDat == null">
+			</when>
+			<when test="searchStartDat == ''">
+             AND s.schedl_end_dat <![CDATA[<=]]>' ${searchEndDat}'
+			</when>      
+			<when test="searchEndDat == ''">
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+			</when>         
+			<otherwise>
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+				AND s.schedl_end_dat <![CDATA[<=]]>'${searchEndDat}'
+			</otherwise>
+		</choose>
+        <if test="searchAry == 0">
+        	ORDER BY s.schedl_start_dat DESC
+		</if>
+		<if test="searchAry == 1">
+			ORDER BY e.nme, s.schedl_start_dat DESC
+		</if>
+		<if test="searchAry == 2">
+			ORDER BY v.vactn_type, s.schedl_start_dat DESC
+		</if>
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 개인 휴가 조회 -->
+	<select id="selectPersnlVactnList" resultMap="vactnValues">
+		SELECT e.emp_seq
+			 , e.nme
+			 , v.schedl_seq
+			 , v.vactn_type
+			 , v.schedl_resn
+			 , s.schedl_start_dat
+			 , s.schedl_end_dat
+		FROM vactn_tb as v
+		LEFT JOIN schedl_tb s 
+			   ON s.schedl_seq = v.schedl_seq
+		LEFT JOIN emp_tb e
+			   ON e.emp_seq = v.emp_seq
+		WHERE e.emp_seq = ${empSeq}
+		<choose>
+			<when test="searchType == 0">
+				AND v.vactn_type LIKE '%%'
+			</when>
+			<when test="searchType == 1">
+				AND v.vactn_type LIKE '연가'
+			</when>
+			<when test="searchType == 2">
+				AND v.vactn_type LIKE '휴가'
+			</when>
+			<when test="searchType == 3">
+				AND v.vactn_type LIKE '병가'
+			</when>
+		</choose>
+		<choose>
+			<when test="searchStartDat == '' and searchEndDat == ''">
+			</when>
+			<when test="searchStartDat == null and searchEndDat == null">
+			</when>
+			<when test="searchStartDat == ''">
+				AND s.schedl_end_dat <![CDATA[<=]]>' ${searchEndDat}'
+			</when>      
+			<when test="searchEndDat == ''">
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+			</when>         
+			<otherwise>
+				AND s.schedl_start_dat <![CDATA[>=]]> '${searchStartDat}'
+				AND s.schedl_end_dat <![CDATA[<=]]>'${searchEndDat}'
+			</otherwise>
+		</choose>
+		ORDER BY schedl_start_dat DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 사용 연가 휴가 조회 -->
+	<select id="selectAnlVactnList" resultMap="vactnValues">
+		SELECT e.emp_seq
+			 , e.nme
+			 , (sum(s.schedl_end_dat - s.schedl_start_dat +1)) AS term
+		FROM vactn_tb as v
+		LEFT JOIN schedl_tb s 
+			   ON s.schedl_seq = v.schedl_seq
+		LEFT JOIN emp_tb e
+			   ON e.emp_seq = v.emp_seq
+		WHERE v.vactn_type = '연가'
+		  AND YEAR(s.schedl_end_dat) = YEAR(now())
+        GROUP BY YEAR(now()), e.emp_seq;
+	</select>
+	
+	<!-- 휴가 상세 조회 -->
+	<select id="selectVactnRead" parameterType="empVo"  resultMap="vactnValues">
+		SELECT v.schedl_seq
+			 , e.nme
+			 , e.mobl
+			 , v.vactn_type
+			 , s.schedl_start_dat
+			 , s.schedl_end_dat
+			 , v.schedl_resn
+		FROM vactn_tb as v
+		LEFT JOIN schedl_tb s
+		  ON s.schedl_seq = v.schedl_seq
+		LEFT JOIN emp_tb e 
+		  ON e.emp_seq = v.emp_seq
+		WHERE v.schedl_seq = ${schedlSeq};
+	</select>
+	
+	<!-- 휴가 일정 등록 -->
+	<insert id="insertVactnSchedl" parameterType="empVo" >
+		INSERT INTO 
+			   schedl_tb(
+						 schedl_seq
+					   , schedl_titl
+					   , schedl_start_dat
+					   , schedl_end_dat
+					   , schedl_col, schedl_rept)
+		VALUES((SELECT max(IFNULL(s.schedl_seq, 0)+1) FROM schedl_tb s)
+			  , #{vactnType}
+			  , #{schedlStartDat}
+			  , #{schedlEndDat}
+			  , 'blue'
+			  , 'N');
+	</insert>
+	
+		<!-- 휴가  등록 -->
+	<insert id="insertVactn" parameterType="empVo" >
+		<selectKey keyProperty="schedlSeq" resultType="int" order="BEFORE">
+			SELECT IFNULL(MAX(schedl_seq),0) AS schedlSeq
+			FROM schedl_tb;
+		</selectKey>
+		INSERT INTO
+			   vactn_tb(
+			   		 	emp_seq
+			   		  , schedl_seq
+			   		  , vactn_type
+			   		  , schedl_resn)
+		VALUES (#{empSeq}
+			  , #{schedlSeq}
+			  , #{vactnType}
+			  , #{schedlResn});
+	</insert>
+	
+	<!-- 휴가 수정 -->
+	<delete id="updateVactn" parameterType="empVo" >
+		UPDATE schedl_tb s
+			 , vactn_tb v
+		SET s.schedl_titl = #{vactnType}
+		  , s.schedl_start_dat = #{schedlStartDat}
+	 	  , s.schedl_end_dat = #{schedlEndDat}
+		  , v.vactn_type = #{vactnType}
+		  , v.schedl_resn = #{schedlResn}
+		WHERE v.schedl_seq = ${schedlSeq}
+		  AND s.schedl_seq = ${schedlSeq};
+	</delete>
+
+	<!-- 휴가 삭제 -->
+	<delete id="deleteVactn" parameterType="empVo" >
+		DELETE v, s
+		FROM vactn_tb v
+		LEFT JOIN schedl_tb s
+			   ON v.schedl_seq = s.schedl_seq
+		WHERE v.schedl_seq = ${schedlSeq};
+	</delete>
+	
+	
+	<!-- 휴가 다중 삭제 -->
+	<delete id="deleteVactnList" parameterType="int">	
+		DELETE v, s
+		FROM vactn_tb v
+		LEFT JOIN schedl_tb s
+			   ON v.schedl_seq = s.schedl_seq
+		WHERE v.schedl_seq = #{schedlSeq};
+	</delete>
+	
+	
+</mapper>

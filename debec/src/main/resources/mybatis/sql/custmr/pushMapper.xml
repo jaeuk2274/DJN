@@ -1,0 +1,836 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- 
+* 푸시알림관리 Mapper입니다.
+* 
+* history :
+*        이정호, 1.0, 2016/08/09 – 초기 작성
+* author : 이정호
+* version : 1.0, 2016/08/09  - 초기 작성
+* author : 이정호
+* version : 1.0, 2016/08/21  - 초기 작성
+* author : 이정호
+* version : 1.0, 2016/08/22  - 초기 작성
+* see : 관련된 모듈을 기술한다.
+//-->
+
+<mapper namespace="pushMapper">
+	<resultMap id="pushValues" type="pushVo">
+			<result property="pushTempltSeq" column="PUSH_TEMPLT_SEQ"/>
+			<result property="pushSeq" column="PUSH_SEQ"/>
+			<result property="pushTitl" column="TITL"/>
+			<result property="pushTitl" column="PUSH_TITL"/>
+			<result property="pushMesg" column="mesg"/>
+			<result property="pushMesg" column="push_mesg"/>
+			<result property="regstrtnDat" column="REGSTRTN_DAT"/>
+			<result property="pushDat" column="push_DAT"/>
+			<result property="regstr" column="REGSTR"/>
+			<result property="regstr" column="nme"/>
+			<result property="pushHedln" column="HEDLN"/>
+			<result property="pushHedln" column="push_HEDLN"/>
+			<result property="despRecrdSeq" column="desp_Recrd_Seq"/>
+			<result property="sucsCont" column="sucs_Cont"/>
+			<result property="falCont" column="fal_Cont"/>
+			<result property="openCont" column="open_Cont"/>
+			<result property="dateOption" column="dateOption"/>
+			<result property="pushUrl" column="push_url"/>
+			
+			<result property="searchWrd" column="searchWrd"/>
+			<result property="searchCnd" column="searchCnd"/>
+			<result property="ordrNumbrSeq" column="ordr_numbr_seq"/>
+			<result property="selPric" column="sel_pric"/>
+			
+			<result property="custmrSeq" column="custmr_seq"/> 
+			<result property="custmrId" column="custmr_id"/>
+			<result property="custmrNme" column="custmr_nme"/>
+			<result property="custmrGendr" column="custmr_gendr"/>
+			<result property="custmrToken" column="custmr_token"/>
+			
+			<result property="prodctSeq" column="prodct_seq"/> 
+			<result property="prodctNme" column="prodct_nme"/>
+			
+			<result property="clintNme" column="clint_nme"/>
+			<result property="clintSeq" column="clint_seq"/>
+			
+			<result property="packgSeq" column="packg_seq"/> 
+			<result property="packgType" column="packg_type"/>
+			<result property="packgNme" column="packg_nme"/>
+			<result property="allPric" column="all_pric"/>
+			<result property="packgDisplayCheck" column="packg_display_check"/>
+			
+			<result property="ordrAmont" column="ordr_amont"/>
+			<result property="stat" column="stat"/>
+			
+			<result property="ordrStarDat" column="ordr_star_dat"/>
+			<result property="ordrEndDat" column="ordr_end_dat"/>
+			
+			<result property="gropPurchsSeq" column="grop_purchs_seq"/>
+			<result property="empSeq" column="emp_seq"/>
+	</resultMap>
+	
+	<!--고객 리스트 SELECT-->
+	<resultMap id="ordrValues" type="ordrVo">		
+	<!-- 고객 검색 조건 (시작) -->
+		<result property="custmrSechOption" column="custmrSechOption"/>	
+		<result property="custmrSechText" column="custmrSechText"/>	
+		<result property="custmrSechCardCheck" column="custmrSechCardCheck"/>	
+	<!-- 고객 검색 조건 (끝) -->
+		<result property="custmrSechCardCheck" column="custmrSechCardCheck"/>	
+	</resultMap>
+	
+	<!-- 푸시 메인 일일 통계 -->
+	<select id="pushNotfcatnDayStatstcs" resultMap="pushValues">
+	    SELECT SUM(SUCS_CONT + FAL_CONT) as DESP_RECRD_SEQ
+			,  SUM(SUCS_CONT) as SUCS_CONT
+		    ,  SUM(FAL_CONT) AS FAL_CONT
+		    ,  SUM(OPEN_CONT) AS OPEN_CONT
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq
+		WHERE PUSH_DAT = curdate()
+		GROUP BY PUSH_DAT;
+	</select>
+	<!-- 푸시 메인 주 통계 -->
+	<select id="pushNotfcatnWekStatstcs" resultMap="pushValues">
+	    SELECT SUM(SUCS_CONT + FAL_CONT) as DESP_RECRD_SEQ
+			,  SUM(SUCS_CONT) as SUCS_CONT
+		    ,  SUM(FAL_CONT) AS FAL_CONT
+		    ,  SUM(OPEN_CONT) AS OPEN_CONT
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq	
+		<![CDATA[
+		WHERE TO_DAYS(NOW())-TO_DAYS(PUSH_DAT) <= 7;
+		]]>
+	</select>
+	<!-- 푸시 메인 달 통계 -->
+	<select id="pushNotfcatnMonthStatstcs" resultMap="pushValues">
+	    SELECT SUM(SUCS_CONT + FAL_CONT) as DESP_RECRD_SEQ
+			,  SUM(SUCS_CONT) as SUCS_CONT
+		    ,  SUM(FAL_CONT) AS FAL_CONT
+		    ,  SUM(OPEN_CONT) AS OPEN_CONT
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq	
+		<![CDATA[
+		WHERE TO_DAYS(NOW())-TO_DAYS(PUSH_DAT) <= 30;
+		]]>
+	</select>
+	<!-- 푸시 메인 그래프 -->
+	<select id="pushNotfcatnStatstcsGraph" parameterType="int" resultMap="pushValues">
+	    SELECT SUM(SUCS_CONT + FAL_CONT) AS DESP_RECRD_SEQ
+			,  SUM(SUCS_CONT) AS SUCS_CONT
+		    ,  SUM(FAL_CONT) AS FAL_CONT
+		    ,  SUM(OPEN_CONT) AS OPEN_CONT
+		    ,  PUSH_DAT
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq	
+		<![CDATA[
+		WHERE TO_DAYS(NOW()) - TO_DAYS(PUSH_DAT) <= #{dateOption}
+		]]>
+		GROUP BY PUSH_DAT;
+	</select>
+	<!-- 푸시 메인 그래프 통계 합계 -->
+	<select id="pushNotfcatnStatstcsGraphSum" parameterType="int" resultMap="pushValues">
+	    SELECT SUM(SUCS_CONT + FAL_CONT) AS DESP_RECRD_SEQ
+			,  SUM(SUCS_CONT) AS SUCS_CONT
+		    ,  SUM(FAL_CONT) AS FAL_CONT
+		    ,  SUM(OPEN_CONT) AS OPEN_CONT
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq	
+		<![CDATA[
+		WHERE TO_DAYS(NOW()) - TO_DAYS(PUSH_DAT) <= #{dateOption};
+		]]>
+	</select>
+	<select id="pushNotfcatnList" resultMap="pushValues" parameterType="pushVo">
+	    SELECT PUSH_TEMPLT_SEQ
+	    	,  TITL
+	    	,  MESG
+	    	,  REGSTRTN_DAT
+	    	,  REGSTR
+	    	,  HEDLN
+	    FROM push_templt_tb
+		<if test="searchCnd==0">
+			WHERE TITL LIKE '%${searchWrd}%'
+			OR REGSTR LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==1">
+			WHERE TITL LIKE '%${searchWrd}%' 
+		</if>
+		<if test="searchCnd==2">
+			WHERE REGSTR LIKE '%${searchWrd}%' 
+		</if>
+		ORDER BY
+		PUSH_TEMPLT_SEQ
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 알람 템플릿 목록 전체 페이지 수 -->
+	<select id="selectpushTempltCount" parameterType="pushVo" resultType="int">
+		SELECT COUNT(*)
+		FROM push_templt_tb
+		<if test="searchCnd==0">
+			WHERE TITL LIKE '%${searchWrd}%'
+			OR REGSTR LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==1">
+			WHERE TITL LIKE '%${searchWrd}%' 
+		</if>
+		<if test="searchCnd==2">
+			WHERE REGSTR LIKE '%${searchWrd}%' 
+		</if>
+		;
+	</select>
+	
+	<!-- 푸시알림 템플릿 등록 -->
+	<insert id="pushNotfcatTempltInsert" parameterType="pushVo">
+	<selectKey keyProperty="pushTempltSeq" order="BEFORE" resultType="INT">
+	    SELECT IFNULL(MAX(PUSH_TEMPLT_SEQ),0)+1 FROM push_templt_tb
+	</selectKey>
+	    INSERT INTO push_templt_tb(PUSH_TEMPLT_SEQ
+	    									,TITL
+	    									,MESG
+	    									,REGSTR
+	    									,REGSTRTN_DAT
+	    									,HEDLN)
+		VALUE(#{pushTempltSeq}, #{pushTitl}, #{pushMesg}, #{regstr}, SYSDATE(), #{pushHedln});
+	</insert>
+	<!-- 푸시알림 템플릿 상세조회 -->
+    <select id="pushNotfcatnTempltSelectDetl" resultMap="pushValues" parameterType="int">
+	    SELECT PUSH_TEMPLT_SEQ
+	    	,  TITL
+	    	,  MESG	
+	    	,  REGSTRTN_DAT
+	    	,  HEDLN
+	    FROM push_templt_tb
+	    WHERE PUSH_TEMPLT_SEQ = #{pushTempltSeq};
+	</select>
+	<!-- 푸시알림 템플릿 삭제 -->
+	<delete id="pushTempltDelete" parameterType="pushVo">
+		DELETE FROM push_templt_tb
+		WHERE PUSH_TEMPLT_SEQ = #{pushTempltSeq};
+	</delete>
+	<!-- 푸시 템플릿 수정 -->
+	<update id="pushNotfcatnTempltUpdate" parameterType="pushVo">
+		UPDATE push_templt_tb
+		SET TITL = #{pushTitl},
+			MESG  = #{pushMesg},
+			HEDLN = #{pushHedln}
+		WHERE PUSH_TEMPLT_SEQ = #{pushTempltSeq};
+	</update>
+	<!-- 푸시 수신자 전체 고객 수 -->
+	<select id="pushRecpntAllCount" parameterType="pushVo" resultType="int">
+		SELECT COUNT(*)
+		FROM custmr_tb
+		WHERE custmr_seq not in (SELECT custmr_seq FROM custmr_temp_tb)
+		AND push_check = 'Y'
+		<choose>
+		    <when test="searchCnd == 0">
+		        AND (custmr_id LIKE '%${searchWrd}%'
+		        OR custmr_nme LIKE '%${searchWrd}%')
+		    </when>
+		    <when test="searchCnd == 1">
+		        AND custmr_id LIKE '%${searchWrd}%'
+		    </when>
+		    
+		    <when test="searchCnd == 2">
+		        AND custmr_nme LIKE '%${searchWrd}%'
+		    </when>
+		</choose>
+		;
+	</select>
+	<!-- 푸시 수신사 전체 고객 조회 -->
+	<select id="pushRecpntAll" resultMap="pushValues" parameterType="pushVo">
+	    SELECT c.custmr_seq
+	    	  ,custmr_id
+	    	  ,custmr_nme
+	    	  ,custmr_gendr
+	    	  ,IFNULL(sum(sel_pric),0) AS all_pric
+	    	  ,COUNT(o.ordr_numbr_seq) AS ordr_amont
+	    	  ,push_check
+		FROM custmr_tb c LEFT JOIN ordr_num_tb o
+		ON c.custmr_seq = o.custmr_seq
+		LEFT JOIN (SELECT ordr_numbr_seq
+						  ,sum(sel_pric*ordr_amont) AS sel_pric
+					FROM debec.ordr_recrd_tb
+					GROUP BY ordr_numbr_seq) ore
+		ON o.ordr_numbr_seq = ore.ordr_numbr_seq
+		GROUP BY c.custmr_seq
+		HAVING custmr_seq not in (SELECT custmr_seq FROM custmr_temp_tb)
+		AND push_check = 'Y'
+		<choose>
+		    <when test="searchCnd == 0">
+		        AND (custmr_id LIKE '%${searchWrd}%'
+		        OR custmr_nme LIKE '%${searchWrd}%')
+		    </when>
+		    <when test="searchCnd == 1">
+		        AND custmr_id LIKE '%${searchWrd}%'
+		    </when>
+		    
+		    <when test="searchCnd == 2">
+		        AND custmr_nme LIKE '%${searchWrd}%'
+		    </when>
+		</choose>
+		<choose>
+			<when test="searchCnt == 0">
+				<choose>
+				    <when test="searchAry == 0">
+				        ORDER BY custmr_nme
+					</when>
+					<when test="searchAry == 1">
+					    ORDER BY custmr_id
+					</when>
+					<when test="searchAry == 2">
+					    ORDER BY custmr_nme
+					</when>
+					<when test="searchAry == 3">
+					    ORDER BY custmr_gendr
+					</when>		
+					<when test="searchAry == 4">
+					    ORDER BY ordr_amont
+					</when>			
+					<when test="searchAry == 5">
+					    ORDER BY all_pric
+					</when>
+				</choose>
+			</when>
+			<otherwise>
+			    <choose>
+				    <when test="searchAry == 0">
+				        ORDER BY custmr_nme DESC
+					</when>
+					<when test="searchAry == 1">
+					    ORDER BY custmr_id DESC
+					</when>
+					<when test="searchAry == 2">
+					    ORDER BY custmr_nme DESC
+					</when>
+					<when test="searchAry == 3">
+					    ORDER BY custmr_gendr DESC
+					</when>		
+					<when test="searchAry == 4">
+					    ORDER BY ordr_amont DESC
+					</when>			
+					<when test="searchAry == 5">
+					    ORDER BY all_pric DESC
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 상품 전체 고객 수 -->
+	<select id="pushRecpntProdctAllCount" parameterType="pushVo" resultType="int">
+		<choose>
+		    <when test="prodctSeq == 0">
+		        SELECT COUNT(*)
+				FROM 
+					(SELECT c.custmr_seq
+						  ,c.custmr_id
+						  ,c.custmr_nme
+						  ,push_check
+					FROM ordr_num_tb o1 JOIN custmr_tb c
+					ON o1.custmr_seq = c.custmr_seq
+					JOIN ordr_recrd_tb o2
+					ON o1.ordr_numbr_seq = o2.ordr_numbr_seq
+					GROUP BY c.custmr_seq
+					HAVING c.custmr_seq NOT IN (SELECT c1.custmr_seq FROM custmr_temp_tb as c1)
+					AND push_check = 'Y'							
+					<choose>
+					    <when test="searchCnd == 0">
+					        AND (custmr_id LIKE '%${searchWrd}%'
+					        OR custmr_nme LIKE '%${searchWrd}%')
+					    </when>
+					    <when test="searchCnd == 1">
+					        AND custmr_id LIKE '%${searchWrd}%'
+					    </when>
+					    
+					    <when test="searchCnd == 2">
+					        AND custmr_nme LIKE '%${searchWrd}%'
+					    </when>
+					</choose>
+					) as t;
+		    </when>		    
+		    <otherwise>
+		        SELECT COUNT(*)
+				FROM 
+					(SELECT c.custmr_seq
+						  ,c.custmr_id
+						  ,c.custmr_nme
+						  ,push_check
+					FROM ordr_num_tb o1 JOIN custmr_tb c
+					ON o1.custmr_seq = c.custmr_seq
+					JOIN ordr_recrd_tb o2
+					ON o1.ordr_numbr_seq = o2.ordr_numbr_seq
+					GROUP BY c.custmr_seq, prodct_seq
+					HAVING prodct_seq = #{prodctSeq}
+					AND c.custmr_seq NOT IN (SELECT c1.custmr_seq FROM custmr_temp_tb as c1)
+					AND push_check = 'Y'							
+					<choose>
+					    <when test="searchCnd == 0">
+					        AND (custmr_id LIKE '%${searchWrd}%'
+					        OR custmr_nme LIKE '%${searchWrd}%')
+					    </when>
+					    <when test="searchCnd == 1">
+					        AND custmr_id LIKE '%${searchWrd}%'
+					    </when>
+					    
+					    <when test="searchCnd == 2">
+					        AND custmr_nme LIKE '%${searchWrd}%'
+					    </when>
+					</choose>
+					) as t;
+		    </otherwise>
+		</choose>
+	</select>
+	<!-- 푸시 수신사 상품 전체 고객 조회 -->
+	<select id="pushRecpntProdctAll" resultMap="pushValues" parameterType="pushVo">
+	    <choose>
+	        <when test="prodctSeq == 0">
+	            SELECT c.custmr_seq
+			    	  ,custmr_id
+			    	  ,custmr_nme
+			    	  ,custmr_gendr
+			    	  ,sum(ordr_amont) as ordr_amont
+			    	  ,push_check
+			    	  ,prodct_seq
+				FROM ordr_num_tb o1 JOIN custmr_tb c
+				ON o1.custmr_seq = c.custmr_seq
+				JOIN ordr_recrd_tb o2
+				ON o1.ordr_numbr_seq = o2.ordr_numbr_seq
+				GROUP BY c.custmr_seq
+				HAVING c.custmr_seq NOT IN (SELECT custmr_seq FROM custmr_temp_tb)
+				AND push_check = 'Y'
+	        </when>
+	        <otherwise>
+	            SELECT c.custmr_seq
+			    	  ,custmr_id
+			    	  ,custmr_nme
+			    	  ,custmr_gendr
+			    	  ,sum(ordr_amont) as ordr_amont
+			    	  ,push_check
+				FROM ordr_num_tb o1 JOIN custmr_tb c
+				ON o1.custmr_seq = c.custmr_seq
+				JOIN ordr_recrd_tb o2
+				ON o1.ordr_numbr_seq = o2.ordr_numbr_seq
+				GROUP BY c.custmr_seq, prodct_seq
+				HAVING prodct_seq = #{prodctSeq}
+				AND c.custmr_seq NOT IN (SELECT custmr_seq FROM custmr_temp_tb)
+				AND push_check = 'Y'
+	        </otherwise>
+	    </choose>	    
+		<choose>
+		    <when test="searchCnd == 0">
+		        AND (custmr_id LIKE '%${searchWrd}%'
+		        OR custmr_nme LIKE '%${searchWrd}%')
+		    </when>
+		    <when test="searchCnd == 1">
+		        AND custmr_id LIKE '%${searchWrd}%'
+		    </when>
+		    
+		    <when test="searchCnd == 2">
+		        AND custmr_nme LIKE '%${searchWrd}%'
+		    </when>
+		</choose>
+		<choose>
+			<when test="searchCnt == 0">
+				<choose>
+				    <when test="searchAry == 0">
+				        ORDER BY custmr_nme
+					</when>
+					<when test="searchAry == 1">
+					    ORDER BY custmr_id
+					</when>
+					<when test="searchAry == 2">
+					    ORDER BY custmr_nme
+					</when>
+					<when test="searchAry == 3">
+					    ORDER BY custmr_gendr
+					</when>		
+					<when test="searchAry == 4">
+					    ORDER BY ordr_amont
+					</when>			
+				</choose>
+			</when>
+			<otherwise>
+			    <choose>
+				    <when test="searchAry == 0">
+				        ORDER BY custmr_nme DESC
+					</when>
+					<when test="searchAry == 1">
+					    ORDER BY custmr_id DESC
+					</when>
+					<when test="searchAry == 2">
+					    ORDER BY custmr_nme DESC
+					</when>
+					<when test="searchAry == 3">
+					    ORDER BY custmr_gendr DESC
+					</when>		
+					<when test="searchAry == 4">
+					    ORDER BY ordr_amont DESC
+					</when>			
+				</choose>
+			</otherwise>
+		</choose>
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 임시 테이블 조회 -->
+	<select id="selectPushRecpntAllTemp" parameterType="pushVo" resultMap="pushValues">
+	    SELECT ct.custmr_seq
+	    	  ,c.custmr_nme
+	    	  ,c.custmr_id
+		FROM custmr_temp_tb ct JOIN custmr_tb c
+		ON ct.custmr_seq = c.custmr_seq
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 임시 테이블 개수 조회 -->
+	<select id="selectPushRecpntAllTempCount" resultType="int">
+	    SELECT COUNT(*)
+		FROM custmr_temp_tb;
+	</select>
+	<!-- 푸시 수신자 임시 테이블 추가 -->
+	<insert id="insertPushRecpntAllTemp" parameterType="int">
+	    INSERT INTO custmr_temp_tb
+	    VALUES(#{custmrSeq});
+	</insert>
+	<!-- 푸시 수신자 임시 테이블 삭제 -->
+	<delete id="deletePushRecpntTemp" parameterType="int">
+	    DELETE FROM custmr_temp_tb
+	    WHERE custmr_seq = #{custmrSeq};
+	</delete>
+	<!-- 푸시 수신자 임시 테이블 전체삭제 -->
+	<delete id="deletePushRecpntAllTemp">
+	    DELETE FROM custmr_temp_tb;
+	</delete>
+	<!-- 푸시 수신자 상품 조회 -->
+	<select id="pushRecpntProdct" parameterType="pushVo" resultMap="pushValues">
+	    SELECT clintTb.clint_nme
+	    	,  clintTb.clint_seq
+	    	,  prodctTb.prodct_nme
+	    	,  prodctTb.prodct_seq
+		FROM prodct_tb prodctTb
+		JOIN clint_bridg_tb clintBridgTb ON prodctTb.prodct_seq = clintBridgTb.prodct_seq
+		JOIN clint_tb clintTb ON clintBridgTb.clint_seq = clintTb.clint_seq
+		<if test="searchCnd==0">
+		    
+		</if>
+		<if test="searchCnd==1">
+			WHERE clintTb.clint_nme LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==2">
+			WHERE prodctTb.prodct_nme LIKE '%${searchWrd}%'
+		</if>
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 상품선택 고객 총 갯수 -->
+	<select id="pushVoRecpntProdctCustmrAll" parameterType="pushVo" resultType="int">
+	    SELECT COUNT(custmrTb.custmr_seq) AS ordrNumbrSeq
+		from (
+			SELECT custmrTb.custmr_seq
+			FROM custmr_tb AS custmrTb
+			JOIN ordr_num_tb AS ordrNumTb ON custmrTb.custmr_seq = ordrNumTb.custmr_seq
+			JOIN ordr_recrd_tb AS ordrRecrdTb ON ordrNumTb.ordr_numbr_seq = ordrRecrdTb.ordr_numbr_seq
+			WHERE ordrRecrdTb.prodct_seq = #{prodctSeq}
+			GROUP BY custmrTb.custmr_seq
+        ) AS custmrTb;
+	</select>
+	<!-- 푸시 수신자 상품선택 고객 조회 -->
+	<select id="pushRecpntProdctCustmr" parameterType="BigInteger" resultMap="pushValues">
+	    SELECT custmrTb.custmr_seq
+			,  custmrTb.custmr_id
+		    ,  custmrTb.custmr_nme
+		    ,  SUM(ordrRecrdTb.ordr_amont) AS ordr_amont
+		    ,  SUM(ordrRecrdTb.sel_pric) AS sel_pric
+		FROM custmr_tb AS custmrTb
+		JOIN ordr_num_tb AS ordrNumTb ON custmrTb.custmr_seq = ordrNumTb.custmr_seq
+		JOIN ordr_recrd_tb AS ordrRecrdTb ON ordrNumTb.ordr_numbr_seq = ordrRecrdTb.ordr_numbr_seq
+		WHERE ordrRecrdTb.prodct_seq = #{prodctSeq}
+		GROUP BY custmrTb.custmr_seq
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 패키지 총 갯수 조회 -->
+	<select id="pushRecpntPackgAll" parameterType="pushVo" resultType="int">
+	    SELECT COUNT(DISTINCT(packgTb.PACKG_SEQ)) AS PACKGSEQ
+			FROM packg_tb AS packgTb
+			left JOIN packg_bridg_tb packgBridgTb ON packgTb.PACKG_SEQ = packgBridgTb.PACKG_SEQ
+			left JOIN clint_tb clintTb ON packgBridgTb.CLINT_SEQ = clintTb.CLINT_SEQ
+			left JOIN prodct_tb prodctTb ON prodctTb.prodct_seq = packgBridgTb.prodct_seq
+        <if test="searchCnd==0">
+		</if>
+		<if test="searchCnd==1">
+			WHERE clintTb.clint_nme LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==2">
+			WHERE packgTb.PACKG_NME LIKE '%${searchWrd}%'
+		</if>
+		;
+	</select>
+	<!-- 푸시 수신자 패키지 조회 -->
+	<select id="pushRecpntPackg" resultMap="pushValues">
+	    SELECT packgTb.PACKG_SEQ
+	    	,  packgTb.PACKG_type
+			,  clintTb.clint_nme
+			,  packgTb.PACKG_NME
+		    ,  SUM(prodctTb.sel_pric) AS all_pric
+		    ,  packgTb.PACKG_DISPLAY_CHECK
+		FROM packg_tb AS packgTb
+		JOIN packg_bridg_tb packgBridgTb ON packgTb.PACKG_SEQ = packgBridgTb.PACKG_SEQ
+		JOIN clint_tb clintTb ON packgBridgTb.CLINT_SEQ = clintTb.CLINT_SEQ
+		JOIN prodct_tb prodctTb ON prodctTb.prodct_seq = packgBridgTb.prodct_seq
+		<if test="searchCnd==0">
+		    
+		</if>
+		<if test="searchCnd==1">
+			WHERE clintTb.clint_nme LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==2">
+			WHERE packgTb.PACKG_NME LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==3">
+			WHERE prodctTb.sel_pric LIKE '%${searchWrd}%'
+		</if>
+		GROUP BY packgTb.PACKG_SEQ
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 패키지 신청 고객 총 갯수 -->
+	<select id="pushRecpntPackgAplctnAll" parameterType="pushVo" resultType="int">
+	    SELECT COUNT(custmrTb.custmr_id) AS custmrId
+		from (
+			SELECT custmrTb.custmr_id
+		FROM custmr_tb as custmrTb
+		JOIN ordr_num_tb as ordrNumTb ON custmrTb.custmr_seq = ordrNumTb.custmr_seq
+		JOIN packg_ordr_desc_tb packgOrdrDescTb ON ordrNumTb.ordr_numbr_seq = packgOrdrDescTb.ordr_numbr_seq
+		WHERE packgOrdrDescTb.packg_seq = #{packgSeq}
+        ) AS custmrTb;
+	</select>
+	<!-- 푸시 수신자 패키지 신청 고객 조회 -->
+	<select id="pushRecpntPackgAplctnCustmr" resultMap="pushValues" parameterType="pushVo">
+	    SELECT custmrTb.custmr_id
+			,  custmrTb.custmr_nme
+		    ,  packgOrdrDescTb.ordr_amont
+		    ,  packgOrdrDescTb.sel_pric
+		FROM custmr_tb as custmrTb
+		JOIN ordr_num_tb as ordrNumTb ON custmrTb.custmr_seq = ordrNumTb.custmr_seq
+		JOIN packg_ordr_desc_tb packgOrdrDescTb ON ordrNumTb.ordr_numbr_seq = packgOrdrDescTb.ordr_numbr_seq
+		WHERE packgOrdrDescTb.packg_seq = #{packgSeq}
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 공용구매 총 갯수 -->
+	<select id="pushRecpntGropPurchsAll" parameterType="pushVo" resultType="int">
+	    SELECT COUNT(gropPurchsTb.grop_purchs_seq) AS gropPurchsSeq
+		FROM grop_purchs_tb gropPurchsTb
+		JOIN grop_purchs_ordr_recrd_tb gropPurchsOrdrRecrdTb ON gropPurchsTb.grop_purchs_seq = gropPurchsOrdrRecrdTb.grop_purchs_seq
+		WHERE gropPurchsTb.stat LIKE '%${stat}%'
+		OR gropPurchsTb.titl LIKE '%${searchWrd}%'
+		<choose>
+			<when test="searchDateStart == '' and searchDateEnd == ''">
+			</when>
+			<when test="searchDateStart == null and searchDateEnd == null">
+			</when>
+			<when test="searchDateStart == ''">
+			    AND gropPurchsTb.ordr_end_dat <![CDATA[<=]]>' ${searchDateEnd}'
+			</when>
+			<when test="searchDateEnd == ''">
+			    AND gropPurchsTb.ordr_star_dat <![CDATA[>=]]> '${searchDateStart}'
+			</when>
+			<otherwise>
+			    AND gropPurchsTb.ordr_star_dat <![CDATA[>=]]> '${searchDateStart}'
+			    AND gropPurchsTb.ordr_end_dat <![CDATA[<=]]>'${searchDateEnd}'
+			</otherwise>
+		</choose>
+		;
+	</select>
+	<!-- 푸시 수신자 공용구매 조회 -->
+	<select id="pushRecpntGropPurchs" resultMap="pushValues">
+	    SELECT gropPurchsTb.grop_purchs_seq
+	    	,  gropPurchsTb.titl
+			,  gropPurchsTb.ordr_star_dat
+			,  gropPurchsTb.ordr_end_dat
+		    ,  COUNT(gropPurchsOrdrRecrdTb.ordr_numbr_seq) AS ordr_numbr_seq
+		    ,  gropPurchsTb.stat
+		FROM grop_purchs_tb gropPurchsTb
+		JOIN grop_purchs_ordr_recrd_tb gropPurchsOrdrRecrdTb ON gropPurchsTb.grop_purchs_seq = gropPurchsOrdrRecrdTb.grop_purchs_seq
+		WHERE gropPurchsTb.stat LIKE '%${stat}%'
+		OR gropPurchsTb.titl LIKE '%${searchWrd}%'
+		<choose>
+			<when test="searchDateStart == '' and searchDateEnd == ''">
+			</when>
+			<when test="searchDateStart == null and searchDateEnd == null">
+			</when>
+			<when test="searchDateStart == ''">
+			    AND gropPurchsTb.ordr_end_dat <![CDATA[<=]]>' ${searchDateEnd}'
+			</when>
+			<when test="searchDateEnd == ''">
+			    AND gropPurchsTb.ordr_star_dat <![CDATA[>=]]> '${searchDateStart}'
+			</when>
+			<otherwise>
+			    AND gropPurchsTb.ordr_star_dat <![CDATA[>=]]> '${searchDateStart}'
+			    AND gropPurchsTb.ordr_end_dat <![CDATA[<=]]>'${searchDateEnd}'
+			</otherwise>
+		</choose>
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 수신자 공용구매 신청 고객 총 갯수 조회 -->
+	<select id="pushRecpntGropPurchsAplctnCustmrCount" parameterType="pushVo" resultType="int">
+	    SELECT COUNT(custmrTb.custmr_seq) custmrSeq
+		FROM custmr_tb custmrTb
+		JOIN ordr_num_tb ordrNumTb ON custmrTb.custmr_seq = ordrNumTb.custmr_seq
+		JOIN grop_purchs_ordr_recrd_tb gropPurchsOrdrRecrdTb ON ordrNumTb.ordr_numbr_seq = gropPurchsOrdrRecrdTb.ordr_numbr_seq
+		WHERE gropPurchsOrdrRecrdTb.grop_purchs_seq = #{gropPurchsSeq};
+	</select>
+	<!-- 푸시 수신자 공동구매 신청 고객 -->
+	<select id="pushRecpntGropPurchsAplctnCustmr" parameterType="int" resultMap="pushValues">
+	    SELECT custmrTb.custmr_seq
+	    	,  custmrTb.custmr_id
+			,  custmrTb.custmr_nme
+		    ,  gropPurchsOrdrRecrdTb.ordr_amont
+		    ,  gropPurchsOrdrRecrdTb.sel_pric
+		FROM custmr_tb custmrTb
+		JOIN ordr_num_tb ordrNumTb ON custmrTb.custmr_seq = ordrNumTb.custmr_seq
+		JOIN grop_purchs_ordr_recrd_tb gropPurchsOrdrRecrdTb ON ordrNumTb.ordr_numbr_seq = gropPurchsOrdrRecrdTb.ordr_numbr_seq
+		WHERE gropPurchsOrdrRecrdTb.grop_purchs_seq = #{gropPurchsSeq}
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 알림 발송 내역 조회 -->
+	<select id="pushNotfcatnDespRecrdList" parameterType="pushVo" resultMap="pushValues">
+	    SELECT DESP_RECRD_SEQ
+	    	  ,nme
+	    	  ,sucs_cont
+	    	  ,fal_cont
+	    	  ,push_titl
+	    	  ,push_mesg
+	    	  ,push_hedln
+	    	  ,push_dat
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq				
+		<if test="searchCnd==0">
+			WHERE push_titl LIKE '%${searchWrd}%'
+			OR nme LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==1">
+			WHERE push_titl LIKE '%${searchWrd}%' 
+		</if>
+		<if test="searchCnd==2">
+			WHERE nme LIKE '%${searchWrd}%' 
+		</if>
+		ORDER BY
+		push_dat
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	<!-- 푸시 알림 발 송 내역 전체 페이지 수 -->
+	<select id="selectPushNotfcatnDespRecrdCount" parameterType="pushVo" resultType="int">
+		SELECT 	count(DESP_RECRD_SEQ) AS DESP_RECRD_SEQ
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq
+		<if test="searchCnd==0">
+			WHERE push_titl LIKE '%${searchWrd}%'
+			OR nme LIKE '%${searchWrd}%'
+		</if>
+		<if test="searchCnd==1">
+			WHERE push_titl LIKE '%${searchWrd}%' 
+		</if>
+		<if test="searchCnd==2">
+			WHERE nme LIKE '%${searchWrd}%' 
+		</if>
+	</select>
+	<!-- 푸시 알림 발송 내역 합계 조회 -->
+	<select id="pushNotfcatnDespRecrdListSum" resultMap="pushValues">
+	    SELECT COUNT(DESP_RECRD_SEQ) AS DESP_RECRD_SEQ
+			,  SUM(SUCS_CONT) AS SUCS_CONT
+		    ,  SUM(FAL_CONT) AS FAL_CONT
+			,  SUM(OPEN_CONT) AS OPEN_CONT
+		FROM desp_recrd_tb;
+	</select>
+	<!-- 푸시 알림 발송 내역 다시보내기 -->
+	<select id="pushNotfcatnReDesp" parameterType="int" resultMap="pushValues">
+	    SELECT DESP_RECRD_SEQ
+	    	,  NME
+			,  PUSH_TITL
+			,  PUSH_MESG
+			,  PUSH_HEDLN
+		FROM desp_recrd_tb d JOIN emp_tb e
+		ON d.emp_seq = e.emp_seq
+		JOIN push_tb p
+		ON d.push_seq = p.push_seq
+		WHERE DESP_RECRD_SEQ = #{despRecrdSeq};
+	</select>
+	<!-- 푸시 알림 발송 내역 삭제 -->
+	<delete id="pushNotfcatnDespRecrdDelete" parameterType="pushVo">
+		DELETE	
+		FROM desp_recrd_tb      	
+		WHERE 
+ 		DESP_RECRD_SEQ = #{despRecrdSeq};
+	</delete>
+	<!-- 푸시 전송 시 발송내역 추가 -->
+	<insert id="insertPushDesp" parameterType="pushVo">
+	    <selectKey keyProperty="despRecrdSeq" order="BEFORE" resultType="INT">
+		    SELECT IFNULL(MAX(desp_recrd_seq),0)+1 FROM desp_recrd_tb
+		</selectKey>
+	    INSERT INTO desp_recrd_tb(desp_recrd_seq
+	    						  ,emp_seq
+	    						  ,push_seq)
+	    VALUES(#{despRecrdSeq}
+	    	  ,#{empSeq}
+	    	  ,#{pushSeq});
+	</insert>
+	<!-- 푸시 전송 후 발송내역 성공,실패 횟수 업데이트 -->
+	<update id="updatePushDesp" parameterType="pushVo">
+	    UPDATE desp_recrd_tb
+	    SET sucs_cont = #{sucsCont}
+	    	,fal_cont = #{falCont}
+	    WHERE desp_recrd_seq = #{despRecrdSeq};
+	</update>
+	<!-- 푸시 전송 후 발송내역 열어본 횟수 업데이트 -->
+	<update id="updateOpenPushDesp" parameterType="pushVo">
+	  	UPDATE desp_recrd_tb
+	    SET open_cont = (SELECT IFNULL(MAX(open_cont),0)+1 FROM (SELECT * FROM desp_recrd_tb)a WHERE desp_recrd_seq = #{despRecrdSeq})
+	    WHERE desp_recrd_seq = #{despRecrdSeq};
+	</update>
+	<!-- 푸시 전송 시 최근 내역 추가 -->
+	<insert id="insertPushHistory" parameterType="pushVo">
+	    <selectKey keyProperty="pushSeq" order="BEFORE" resultType="INT">
+		    SELECT IFNULL(MAX(push_seq),0)+1 FROM push_tb
+		</selectKey>
+	    INSERT INTO push_tb(push_seq,push_titl,push_mesg,push_dat,push_url,push_hedln)
+	    VALUES((SELECT IFNULL(MAX(push_seq),0)+1 FROM push_tb AS s)
+	    	  ,#{pushTitl}
+	    	  ,#{pushMesg}
+	    	  ,SYSDATE()
+	    	  ,#{pushUrl}
+	    	  ,#{pushHedln});
+	</insert>
+	<!-- 푸시 최근 내역 조회 -->
+	<select id="selectPushHistory" resultMap="pushValues">
+	    SELECT push_seq
+	    	  ,push_titl
+	    	  ,push_mesg
+	    	  ,push_dat
+	    	  ,push_url
+	    	  ,push_hedln
+	    FROM push_tb
+	    ORDER BY push_dat DESC
+		LIMIT 5; 	  
+	</select>
+	<!-- 푸시 최근 내역 상세조회 -->
+	<select id="selectPushHistoryDetl" parameterType="int" resultMap="pushValues">
+	    SELECT push_seq
+	    	  ,push_titl
+	    	  ,push_mesg
+	    	  ,push_dat
+	    	  ,push_url
+	    	  ,push_hedln
+	    FROM push_tb
+	    WHERE push_seq = #{pushSeq};    	  
+	</select>
+</mapper>

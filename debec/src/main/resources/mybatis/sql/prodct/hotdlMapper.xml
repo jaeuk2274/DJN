@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="hotdlMapper">
+	
+	<!-- 핫딜 상품 리스트 SELECT-->
+	<resultMap id="hotdlValues" type="hotdlVo">		
+	<!-- 핫딜 상품 테이블 (시작) -->
+		<result property="prodctSeq" column="prodct_seq"/> 
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="remngAmont" column="remng_amont"/>
+		<result property="purchsPric" column="purchs_pric"/>
+		<result property="discntPric" column="discnt_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="amont" column="amont"/>
+		<result property="img" column="main_img"/>	 
+		<result property="qunt" column="qunt"/>
+	<!-- 핫딜 상품 테이블 (종료) -->
+	<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+	<!-- 상품 추가 테이블 검색어(끝) -->
+	<!-- 핫딜 상품 검색 조건 (시작) -->
+		<result property="hotdlSechText" column="hotdlSechText"/>	
+		<result property="hotdlMinPric" column="hotdlMinPric"/>	
+		<result property="hotdlMaxPric" column="hotdlMaxPric"/>	
+	<!-- 핫딜 상품 검색 조건 (끝) -->
+	</resultMap>
+	
+	<!--메인 진열 상품의 카테고리 리스트 SELECT-->
+<!-- 	<resultMap id="catgrValues" type="catgrVo">		 -->
+	<!-- 메인 진열 상품의 카테고리 리스트 (시작) -->
+<!-- 		<result property="id" column="catgr_seq"/>  -->
+<!-- 		<result property="parent" column="rot_catgr_seq"/> -->
+<!-- 		<result property="text" column="catgr_nme"/> -->
+<!-- 		<result property="icon" column="catgr_icon"/> -->
+	<!-- 메인 진열 상품의 카테고리 리스트 (종료) -->
+<!-- 	</resultMap> -->
+	
+	<!-- 핫딜 상품 목록 조회(검색) -->
+	<select id="selectHotdlList" parameterType="hotdlVo" resultMap="hotdlValues">
+		SELECT p.prodct_seq
+			  , p.main_img
+			  , p.prodct_nme
+			  , (h.amont - sp.sel_amont) 'remng_amont'
+		      , p.sel_pric
+		      , h.discnt_pric
+		FROM prodct_tb p JOIN hotdl_tb h
+		ON p.prodct_seq = h.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		on p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${hotdlSechText}%'
+		<choose>
+			<when test="hotdlMinPric == '' and hotdlMaxPric == ''">
+			</when>
+			<when test="hotdlMinPric == null and hotdlMaxPric == null">
+			</when>
+			<when test="hotdlMinPric == ''">
+			    AND h.discnt_pric <![CDATA[<=]]> ${hotdlMaxPric}
+			</when>		
+			<when test="hotdlMaxPric == ''">
+			    AND h.discnt_pric <![CDATA[>=]]> ${hotdlMinPric}
+			</when>			
+			<otherwise>
+			    AND h.discnt_pric BETWEEN ${hotdlMinPric} AND ${hotdlMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			p.prodct_nme;
+	</select>
+	
+	<!-- 핫딜 상품 목록 전체 페이지 수 -->
+	<select id="selectHotdlCount" parameterType="hotdlVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN hotdl_tb h
+		ON p.prodct_seq = h.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		on p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${hotdlSechText}%'
+		<choose>
+			<when test="hotdlMinPric == '' and hotdlMaxPric == ''">
+			</when>
+			<when test="hotdlMinPric == null and hotdlMaxPric == null">
+			</when>
+			<when test="hotdlMinPric == ''">
+			    AND h.discnt_pric <![CDATA[<=]]> ${hotdlMaxPric}
+			</when>		
+			<when test="hotdlMaxPric == ''">
+			    AND h.discnt_pric <![CDATA[>=]]> ${hotdlMinPric}
+			</when>			
+			<otherwise>
+			    AND h.discnt_pric BETWEEN ${hotdlMinPric} AND ${hotdlMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			p.prodct_nme;
+	</select>
+	
+	<!-- 핫딜 상품 삭제 -->
+	<delete id="deleteHotdlProdct" parameterType="long">	
+		DELETE FROM hotdl_tb
+		WHERE prodct_seq = #{prodctSeq}
+	</delete>
+	
+	<!-- 핫딜 상품 상세 조회 -->
+	<select id="selectHotdlRead" parameterType="long" resultMap="hotdlValues">
+		SELECT main_img, p.prodct_seq, prodct_nme, sel_pric, discnt_pric, amont 
+		FROM prodct_tb p JOIN hotdl_tb h
+		ON p.prodct_seq = h.prodct_seq
+		WHERE h.prodct_seq = #{prodctSeq}; 
+	</select>
+	
+	<!-- 핫딜 상품 수정 -->
+	<update id="updateHotdl" parameterType="hotdlVo">
+		UPDATE hotdl_tb
+		SET discnt_pric = ${discntPric}, amont = ${amont}
+		WHERE prodct_seq = ${prodctSeq};
+	</update>
+	
+	<!-- 핫딜 상품 추가 -->
+	<insert id="insertHotdl" parameterType="hotdlVo">
+		INSERT INTO hotdl_tb
+		VALUES(${amont}, ${discntPric}, ${prodctSeq})
+	</insert>
+	
+	<!-- 핫딜상품 추가 리스트 조회(검색) -->
+	<select id="selectHotdlAdList" resultMap="hotdlValues">
+		SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+		FROM prodct_tb p JOIN catgr_tb c1
+		ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2
+		ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3
+		ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s
+		ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM hotdl_tb)
+		AND p.prodct_type = 0
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 상품 테이블 전체 페이지 수 -->
+	<select id="selectHotdlAdListCount" parameterType="hotdlVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN catgr_tb c1
+		ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2
+		ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3
+		ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s
+		ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM hotdl_tb)
+		AND p.prodct_type = 0
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme;
+	</select>
+	
+	<!-- 핫딜상품 등록 후 상품 타입 업데이트 -->
+	<update id="updateInsertHotdlProdctType" parameterType="long">
+	    UPDATE prodct_tb
+	    SET prodct_type = 4
+	    WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 핫딜상품 삭제 후 상품 타입 업데이트 -->
+	<update id="updateDeleteHotdlProdctType" parameterType="long">
+	    UPDATE prodct_tb
+	    SET prodct_type = 0
+	    WHERE prodct_seq = #{prodctSeq};
+	</update>
+</mapper>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="appPushMapper">
+	<resultMap id="appPushValues" type="appPushVo">
+	    <result property="regId" column="custmr_token"/>
+	</resultMap>
+	
+	<resultMap id="custmrValues" type="custmrVo">
+	    <result property="custmrId" column="custmr_id"/>
+	    <result property="custmrPw" column="custmr_pw"/>
+	</resultMap>
+	
+	<resultMap id="empValues" type="empVo">
+	    <result property="token" column="token"/>
+	</resultMap>
+	
+	<!-- 웹 고객 토근값 조회 -->	
+	<select id="selectWebCustmrToken" resultType="String">
+	    SELECT custmr_token
+		FROM custmr_tb c JOIN custmr_temp_tb ct
+		ON c.custmr_seq = ct.custmr_seq;
+	</select>
+	<!-- 고객 토큰값 조회 -->
+	<select id="selectCusmtrToken" parameterType="int" resultType="String">
+	    SELECT custmr_token
+		FROM custmr_tb
+		WHERE custmr_seq = #{custmrSeq};
+	</select>
+	
+	<!-- 고객 정보 조회 -->
+	<select id="selectCustmrRead" parameterType="int" resultMap="custmrValues">
+	    SELECT custmr_id
+	    	  ,custmr_pw
+		FROM custmr_tb
+		WHERE custmr_seq = #{custmrSeq};
+	</select>
+	
+	<!-- 직원 토큰 정보 조회 -->
+	<select id="selectEmpToken" resultType="String">
+	    SELECT token
+		FROM emp_tb
+		WHERE push_check = 'Y';
+	</select>
+</mapper>

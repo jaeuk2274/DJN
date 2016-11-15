@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+<!-- 
+* 직원관리  Mapper입니다.
+* 
+* history :
+*        이정호, 1.0, 2016/09/02 – 초기 작성
+* see : 관련된 모듈을 기술한다.
+//-->
+
+<mapper namespace="togthrMapper">
+
+    <!--메인 진열 상품 리스트 SELECT-->
+	<resultMap id="mainDisplayValues" type="mainDisplayVo">		
+	<!-- 메인 진열 상품 테이블 (시작) -->
+		<result property="seqnc" column="seqnc"/> 
+		<result property="purchsPric" column="purchs_pric"/>
+		<result property="img" column="main_img"/>
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="evntPric" column="evnt_pric"/> 
+		<result property="selAmount" column="sel_amont"/>	
+	<!-- 메인 진열 상품 테이블 (종료) -->
+	<!-- 메인 진열 상품 검색 조건 (시작) -->
+		<result property="mainDisplaySechText" column="mainDisplaySechText"/>	
+		<result property="mainDisplayMinPric" column="mainDisplayMinPric"/>	
+		<result property="mainDisplayMaxPric" column="mainDisplayMaxPric"/>	
+		
+		<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+		<result property="tempSechText" column="tempSechText"/>		
+		<!-- 상품 추가 테이블 검색어(끝) -->
+		
+		<result property="catgrSeq" column="catgr_seq"/>	
+	<!-- 메인 진열 상품 검색 조건 (끝) -->
+	<!-- 상품 추가 리스트 -->		
+		<result property="qunt" column="qunt"/>
+	</resultMap>
+	
+	<!--메인 진열 상품의 카테고리 리스트 SELECT-->
+	<resultMap id="catgrValues" type="catgrVo">		
+<!-- 	메인 진열 상품의 카테고리 리스트 (시작) -->
+		<result property="id" column="catgr_seq"/> 
+		<result property="parent" column="rot_catgr_seq"/>
+		<result property="text" column="catgr_nme"/>
+		<result property="icon" column="catgr_icon"/>
+<!-- 	메인 진열 상품의 카테고리 리스트 (종료) -->
+	</resultMap>
+	
+	<resultMap id="togthrValues" type="togthrVo">
+	    <result property="gropPurchsProdctSeq" column="grop_purchs_prodct_seq"/>
+	    <result property="gropPurchsSeq" column="grop_purchs_seq"/>
+	    <result property="ordrStarDat" column="ordr_star_dat"/> 
+		<result property="ordrEndDat" column="ordr_end_dat"/>
+		<result property="minOrdrAmont" column="min_ordr_amont"/>
+		<result property="maxOrdrAmont" column="max_ordr_amont"/>
+		<result property="existPric" column="exist_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="titl" column="titl"/>
+		<result property="stat" column="stat"/>
+		<result property="prodctSeqLength" column="prodctSeqLength"/>
+		<result property="img" column="img"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		
+		<!-- 상품 이미지  -->
+		<result property="prodctMainImage" column="main_img"/>
+		<result property="prodctDetlImageOne" column="detl_img1"/>
+		<result property="prodctDetlImageTwo" column="detl_img2"/>
+		<result property="prodctDetlImageThree" column="detl_img3"/>
+	</resultMap>
+	<!-- 더함께 상품 진열 관리 상품 총 갯수 -->
+	<select id="togthrProdctListCount" resultType="int">
+	    SELECT COUNT(grop_purchs_prodct_seq) AS grop_purchs_prodct_seq
+	    FROM grop_purchs_tb;
+	</select>
+	<!-- 더함께 상품 진열 관리 상품 리스트 조회 -->
+	<select id="togthrProdctList" parameterType="togthrVo" resultMap="togthrValues">
+	    SELECT prodct_nme
+	    	,  grop_purchs_prodct_seq
+	    	,  grop_purchs_seq
+			,  ordr_star_dat
+		    ,  ordr_end_dat
+		    ,  min_ordr_amont
+		    ,  max_ordr_amont
+		    ,  exist_pric
+		    ,  sel_pric
+		    ,  titl
+		    ,  stat
+		FROM grop_purchs_tb
+		WHERE prodct_nme LIKE CONCAT ('%', '${prodctNme}','%')
+	  <choose>
+        <when test="stat == 0">
+           AND stat LIKE '%%'
+        </when>
+        <when test="stat == 1">
+           AND stat LIKE '모집중'
+        </when>
+        <when test="stat == 2">
+           AND stat LIKE '배송중'
+        </when>
+        <when test="stat == 3">
+           AND stat LIKE '배송완료'
+        </when>
+      </choose>
+      <choose>
+         <when test="firstSelPric == '' and LastSelPric == ''">
+         </when>
+         <when test="firstSelPric == null and LastSelPric == null">
+         </when>
+         <when test="firstSelPric == ''">
+            AND sel_pric <![CDATA[<=]]>' ${LastSelPric}'
+         </when>      
+         <when test="LastSelPric == ''">
+            AND sel_pric <![CDATA[>=]]> '${firstSelPric}'
+         </when>
+         <otherwise>
+	        AND sel_pric <![CDATA[>=]]> '${firstSelPric}'
+	        AND sel_pric <![CDATA[<=]]>'${LastSelPric}'
+         </otherwise>
+      </choose>
+      <choose>
+         <when test="ordrStarDat == '' and ordrEndDat == ''">
+         </when>
+         <when test="ordrStarDat == null and ordrEndDat == null">
+         </when>
+         <when test="ordrStarDat == ''">
+            AND ordr_end_dat <![CDATA[<=]]>' ${ordrEndDat}'
+         </when>      
+         <when test="LastSelPric == ''">
+            AND ordr_star_dat <![CDATA[>=]]> '${ordrStarDat}'
+         </when>       
+         <otherwise>
+	        AND ordr_star_dat <![CDATA[>=]]> '${ordrStarDat}'
+	        AND ordr_end_dat <![CDATA[<=]]> '${ordrEndDat}'
+         </otherwise>
+      </choose>
+		ORDER BY grop_purchs_prodct_seq
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+      ;
+	</select>
+	<!-- 더함께 상품 진열 관리 상품 삭데 -->
+	<delete id="deleteToghrProdct" parameterType="int">
+        DELETE FROM grop_purchs_tb
+        WHERE grop_purchs_prodct_seq = #{gropPurchsProdctSeq};
+	</delete>
+	<!-- 상품 seq 자릿수 조회 -->
+	<select id="prodctLength" parameterType="int" resultType="int">
+	    SELECT LENGTH(prodct_seq)+1 as prodctSeqLength
+		FROM prodct_tb
+		WHERE prodct_seq = #{prodctSeq};
+	</select>
+	<!-- 더함께 상품 진열 관리 상품 등록 -->
+	<insert id="purchsProdctInsert" parameterType="togthrVo">
+	    <selectKey keyProperty="gropPurchsProdctSeq" resultType="int" order="BEFORE">
+			SELECT IFNULL(MAX(grop_purchs_prodct_seq),0)+1 as grop_purchs_prodct_seq
+			FROM grop_purchs_tb;
+		</selectKey>
+	    INSERT INTO 
+	    grop_purchs_tb(grop_purchs_prodct_seq
+	    			,  grop_purchs_seq
+					,  ordr_star_dat
+                    ,  ordr_end_dat
+                    ,  min_ordr_amont
+                    ,  max_ordr_amont
+                    ,  exist_pric
+                    ,  sel_pric
+                    ,  titl
+                    ,  stat
+                    ,  prodct_nme
+                    ,  main_img
+                    ,  detl_img1
+                    ,  detl_img2
+                    ,  detl_img3)
+		VALUES(#{gropPurchsProdctSeq}
+			, lpad(#{prodctSeq}
+         	,  #{prodctSeqLength},1)
+			,  #{ordrStarDat}
+			,  #{ordrEndDat}	
+			,  #{minOrdrAmont}
+			,  #{maxOrdrAmont}
+			,  #{existPric}
+			,  #{selPric}
+			,  #{titl}
+			,  #{stat}
+			,  #{prodctNme}
+			,  #{prodctMainImage}
+			,  #{prodctDetlImageOne}
+			,  #{prodctDetlImageTwo}
+			,  #{prodctDetlImageThree}
+			);
+	</insert>
+	<!-- 더함께 상품 진열 관리 상품 상세조회 -->
+	<select id="togthrDetail" parameterType="long" resultMap="togthrValues">
+	     SELECT prodct_nme
+	     	,  grop_purchs_prodct_seq
+	    	,  grop_purchs_seq
+			,  ordr_star_dat
+		    ,  ordr_end_dat
+		    ,  min_ordr_amont
+		    ,  max_ordr_amont
+		    ,  exist_pric
+		    ,  sel_pric
+		    ,  titl
+		    ,  stat
+		FROM grop_purchs_tb
+        WHERE grop_purchs_prodct_seq = #{gropPurchsProdctSeq};
+	</select>
+	<!-- 더함께 상품 진열 관리 상품수정 -->
+	<update id="togthrUpdate" parameterType="long">
+	    UPDATE grop_purchs_tb 
+		SET ordr_star_dat = #{ordrStarDat}
+		,   ordr_end_dat = #{ordrEndDat}
+		,   min_ordr_amont = #{minOrdrAmont}
+		,   max_ordr_amont = #{maxOrdrAmont}
+		,   exist_pric = #{existPric}
+		,   sel_pric = #{selPric}
+		,   titl = #{titl}
+		,   stat = #{stat}
+		,   prodct_nme = #{prodctNme}
+		WHERE grop_purchs_prodct_seq = #{gropPurchsProdctSeq};
+	</update>
+</mapper>

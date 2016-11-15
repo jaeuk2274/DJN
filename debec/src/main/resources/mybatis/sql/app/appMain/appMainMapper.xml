@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+<mapper namespace="appMainMapper">
+    <resultMap id="empValues" type="empVo">		
+		<result property="empSeq" column="emp_seq"/> <!-- 직원 고유값  -->
+		<result property="id" column="id"/> <!-- 직원 id -->
+		<result property="pw" column="pw"/> <!-- 직원 pw  -->
+		<result property="nme" column="nme"/> <!-- 직원 이름 -->
+		<result property="gendr" column="gendr"/> <!-- 직원 성별 -->
+		<result property="imgRot" column="img_rot"/> <!-- 직원 이미지 -->
+	</resultMap>
+	<resultMap id="RecpValues" type="recpVo">
+		<result property="recpSeq" column="recp_seq"/>		<!-- 레시피seq -->
+		<result property="recpTitl" column="recp_titl"/>		<!-- 레시피 제목 -->
+		<result property="recpCnt" column="recp_cnt"/>		<!-- 레시피 내용 -->
+		<result property="recpImg" column="recp_img"/>		<!-- 레시피 이미지 -->
+		<result property="dat" column="dat"/>				<!-- 레시피 등록 일자 -->
+		<result property="likeCount" column="like_count"/>	<!-- 좋아요 갯수 -->
+		<result property="likeState" column="like_state"/>	<!-- 좋아요 상태 -->
+		<result property="memSeq" column="mem_seq"/>		<!-- 회원 seq -->
+		<result property="memNme" column="mem_nme"/>		<!-- 회원 이름 -->
+		<result property="memType" column="mem_type"/>		<!-- 회원 타입 -->
+		<result property="custmrNme" column="custmr_nme"/>	<!-- 고객 이름 -->	
+		<result property="empNme" column="emp_nme"/>		<!-- 직원 이름 -->
+		<result property="recpProdctSeq" column="recp_prodct_seq"/>		<!-- 레시피,상품 seq -->
+		<result property="selPric" column="sel_pric"/>					<!-- 판매가격 -->
+		<result property="mainImg" column="main_img"/>					<!-- 메인 이미지 -->
+	</resultMap>
+	
+<!--     직원 목록 조회(대장남 투표) -->
+    <select id="appSelectEmpList" resultMap="empValues">
+		SELECT 
+		    emp_seq, nme, IFNULL(img_rot,'NULL') AS img_rot
+		FROM
+		    emp_tb
+		WHERE
+			stat = 'Y';
+    </select>
+    
+<!--     대장남 투표(고객) -->
+	<insert id="appCustmrDJNVoting">
+	    INSERT INTO custmr_recmnd_tb(custmr_seq, emp_seq, dat)
+	    VALUES(${custmrSeq}, ${empSeq}, curdate());
+	</insert>
+	
+<!-- 	대장남 투표(직원) -->
+	<insert id="appEmpDJNVoting">
+		INSERT INTO emp_recmnd_tb(get_recmnd_emp, dat, give_recmnd_emp)
+        VALUES(${getEmpSeq}, curdate(), ${giveEmpSeq});
+	</insert>
+	
+<!-- 	대장남 투표 권한(고객) -->
+	<select id="appCustmrDjnVotingAthrty" parameterType="int" resultType="int">
+		SELECT 
+		    COUNT(*) AS dat
+		FROM
+		    custmr_recmnd_tb
+		WHERE
+		    custmr_seq = #{custmrSeq}
+		        AND dat BETWEEN ADDDATE(CURDATE(),
+		        1 - DAYOFMONTH(CURDATE())) AND LAST_DAY(CURDATE());
+	</select>
+
+<!-- 대장남 투표 권한(직원) -->
+	<select id="appEmpDjnVotingAthrty" parameterType="int" resultType="int">
+	    SELECT 
+		    COUNT(*) AS dat
+		FROM
+		    emp_recmnd_tb
+		WHERE
+		    get_recmnd_emp = #{empSeq}
+		        AND dat BETWEEN ADDDATE(CURDATE(),
+		        1 - DAYOFMONTH(CURDATE())) AND LAST_DAY(CURDATE());
+	</select>
+	
+<!-- 랜덤 레시피 조회 -->
+	<select id="appSelectRecpList" resultMap="RecpValues">
+		SELECT 
+		    re.recp_seq,
+		    re.recp_titl,
+		    re.recp_img,
+		    re.dat,
+		    (SELECT 
+		            COUNT(rl.recp_like_seq)
+		       FROM
+		            recp_like_tb rl
+		      WHERE
+		            rl.recp_seq = re.recp_seq) AS like_count
+		FROM
+		    recp_tb re
+		ORDER BY RAND()
+		LIMIT 4;
+	</select>
+	
+<!-- 	레시피 상세보기 -->
+<!-- 	<select id="appSelectRecpRead" resultMap="RecpValues"> -->
+		
+<!-- 	</select> -->
+</mapper>

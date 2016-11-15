@@ -1,0 +1,969 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >   
+
+<mapper namespace="appMyPgMapper">
+
+	
+   <resultMap id="prodctValues" type="prodctVo">
+       <result property="prodctSeq" column="prodct_seq"/>
+      <result property="prodctNme" column="prodct_nme"/>
+      <result property="prodctPurchsPric" column="purchs_pric"/>
+      <result property="prodctType" column="prodct_type"/><!-- 진열 여부 -->	
+       <result property="prodctSelPric" column="sel_pric"/> <!-- 판매 가격 -->
+      <result property="prodctSalePric" column="sale_pric"/> <!-- 할인 가격 -->
+      <!-- 상품 이미지  -->
+      <result property="prodctMainImage" column="main_img"/>
+      <!-- 장바구니 관련 -->      
+      <result property="prodctAmont" column="amont"/> <!-- 장바구니 상품당 수량 -->
+      <result property="cartBridgSeq" column="cart_bridg_seq"/> <!-- 장바구니 상품 브릿지 SEQ -->
+      <result property="gropPurchsCartBridgSeq" column="grop_purchs_cart_bridg_seq"/> <!-- 장바구니 공동구매 브릿지 SEQ -->
+      <result property="packgBridgCartSeq" column="packg_bridg_cart_SEQ"/> <!-- 패키지 브릿지 장바구니 SEQ -->
+     
+      <result property="historyDat" column="history_dat"/> <!-- 히스토리 날짜 -->  
+      
+   </resultMap>
+   
+   <!-- 주문 -->
+   <resultMap id="ordrValues" type="ordrVo">      
+      <result property="ordrProdctAmont" column="ordr_prodct_amont"/>
+      <result property="allPric" column="all_pric"/>
+         
+      <result property="ordrStatSeq" column="ordr_stat_seq"/> <!-- 주문상태 seq -->
+      <result property="ordrNumbrCount" column="ordr_numbr_count"/> <!-- 주문 상태별 총 개수 -->
+       
+      <result property="ordrNumbrSeq" column="ordr_numbr_seq"/>   <!-- 주문 번호 -->
+      <result property="ordrDat" column="ordr_dat"/>   <!-- 주문 일자 -->
+      <result property="pamntMethd" column="pamnt_methd"/>   <!-- 결제 방식 -->
+      <result property="recvMethd" column="recv_methd"/>     <!-- 수령 방식 -->
+      <result property="ordrStat" column="ordr_stat"/>   <!-- 주문 상태-->
+      <result property="cartImg1" column="cart_img1"/>
+      <result property="recvrNme" column="recvr_nme"/>  <!-- 수령자 이름 -->
+      <result property="recvrMobl" column="recvr_mobl"/>  <!-- 수령자 연락처 -->
+      <result property="recvrPostcd" column="recvr_postcd"/>  <!-- 수령자 우편번호 -->
+      <result property="recvrAddrss" column="recvr_addrss"/>  <!-- 수령자 기본주소 -->
+      <result property="recvrDetlAddress" column="recvr_detl_address"/>  <!-- 수령자 상세주소 -->
+      <result property="hopDelvrDat" column="hop_delvr_dat"/>  <!-- 희망배송 일자 -->
+      <result property="hopDelvrTim" column="hop_delvr_tim"/>  <!-- 희망배송 시간 -->
+      <result property="reqmnt" column="reqmnt"/>  <!-- 희망요구 사항-->
+   
+      <result property="prodctSeq" column="prodct_seq"/>   <!-- 상품 seq -->
+      <result property="prodctNme" column="prodct_nme"/>   <!-- 상품 이름 -->
+      <result property="ordrAmont" column="ordr_amont"/>   <!-- 주문 수량 (상품당) -->
+      <result property="selPric" column="sel_pric"/>   <!-- 판매가 (상품당) -->
+      <result property="purchsPric" column="purchs_pric"/>   <!-- 할인가 (상품당) -->
+      
+     
+      <result property="empSeq" column="emp_seq"/>  <!-- 직원 고유값 -->
+      <result property="empNme" column="emp_nme"/>  <!-- 직원 이름 -->
+      <result property="empMobl" column="emp_mobl"/>
+      
+      <result property="pricSum" column="pricSum"/>   <!-- 주문 합계 가격(건당) -->
+      <result property="prodctCount" column="prodctCount"/>   <!-- 주문건당 총 상품 종류 개수 ex.-1 해서 어떤 상품 외 3건 -->
+      <result property="firstProdctNme" column="firstProdctNme"/>   <!-- 첫번째 상품 이름 -->
+      
+      <result property="empImg" column="empImg"/>   <!-- 직원 사진 -->
+      <result property="cartImg" column="cart_img"/>   <!-- 장바구니 사진 -->
+
+	 <result property="recmndCheck" column="recmnd_check"/>   <!-- 주문 추천여부 -->
+
+
+      <!-- 배송지 관리 -->   
+      <result property="shipngPlcSeq" column="shipng_plc_seq"/>  <!-- 배송지 seq -->
+      <result property="shipngPlcNme" column="shipng_plc_nme"/>  <!-- 배송지 이름 -->
+      <result property="prodctType" column="prodct_type"/>  <!-- 배송지 이름 -->
+
+   </resultMap>
+   
+   
+   <resultMap id="empValues" type="empVo">
+         <!-- 직원 정보 -->
+         <result property="empSeq" column="emp_seq"/>
+         <result property="id" column="id"/>
+         <result property="pw" column="pw"/>
+         <result property="nme" column="nme"/>
+         <result property="gendr" column="gendr"/>
+         <result property="postcd" column="postcd"/>
+         <result property="adrs" column="adrs"/>
+         <result property="detlAdrs" column="detl_adrs"/>
+         <result property="birth" column="birth"/>
+         <result property="hirDat" column="hir_dat"/>
+         <result property="tel" column="tel_hp"/>
+         <result property="mobl" column="mobl"/>
+         <result property="duty" column="duty"/>
+         <result property="task" column="task"/>
+         <result property="stat" column="stat"/>
+         <result property="imgRot" column="img_rot"/>
+   </resultMap>
+   
+   
+   <resultMap id="custmrValues" type="custmrVo">   
+       <result property="custmrSeq" column="custmr_seq"/> 
+      <result property="custmrId" column="custmr_id"/>
+      <result property="custmrPw" column="custmr_pw"/>   
+      <result property="custmrNme" column="custmr_nme"/>
+      <result property="custmrMobl" column="custmr_mobl"/>
+      <result property="custmrEml" column="custmr_eml"/>
+      <result property="cartCount" column="cartCount"/> <!-- 장바구니 관리 총 개수  -->
+      <result property="historyCount" column="historyCount"/> <!-- 히스토리 관리 총 개수  -->
+      <result property="cusCount" column="cusCount"/> <!-- 고객정보 확인값  -->
+      
+      <result property="custmrMobl" column="custmr_mobl"/>
+      <result property="custmrEml" column="custmr_eml"/>
+      <result property="pushCheck" column="push_check"/>
+      
+      <result property="recmndEmpSeq" column="recmndEmpSeq"/> <!-- 추천할 직원 seq -->
+      <result property="recmndResnCodeSeq" column="recmndResnCodeSeq"/> <!-- 추천 이유 코드 -->
+   </resultMap>
+   
+   <!-- 카테고리 -->
+   <resultMap id="catgrValues" type="catgrVo">    
+      <result property="parent" column="ROT_catgr_seq"/>
+      <result property="id" column="catgr_Seq"/>
+      <result property="text" column="catgr_Nme"/>
+      <result property="icon" column="catgr_Icon"/>
+   </resultMap>
+
+      <!-- 고객 -->
+<!--       <result property="custmrNme" column="custmr_nme"/> -->
+<!--       <result property="custmrGendr" column="custmr_gendr"/> -->
+<!--       <result property="custmrBirth" column="custmr_birth"/> -->
+<!--       <result property="custmrTelHp" column="custmr_tel_hp"/>  -->
+<!--       <result property="custmrMobl" column="custmr_mobl"/> -->
+<!--       <result property="custmrPostcd" column="custmr_postcd"/> -->
+<!--       <result property="custmrAdrs" column="custmr_adrs"/> -->
+<!--       <result property="custmrDetalAdrs" column="custmr_detal_adrs"/> -->
+<!--       <result property="custmrEml" column="custmr_eml"/> -->
+<!--       <result property="custmrCardNumbr" column="custmr_card_numbr"/> -->
+<!--       <result property="custmrNumbr" column="custmr_numbr"/> -->
+<!--       <result property="custmrCardCheck" column="custmr_card_check"/> -->
+<!--       <result property="custmrQuscncCheck" column="custmr_quscnc_check"/> -->
+<!--       <result property="custmrNicknme" column="custmr_nicknme"/>    -->
+
+<!--       <result property="custmrSechOption" column="custmrSechOption"/>    -->
+<!--       <result property="custmrSechText" column="custmrSechText"/>    -->
+<!--       <result property="custmrSechCardCheck" column="custmrSechCardCheck"/>    -->
+
+<!--       <result property="custmrSechCardCheck" column="custmrSechCardCheck"/>    -->
+<!-- 고객 -->
+
+   
+   
+<!--장바구니(Cart)-->      
+   <!-- 장바구니 상품 리스트 조회(상품만) -->
+   <select id="cartList" parameterType="int" resultMap="prodctValues">
+       SELECT       cb.cart_bridg_seq as cart_bridg_seq
+                , p.main_img
+                , p.prodct_nme
+                , p.sel_pric as purchs_pric
+                , cb.amont
+                    , p.discnt_pric as sale_pric
+      FROM       cart_bridg_tb cb
+      JOIN       all_sel_prodct_view p
+      ON          cb.prodct_seq = p.prodct_seq
+      WHERE       cb.custmr_seq = #{cusSeq};
+   </select>
+      
+   
+   <!-- 장바구니 상품 리스트 조회(패키지만) -->
+   <select id="cartPackgList" parameterType="int" resultMap="prodctValues">
+       select pbc.packg_bridg_cart_seq
+            , pbc.amont
+              , pk.PACKG_NME as prodct_nme
+              , sum(p.sel_pric) as purchs_pric
+            , sum(IF(p.discnt_pric=0, p.sel_pric, p.discnt_pric)) as sale_pric
+      from packg_bridg_cart_tb pbc
+      JOIN packg_bridg_tb pb
+      ON   pbc.packg_seq = pb.packg_seq
+      join   packg_tb pk
+       ON     pk.packg_seq = pb.packg_seq
+      JOIN all_sel_prodct_view p
+      ON   pb.prodct_seq = p.prodct_seq    
+      WHERE pbc.custmr_seq = #{cusSeq}
+       group by pb.packg_seq
+   </select>
+   
+   
+   <!-- 장바구니 상품 수량 수정 -->
+   <update id="cartProdctAmontUpdate" parameterType="prodctVo" >
+      UPDATE      cart_bridg_tb
+      SET         amont = #{prodctAmont}
+      WHERE       cart_bridg_seq = #{cartBridgSeq};
+   </update>
+   
+   
+   <!-- 장바구니 상품 수량 수정(패키지) -->
+   <update id="cartPackgAmontUpdate" parameterType="prodctVo" >
+      UPDATE      packg_bridg_cart_tb
+      SET         amont = #{prodctAmont}
+      WHERE       packg_bridg_cart_seq = #{packgBridgCartSeq};   
+   </update>
+      
+   
+
+   <!-- 체크된 장바구니 상품들 예상 합계 가격 구하기 -->
+   <select id="predictSumPriceRead" parameterType="java.util.List" resultType="int">
+       SELECT      sum(cb.amont * IF(p.discnt_pric=0, p.sel_pric, p.discnt_pric)) 
+      FROM       cart_bridg_tb cb
+      JOIN       all_sel_prodct_view p
+      ON          cb.prodct_seq = p.prodct_seq
+      WHERE       cb.cart_bridg_seq in (
+                    <foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+               )            
+   </select>
+   
+   
+   <!-- 체크된 장바구니 상품들 예상 합계 가격 구하기(패키지) -->
+   <select id="predictPackgSumPriceRead" parameterType="java.util.List" resultType="int">
+       select  sum( pbc.amont * IF(p.discnt_pric=0, p.sel_pric, p.discnt_pric)) as sale_pric
+      from packg_bridg_cart_tb pbc
+      JOIN packg_bridg_tb pb
+      ON   pbc.packg_seq = pb.packg_seq
+      join   packg_tb pk
+       ON     pk.packg_seq = pb.packg_seq
+      JOIN all_sel_prodct_view p
+      ON   pb.prodct_seq = p.prodct_seq    
+      WHERE pbc.packg_bridg_cart_seq in (
+                       <foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+                  )   
+   </select>
+   
+
+   <!-- 장바구니 상품 삭제 (개별) -->
+   <delete id="cartProdctDelete" parameterType="prodctVo">
+       DELETE 
+      FROM       cart_bridg_tb
+      WHERE       cart_bridg_seq = #{cartBridgSeq};   
+   </delete>
+   
+   
+   
+   <!-- 장바구니 상품 삭제 (개별) -->
+   <delete id="cartPackgDelete" parameterType="prodctVo">
+       DELETE 
+      FROM       packg_bridg_cart_tb
+      WHERE       packg_bridg_cart_seq = #{packgBridgCartSeq};   
+   </delete>
+   
+   
+   
+   <!-- 체크된 장바구니 상품들 삭제 (일괄 삭제) -->
+   <delete id="cartProdctGroupDelete"  parameterType="java.util.List">
+       DELETE 
+      FROM       cart_bridg_tb   
+      WHERE       cart_bridg_seq in (
+                    <foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+               )      
+   </delete>
+   
+   
+   
+   <!-- 체크된 장바구니 패키지들 삭제 (일괄 삭제) -->
+   <delete id="cartPackgGroupDelete"  parameterType="java.util.List">
+       DELETE 
+      FROM       packg_bridg_cart_tb   
+      WHERE       packg_bridg_cart_seq in (
+                    <foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+               )      
+   </delete>
+   
+   
+   
+<!--배송지(ShippingPlace)-->   
+   <!-- 기본 배송지 상세조회 -->
+   <select id="existShippingPlaceRead" parameterType="int" resultMap="ordrValues">
+       SELECT       shipng_plc_seq       
+                  , shipng_plc_nme
+                  , recvr_nme 
+                  , recvr_mobl
+                  , shipng_plc_postcod as recvr_postcd
+                  , shipng_plc_adrs as recvr_addrss
+                  , shipng_plc_detal_adrs as recvr_detl_address
+      FROM        shipping_place_tb
+      WHERE        custmr_seq = #{cusSeq}
+      AND        exist_check = 'Y';
+   </select>
+
+   
+   <!-- 배송지 리스트 조회 -->
+   <select id="shippingPlaceList" parameterType="int" resultMap="ordrValues">
+       SELECT       shipng_plc_seq       
+                  , shipng_plc_nme
+      FROM        shipping_place_tb
+      WHERE        custmr_seq = #{cusSeq}
+      ORDER BY     exist_check DESC;
+   </select>
+   
+
+   <!-- 변경한 배송지 상세조회 -->
+   <select id="shippingPlaceRead" parameterType="int" resultMap="ordrValues">
+       SELECT       shipng_plc_seq       
+                  , shipng_plc_nme
+                  , recvr_nme 
+                  , recvr_mobl
+                  , shipng_plc_postcod as recvr_postcd
+                  , shipng_plc_adrs as recvr_addrss
+                  , shipng_plc_detal_adrs as recvr_detl_address
+      FROM        shipping_place_tb
+      WHERE        shipng_plc_seq = #{shipngPlcSeq};
+   </select>
+   
+   
+   
+   
+<!--고객 패널(CusPanel)-->      
+   <!-- 고객 오른쪽 패널 쇼핑정보 조회 -->
+   <select id="cusRightPanelOrdrInfo" parameterType="int" resultMap="ordrValues">
+       SELECT        orn.ordr_numbr_seq as ordr_numbr_seq
+                 , ors.ordr_stat as ordr_stat
+                 , count(orr.prodct_seq) as prodctCount
+                 , CONCAT(p.prodct_nme, ' ' ,orr.ordr_amont, '개 ') as firstProdctNme               
+      FROM        ordr_num_tb orn
+      JOIN        ordr_stat_tb ors
+      ON           orn.ORDR_STAT_SEQ = ors.ORDR_STAT_SEQ
+      JOIN        ordr_recrd_tb orr
+      ON           orn.ordr_numbr_seq = orr.ordr_numbr_seq
+      JOIN        prodct_tb p
+      ON           orr.prodct_seq = p.prodct_seq
+        WHERE        orn.custmr_seq = #{cusSeq}
+        AND          orn.ordr_numbr_seq = (select max(ordr_numbr_seq)
+                                 from ordr_num_tb
+                                 where custmr_seq = #{cusSeq}
+                                           and ordr_stat_seq != 4) 
+        AND        ors.ordr_stat_seq != 4
+        GROUP BY     orn.ordr_numbr_seq; 
+   </select>
+   
+   
+   <!-- 고객 오른쪽 패널 장바구니 리스트 조회 (5개 까지) -->
+   <select id="cusRightPanelCartList" parameterType="int" resultMap="ordrValues">
+      SELECT       p.prodct_seq as prodct_seq
+                , p.prodct_nme
+                , p.sel_pric as sel_pric
+                , cb.amont as ordr_amont
+                    , p.discnt_pric as purchs_pric
+      FROM       cart_bridg_tb cb
+      JOIN       all_sel_prodct_view p
+      ON          cb.prodct_seq = p.prodct_seq
+      WHERE       cb.custmr_seq = #{cusSeq} 
+        LIMIT        0, 5 ;          
+   </select>
+   
+   
+   <!-- 고객 오른쪽 패널 히스토리 리스트 조회 (5개 까지)/ 오늘 -->
+   <select id="cusRightPanelHistoryList" parameterType="int" resultMap="ordrValues">
+       SELECT        p.prodct_seq as prodct_seq
+                 , p.prodct_nme as prodct_nme
+                 , p.main_img as cart_img
+                 , p.sel_pric as sel_pric
+                 , p.discnt_pric as purchs_pric
+      FROM        history_tb h
+      JOIN        all_sel_prodct_view p
+      ON           h.prodct_seq = p.prodct_seq
+      WHERE        h.custmr_seq = #{cusSeq} 
+      AND          h.history_dat = DATE_FORMAT(NOW(),'%Y-%m-%d')
+      LIMIT        0, 5;
+   </select>
+   
+   <!-- 고객 오른쪽 패널 직원 리스트 조회 -->
+   <select id="cusRightPanelEmpList"  resultMap="empValues">
+       SELECT        emp_seq
+                 , duty
+                 , nme
+                 , img_rot
+      FROM        emp_tb
+      WHERE stat = 'Y'
+   </select>
+
+
+<!--고객 마이페이지 메인(cusMyPageMainPage)-->
+   <!-- 배송상태별 건수 조회 -->
+   <select id="cusOrdrCountList" parameterType="int" resultMap="ordrValues">
+      SELECT a.ordr_stat_seq
+           ,IFNULL(b.cnt,0) as ordr_numbr_count
+      FROM ordr_stat_tb a
+      LEFT JOIN(SELECT ordr_stat_seq
+                  ,COUNT(ordr_numbr_seq) as cnt
+              FROM ordr_num_tb
+              WHERE custmr_seq = #{cusSeq}
+              GROUP by ordr_stat_seq) b ON a.ordr_stat_seq = b.ordr_stat_seq
+      ORDER BY ordr_stat_seq;
+   </select>
+   
+   
+   
+   <!-- 고객 이름, 장바구니 상품 개수, 히스토리 개수 조회 -->
+   <select id="cusInfoCount" parameterType="int" resultMap="custmrValues">
+   SELECT         c.custmr_nme as custmr_nme
+              , 
+              (select count(cb.cart_bridg_seq)
+              FROM custmr_tb c
+              JOIN cart_bridg_tb cb
+              ON c.custmr_seq = cb.custmr_seq
+                 WHERE c.custmr_seq = #{cusSeq}) 
+                  +
+                  (select count(packg_bridg_cart_seq)
+              from packg_bridg_cart_tb
+              where custmr_seq = #{cusSeq}) as cartCount
+                 ,   
+                 (select count(h.history_seq)
+               FROM custmr_tb c
+                   JOIN history_tb h
+               ON c.custmr_seq = h.custmr_seq
+                   WHERE c.custmr_seq = #{cusSeq}
+                   and h.history_dat BETWEEN now()-INTERVAL 3 day and now()
+                   ) as historyCount 
+                   ,
+                   c.push_check  
+                                      
+   FROM         custmr_tb c
+   WHERE         c.custmr_seq = #{cusSeq};
+   </select>
+   
+ 
+   
+   
+   <!-- 배송 목록 조회 -->
+	<select id="cusOrdrList" parameterType="ordrVo" resultMap="ordrValues">
+	    SELECT ordr_numbr_seq
+			  ,ordr_dat
+			  ,cart_img1
+			  ,ordr_stat
+			  ,prodct_seq
+			  ,prodct_nme
+			  ,recvr_mobl
+			  ,SUM(ordr_prodct_amont) AS ordr_prodct_amont
+			  ,SUM(all_pric) AS all_pric
+		FROM cus_ordr_view		
+		WHERE custmr_seq = #{custmrSeq}  
+        <if test="ordrStatSeq==4">
+        AND ordr_stat_seq = #{ordrStatSeq}    
+        </if> 
+        <if test="ordrStatSeq!=4 and ordrStatSeq!=0">
+        AND ordr_stat_seq = #{ordrStatSeq}    
+        </if> 
+        <if test="ordrStatSeq==0">
+        AND ordr_stat_seq != 4
+        </if>
+		GROUP BY ordr_numbr_seq
+		ORDER BY ORDR_STAT_SEQ, ordr_numbr_seq desc
+	</select>
+   
+   
+   <!-- 공동구매 배송 목록 조회 -->
+	<select id="cusDahamgaeOrdrList" parameterType="ordrVo" resultMap="ordrValues">
+	    SELECT o.ordr_numbr_seq
+			  ,DATE_FORMAT(ordr_dat,'%Y-%m-%d') as ordr_dat
+			  ,cart_img1
+			  ,ordr_stat
+			  ,titl as prodct_nme
+			  ,recvr_mobl
+			  ,go.sel_pric*ordr_amont as all_pric
+		FROM ordr_num_tb o 
+		JOIN grop_purchs_ordr_recrd_tb go
+		ON o.ordr_numbr_seq = go.ordr_numbr_seq
+		JOIN grop_purchs_tb gp
+		ON gp.grop_purchs_seq = go.grop_purchs_seq
+		left JOIN ordr_stat_tb os
+		ON o.ordr_stat_seq = os.ordr_stat_seq
+		WHERE o.custmr_seq = #{custmrSeq} 
+		<if test="ordrStatSeq==4">
+        AND o.ordr_stat_seq = #{ordrStatSeq}    
+        </if> 
+        <if test="ordrStatSeq!=4 and ordrStatSeq!=0">
+        AND o.ordr_stat_seq = #{ordrStatSeq}    
+        </if> 
+        <if test="ordrStatSeq==0">
+        AND o.ordr_stat_seq != 4
+        </if>   
+		ORDER BY ordr_dat;
+	</select>
+   
+   
+   <!-- 일반 주문 상세 조회 -->
+   <select id="cusOrdrRead" parameterType="ordrVo" resultMap="ordrValues">
+   		SELECT o.ordr_numbr_seq
+	    	  ,DATE_FORMAT(es.ordr_dat,'%Y-%m-%d') AS ordr_dat
+	    	  ,o.recvr_nme
+	    	  ,CONCAT(recvr_addrss,' ',RECVR_DETL_ADDRSS) AS recvr_addrss
+	    	  ,CONCAT(HOP_DELVR_DAT,' ',HOP_DELVR_TIM) AS hop_delvr_dat
+	    	  ,SUM(all_pric) AS all_pric
+	    	  ,o.recvr_mobl
+	    	  ,e.nme as emp_nme
+	    	  ,e.mobl as emp_mobl
+              ,e.img_rot as empImg
+	    	  ,o.ordr_stat_seq
+	    	  ,o.cart_img1 as cart_img1
+	    	  ,o.recmnd_check
+		FROM cus_ordr_view es join ordr_num_tb o 
+		ON es.ordr_numbr_seq = o.ordr_numbr_seq
+		LEFT JOIN emp_tb e
+		ON es.emp_seq = e.emp_seq
+		WHERE es.ordr_numbr_seq = #{ordrNumbrSeq}
+        and es.custmr_seq = #{custmrSeq};
+   </select>
+   
+   
+   <!-- 일반 주문 상세 조회 상품 리스트 -->
+    <select id="ordrReadProdctList" parameterType="ordrVo" resultMap="ordrValues">
+        SELECT	  p.prodct_nme as prodct_nme
+			    	  ,o.ordr_amont as ordr_amont 
+					  , o.sel_pric as sel_pric  
+			    	 , o.ordr_amont as ordr_amont 
+                     , o.sel_pric * o.ordr_amont as pricSum   
+                     , p.main_img  as cart_img
+			FROM
+				(SELECT ordr_numbr_seq
+					  ,prodct_seq
+					  ,ordr_amont
+					  ,sel_pric AS sel_pric
+				FROM ordr_recrd_tb
+				UNION ALL
+				SELECT ordr_numbr_seq
+					  ,pb.prodct_seq
+					  ,ordr_amont
+					  ,p.sel_pric
+				FROM packg_ordr_desc_tb po 
+				JOIN packg_bridg_tb pb
+				ON pb.packg_seq = po.packg_seq
+                JOIN prodct_tb p
+                ON p.prodct_seq = pb.prodct_seq   
+				) o JOIN prodct_tb p
+			ON o.prodct_seq = p.prodct_seq
+			WHERE ordr_numbr_seq = #{ordrNumbrSeq};    
+
+<!-- 		 SELECT	  p.prodct_nme as prodct_nme -->
+<!-- 			    	  ,o.ordr_amont as ordr_amont -->
+<!-- 					  , o.sel_pric as sel_pric -->
+<!-- 			    	 , o.ordr_amont as ordr_amont -->
+<!-- ㄹㄹ                 , o.sel_pric * o.ordr_amont as pricSum --> 
+<!--                      ,p.main_img as cart_img -->
+<!-- 			FROM -->
+<!-- 				(SELECT ordr_numbr_seq -->
+<!-- 					  ,prodct_seq -->
+<!-- 					  ,ordr_amont -->
+<!-- 					  ,sel_pric AS sel_pric -->
+<!-- 				FROM ordr_recrd_tb -->
+<!-- 				UNION ALL -->
+<!-- 				SELECT ordr_numbr_seq -->
+<!-- 					  ,prodct_seq -->
+<!-- 					  ,ordr_amont -->
+<!-- 					  ,sel_pric AS sel_pric -->
+<!-- 				FROM packg_ordr_desc_tb po  -->
+<!-- 				JOIN packg_bridg_tb pb -->
+<!-- 				ON pb.packg_seq = po.packg_seq  -->
+<!-- 				) o JOIN prodct_tb p -->
+<!-- 			ON o.prodct_seq = p.prodct_seq -->
+<!-- 			WHERE ordr_numbr_seq = #{ordrNumbrSeq};         -->
+        
+                
+<!-- 		   SELECT	  p.prodct_nme as prodct_nme -->
+<!-- 			    	  ,o.ordr_amont as ordr_amont -->
+<!-- 			    	  ,o.ordr_amont*o.sel_pric AS sel_pric -->
+<!-- 			    	  ,p.main_img as cart_img -->
+<!-- 			FROM -->
+<!-- 				(SELECT ordr_numbr_seq -->
+<!-- 					  ,prodct_seq -->
+<!-- 					  ,ordr_amont -->
+<!-- 					  ,ordr_amont*sel_pric AS sel_pric -->
+<!-- 				FROM ordr_recrd_tb -->
+<!-- 				UNION ALL -->
+<!-- 				SELECT ordr_numbr_seq -->
+<!-- 					  ,prodct_seq -->
+<!-- 					  ,ordr_amont -->
+<!-- 					  ,ordr_amont*sel_pric AS sel_pric -->
+<!-- 				FROM packg_ordr_desc_tb po  -->
+<!-- 				JOIN packg_bridg_tb pb -->
+<!-- 				ON pb.packg_seq = po.packg_seq  -->
+<!-- 				) o JOIN prodct_tb p -->
+<!-- 			ON o.prodct_seq = p.prodct_seq -->
+<!-- 			WHERE ordr_numbr_seq = #{ordrNumbrSeq} -->
+	</select>
+   
+   
+   <!-- 공동구매 상세 조회의 공동구매 상품 리스트 조회 -->
+	<select id="ordrReadDahamgaeList" parameterType="ordrVo" resultMap="ordrValues">
+	    SELECT g.prodct_nme
+	    	  ,gp.ordr_amont
+	    	  ,gp.ordr_amont*gp.sel_pric AS sel_pric
+	    	  ,g.img as cart_img
+		FROM grop_purchs_ordr_recrd_tb gp 
+		JOIN grop_purchs_tb g
+        ON gp.grop_purchs_seq = g.grop_purchs_seq
+		WHERE ordr_numbr_seq = #{ordrNumbrSeq};
+	</select>
+   
+   
+	<!-- 주문 취소 -->
+	<update id="cusOrdrCancel" parameterType="ordrVo">
+	    UPDATE 		ordr_num_tb 
+	    SET 		ordr_stat_seq = 4
+	     			, ordr_canl_dat = now()
+	    WHERE 		ordr_numbr_seq = #{ordrNumbrSeq};
+	</update>
+	
+	
+<!-- 주문 관련 -->   
+   <!-- 주문 번호 생성 및 주문자, 수령자 정보 등록 -->
+      <insert id="ordrCretInsert" parameterType="ordrVo">
+      INSERT INTO    ordr_num_tb 
+                     (ordr_numbr_seq
+                     , reqmnt
+                     , HOP_DELVR_TIM
+                     , ORDR_DAT
+                        , ORDR_STAT_SEQ
+                        , ORDR_TYPE_SEQ
+                        , recv_methd
+                        , PAMNT_METHD
+                        , recvr_nme
+                        , RECVR_mobl
+                        , RECVR_POSTCD
+                        , RECVR_ADDRSS
+                        , RECVR_DETL_ADDRSS
+                        , custmr_seq
+                        , ORDRR_NME
+                        , ORDRR_mobl
+                        , HOP_DELVR_DAT
+                        
+                        )
+      VALUES         ((SELECT IFNULL(MAX(ordr_numbr_seq),0)+1 FROM ordr_num_tb c)
+                     , #{reqmnt}
+                    , #{hopDelvrTim}
+                    , sysdate()
+                        , 1
+                        , 2
+                        , #{recvMethd}
+                        , #{pamntMethd}
+                        , #{recvrNme}
+                        , #{recvrMobl}
+                        , #{recvrPostcd}
+                        , #{recvrAddrss}
+                        , #{recvrDetlAddress}
+                        , #{custmrSeq}
+                        , (select custmr_nme   from custmr_tb   where custmr_seq = #{custmrSeq})
+                        , (select custmr_mobl   from custmr_tb   where custmr_seq = #{custmrSeq})
+                        , DATE_FORMAT(sysdate(), '%Y-%m-%d')
+                        );    
+      </insert>
+
+
+
+   <!-- 주문 번호에 주문 내역 등록(상품) -->
+   <insert id="ordrProductRecordInsert" parameterType="ordrVo">
+      INSERT INTO ordr_recrd_tb (ordr_numbr_seq, prodct_seq, ordr_amont, instck_pric, sel_pric)
+      SELECT      (select max(ordr_numbr_seq) from ordr_num_tb)
+               , p.prodct_seq
+               , cb.amont
+               , p.purchs_pric
+               , IF(p.discnt_pric=0, p.sel_pric, p.discnt_pric) as sale_pric FROM cart_bridg_tb cb
+      JOIN       all_prodct_view p ON          cb.prodct_seq = p.prodct_seq    
+      WHERE       cart_bridg_seq in (
+                    <foreach collection="prodctSeqGroup" item="item" separator=" , "> #{item} </foreach>
+               )                  
+   </insert>
+
+   
+   
+   <!-- rels 테이블에 등록 - 주문 내역 등록(상품) -->
+   <insert id="ordrProductRecordRelsTbInsert" parameterType="ordrVo">
+      INSERT INTO rels_tb (rels_seq, dat, prodct_seq, qunt, instck_pric, sel_pric)
+      SELECT      @rownum := @rownum + 1 AS a
+				, now()
+               , p.prodct_seq
+               , cb.amont
+               , p.purchs_pric
+               , IF(p.discnt_pric=0, p.sel_pric, p.discnt_pric) as sale_pric FROM cart_bridg_tb cb
+      JOIN       all_prodct_view p ON          cb.prodct_seq = p.prodct_seq  
+       , (SELECT @rownum:= (select max(rels_seq) from rels_tb)) a2  
+      WHERE       cart_bridg_seq in (
+                    <foreach collection="prodctSeqGroup" item="item" separator=" , "> #{item} </foreach>
+               )                  
+   </insert>
+   
+   
+   
+   <!-- 주문 번호에 주문 내역 등록(패키지) -->
+   <insert id="ordrPackgRecordInsert" parameterType="ordrVo">
+      INSERT INTO packg_ordr_desc_tb (packg_ordr_desc_seq, PACKG_SEQ, ordr_amont, instck_pric, sel_pric, ordr_numbr_seq) 
+      select          (SELECT IFNULL(MAX(d.packg_ordr_desc_seq),0)+1 FROM packg_ordr_desc_tb d)
+                  ,PK.PACKG_SEQ
+                  , pbc.amont
+                     , sum(P.PURCHS_PRIC)
+                  , sum(IF(p.discnt_pric=0, p.sel_pric, p.discnt_pric)) as sale_pric
+                  , (select max(ordr_numbr_seq) from ordr_num_tb)
+      from packg_bridg_cart_tb pbc
+      JOIN packg_bridg_tb pb
+      ON   pbc.packg_seq = pb.packg_seq
+      join   packg_tb pk
+       ON     pk.packg_seq = pb.packg_seq
+      JOIN all_prodct_view p
+      ON   pb.prodct_seq = p.prodct_seq    
+      WHERE pbc.custmr_seq = 1
+        AND packg_bridg_cart_seq in (
+                    <foreach collection="packgSeqGroup" item="item" separator=" , "> #{item} </foreach>
+               )                
+       group by pb.packg_seq                  
+   </insert>
+   
+   
+     <!-- 공동구매 주문내역 테이블 주문정보 등록 -->
+     <insert id="insertGropPurchsOrdrRecrd" parameterType="ordrVo">
+      INSERT INTO    grop_purchs_ordr_recrd_tb 
+                     (
+						ordr_numbr_seq
+						, grop_purchs_seq
+						, sel_pric
+						, instck_pric
+						, ordr_amont
+					 )
+      VALUES         (
+						(SELECT MAX(ordr_numbr_seq) FROM ordr_num_tb)
+						,(select grop_purchs_seq from grop_purchs_tb   where grop_purchs_prodct_seq = #{gropPurchsProdctSeq})
+						,(select sel_pric from grop_purchs_tb   where grop_purchs_prodct_seq = #{gropPurchsProdctSeq})
+						,(SELECT A.purchs_pric FROM all_sel_prodct_view AS A WHERE prodct_seq = (SELECT substring(grop_purchs_seq,2) FROM grop_purchs_tb WHERE grop_purchs_prodct_seq = #{gropPurchsProdctSeq}))
+                        ,#{ordrAmont}
+					 ); 
+     </insert>
+   
+<!-- 환경설정 -->   
+   <!-- 고객정보 확인  및 상세조회 -->
+   <select id="selectCusInfoCount" parameterType="custmrVo" resultMap="custmrValues">
+      SELECT count(*) AS cusCount, custmr_nme, custmr_id, custmr_pw, custmr_mobl, custmr_eml
+      FROM custmr_tb
+      WHERE custmr_id = #{custmrId}
+      AND custmr_pw = #{custmrPw};
+   </select>
+
+
+   <!-- 고객 비번 조회 -->
+   <select id="cusPwRead" parameterType="custmrVo" resultMap="custmrValues">
+      SELECT custmr_pw, custmr_nme, custmr_mobl, custmr_eml
+      FROM custmr_tb
+      WHERE custmr_id = #{custmrId}
+   </select>
+
+   
+   <!-- 회원 탈퇴 -->
+   <delete id="cusDelete" parameterType="custmrVo">
+       DELETE 
+       FROM        custmr_tb
+       WHERE        custmr_seq = #{custmrSeq}
+   </delete>
+   
+   
+   <!-- 회원 정보 수정 -->
+   <update id="cusInfoUpdate" parameterType="custmrVo">
+       UPDATE    custmr_tb
+      SET    custmr_nme = #{custmrNme}
+             ,custmr_id = #{custmrId}
+             ,custmr_mobl = #{custmrMobl}
+             ,custmr_eml = #{custmrEml}
+       WHERE    custmr_seq = #{custmrSeq}
+   </update>
+   
+   
+   <!-- 회원 비밀번호 수정 -->
+   <update id="cusPwUpdate" parameterType="custmrVo">
+       UPDATE    custmr_tb
+      SET    custmr_pw = #{custmrPw}
+       WHERE    custmr_seq = #{custmrSeq}
+   </update>
+   
+   
+   
+   <!-- 고객 왼쪽 탭 행사 상품 리스트 조회 -->
+   <select id="cusLeftPanelEventProdctList" resultMap="ordrValues">
+       SELECT       prodct_seq as prodct_seq
+                , main_img as cart_img
+                , prodct_nme as prodct_nme
+                , sel_pric as sel_pric
+                , discnt_pric as purchs_pric
+                , prodct_type
+        FROM       all_sel_prodct_view
+        WHERE       prodct_type = 5;
+   </select>
+   
+   
+   
+   <!-- 고객 왼쪽 탭 대분류 카테고리 리스트 조회 -->
+   <select id="cusLeftPanelTopCatgrList" resultMap="catgrValues">
+       SELECT       ROT_catgr_seq, catgr_Seq, catgr_Nme
+        FROM       catgr_tb
+        where       rot_catgr_seq ='#'
+        and         catgr_seq !=0;
+   </select>
+     
+   
+   
+   <!-- 고객 왼쪽 탭 중분류 카테고리 리스트 조회 -->
+   <select id="cusLeftPanelMidCatgrList" resultMap="catgrValues">
+        select ROT_catgr_seq, catgr_Seq, catgr_Nme
+       from catgr_tb
+       where rot_catgr_seq IN (select catgr_Seq
+                         from catgr_tb
+                         where rot_catgr_seq ='#'
+                         and         catgr_seq !=0)
+   </select>
+   
+   
+   
+   <!-- 고객 왼쪽 탭 중분류 선택 후 상품 리스트 소분류 카테고리 리스트 조회 -->
+   <select id="prodctListBotCatgrList" resultMap="catgrValues">
+       SELECT       ROT_catgr_seq, catgr_Seq, catgr_Nme
+        FROM       catgr_tb
+        where        rot_catgr_seq = #{catgrSeq};
+   </select>
+   
+
+   
+   <!-- 푸쉬 알림 설정 변경 -->
+   <update id="pushCheckUpdate" parameterType="custmrVo">
+       UPDATE   custmr_tb
+       SET    	push_check = #{pushCheck}
+       WHERE    custmr_seq = #{custmrSeq}
+   </update>
+   
+   
+   
+   <!-- 히스토리 조회 -->
+   <select id="historyList" parameterType="prodctVo" resultMap="prodctValues">
+      select 		DATE_FORMAT(h.history_dat,'%Y년 %m월 %d일') as history_dat
+      				, p.prodct_seq
+      				, p.prodct_nme
+      				, p.main_img
+      				, p.sel_pric as sel_pric
+      				, p.discnt_pric as sale_pric
+      from 			history_tb h
+      join 			all_sel_prodct_view p
+      on 			h.prodct_seq = p.prodct_seq
+      where 		custmr_seq = #{cusSeq}
+      and  			history_dat = DATE_FORMAT(NOW()-INTERVAL #{pageType} DAY,'%Y-%m-%d');
+   </select>
+ 
+   
+   
+    <!-- 고객이 직원 추천 -->
+    <insert id="custmrRecmndCreate" parameterType="custmrVo">
+      INSERT INTO    	custmr_recmnd_tb
+				        (
+						 custmr_seq
+						 , emp_seq
+						 , recmnd_resn_code_seq
+						 , dat
+				        )
+       VALUES			(
+       					#{custmrSeq}
+       					,#{recmndEmpSeq}
+       					,#{recmndResnCodeSeq}
+       					,DATE_FORMAT(NOW(),'%Y-%m-%d')
+       					)
+      </insert>
+   
+    
+    <!-- 고객이 직원 추천 했는지 체크 (이번달에) -->
+    <select id="custmrRecmndCheck" parameterType="custmrVo" resultMap="custmrValues">
+   		 select			count(*) as cusCount
+     	 from 			custmr_recmnd_tb
+      	 where 			custmr_seq = #{custmrSeq}
+      	 and 			DATE_FORMAT(dat, '%Y-%m') =  DATE_FORMAT(now(), '%Y-%m');
+    </select>
+    
+    
+    
+   <!--패키지, 일반상품 모두 있을때 - 장바구니 에서 주문하기할때 상품명 가져가기 ex. 물망초  외 3종 --> 
+   <select id="cartBuyProdctNme" parameterType="ordrVo" resultMap="ordrValues">  
+   		select 	prodct_nme as firstProdctNme
+   				, count(distinct prodct_seq) as prodctCount
+        from 
+        (select cb.prodct_seq, alls.prodct_nme
+        from cart_bridg_tb cb
+        join all_sel_prodct_view alls
+        on cb.prodct_Seq = alls.prodct_seq
+        where cb.custmr_seq = #{custmrSeq}
+        and cb.cart_bridg_seq in 
+	        (
+	             <foreach collection="prodctSeqGroup" item="item" separator=" , "> #{item} </foreach>
+	        )                
+        union all
+		select pb.prodct_seq, alls.prodct_nme
+        from packg_bridg_cart_tb pbc
+        join packg_bridg_tb pb
+        on pbc.packg_seq = pb.packg_seq
+        join all_sel_prodct_view alls
+        on pb.prodct_Seq = alls.prodct_seq
+        where pbc.custmr_seq = #{custmrSeq}
+        and pbc.packg_bridg_cart_seq in 
+	       (
+	             <foreach collection="packgSeqGroup" item="item" separator=" , "> #{item} </foreach>
+	        ) 
+        ) as tb;
+    </select>    
+    
+   
+    <!--일반상품만 있을때 - 장바구니 에서 주문하기할때 상품명 가져가기 ex. 물망초  외 3종 --> 
+   <select id="onlyNormalCartBuyProdctNme" parameterType="ordrVo" resultMap="ordrValues">  
+   		select 	count(cb.prodct_seq) as prodctCount
+   				, alls.prodct_nme as firstProdctNme
+        from cart_bridg_tb cb
+        join all_sel_prodct_view alls
+        on cb.prodct_Seq = alls.prodct_seq
+        where cb.custmr_seq = #{custmrSeq}
+        and cb.cart_bridg_seq in 
+	        (
+	             <foreach collection="prodctSeqGroup" item="item" separator=" , "> #{item} </foreach>
+	        )                
+        
+    </select>    
+    
+    
+    <!--패키지만 있을때 - 장바구니 에서 주문하기할때 상품명 가져가기 ex. 물망초  외 3종 --> 
+   <select id="onlyDahamgaeCartBuyProdctNme" parameterType="ordrVo" resultMap="ordrValues">  
+   		select 	count(pb.prodct_seq) as prodctCount
+   				, alls.prodct_nme as firstProdctNme
+        from packg_bridg_cart_tb pbc
+        join packg_bridg_tb pb
+        on pbc.packg_seq = pb.packg_seq
+        join all_sel_prodct_view alls
+        on pb.prodct_Seq = alls.prodct_seq
+        where pbc.custmr_seq = #{custmrSeq} 
+        and pbc.packg_bridg_cart_seq in 
+	       (
+	             <foreach collection="packgSeqGroup" item="item" separator=" , "> #{item} </foreach>
+	        )          
+        
+    </select>  
+    
+   
+   
+   
+   <!-- 상품 검색 -->
+	<select id="appProdctMidCatgrSearch"  resultMap="prodctValues" parameterType="catgrVo" >
+	    SELECT prodct_seq
+          , main_img
+             , prodct_nme
+            , sel_pric
+             , discnt_pric AS sale_pric
+            , prodct_type
+            , a.catgr_seq
+            , packg_seq
+            , sel_strt_time
+            , schedl_seq 
+      FROM all_sel_prodct_view a JOIN catgr_tb c1
+        ON a.catgr_seq = c1.catgr_seq
+      JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+      JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+        WHERE (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})   
+      OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+      OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}));
+
+	</select>
+   
+	
+	
+	<!-- 배송 완료에서 배달한 직원 추천 -->
+   <update id="ordrRecmndUpdate" parameterType="int" >
+      UPDATE      ordr_num_tb
+      SET         recmnd_check = 'Y'
+      WHERE       ordr_numbr_seq = #{ordrNumbrSeq};
+   </update>
+   
+</mapper>

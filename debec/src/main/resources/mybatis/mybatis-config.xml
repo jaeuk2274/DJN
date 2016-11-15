@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+<settings>
+<setting name="cacheEnabled" value="false"/>
+<setting name="useGeneratedKeys" value="true"/>
+<setting name="defaultExecutorType" value="REUSE"/>
+</settings>
+<typeAliases>   <!-- domain에 있는 ValueObject의 별명을 지어주어 mapper.xml에서 사용하기 쉽게 해준다. 얼마든지 추가 가능! -->
+	<typeAlias type="net.su.login.valueObject.PageValueObject" alias="pageVo"/>
+	<typeAlias type="net.su.login.valueObject.LoginValueObject" alias="loginVo"/> 
+	  
+	<typeAlias type="net.su.prodct.display.valueObject.MainDisplayValueObject" alias="mainDisplayVo"/> <!-- 메인 진열 vo -->
+	<typeAlias type="net.su.prodct.display.valueObject.HotdlValueObject" alias="hotdlVo"/>  <!-- 핫딜 vo -->
+	<typeAlias type="net.su.prodct.display.valueObject.FreshValueObject" alias="freshVo"/>  <!-- 신선 vo -->
+	<typeAlias type="net.su.prodct.display.valueObject.PackgValueObject" alias="packgVo"/>  <!-- 패키지 vo -->
+
+	<typeAlias type="net.su.custmr.valueObject.OrdrValueObject" alias="ordrVo"/><!-- 주문 -->
+	<typeAlias type="net.su.custmr.valueObject.CallOrderValueObject" alias="callOrderVo"/>  <!-- 전화주문 Vo -->
+	<typeAlias type="net.su.custmr.valueObject.CustmrValueObject" alias="custmrVo"/> <!-- 고객 Vo -->
+	<typeAlias type="net.su.custmr.valueObject.PushValueObject" alias="pushVo"/> <!-- 푸시 Vo -->
+	
+	<typeAlias type="net.su.prodct.valueObject.DebecFestivalValueObject" alias="debecFestivalVo"/>  <!-- 대백제 Vo -->
+	<typeAlias type="net.su.prodct.valueObject.ProdctFestivalValueObject" alias="prodctFestivalVo"/>  <!-- 대백제 상품 Vo -->
+	<typeAlias type="net.su.prodct.valueObject.ProdctValueObject" alias="prodctVo"/> <!-- 상품 Vo -->
+	<typeAlias type="net.su.prodct.valueObject.CatgrValueObject" alias="catgrVo"/>
+	<typeAlias type="net.su.prodct.valueObject.TogthrValueObject" alias="togthrVo"/>
+	
+	<typeAlias type="net.su.market.valueObject.EmpValueObject" alias="empVo"/>  <!-- 직원 Vo -->
+	<typeAlias type="net.su.market.valueObject.VactnValueObject" alias="vactnVo"/>  <!--휴가 Vo -->
+	<typeAlias type="net.su.market.valueObject.SchedlValueObject" alias="schedlVo"/> <!-- 일정 Vo -->
+    <typeAlias type="net.su.market.valueObject.AgremtValueObject" alias="agremtVo"/> <!-- 이용약관 Vo -->
+	<typeAlias type="net.su.market.valueObject.DJNValueObject" alias="djnVo"/>  <!-- 대장남 vo -->
+	<typeAlias type="net.su.market.valueObject.DJNPointValueObject" alias="djnPointVo"/>  <!-- 대장남 포인트 비율 vo -->
+	<typeAlias type="net.su.market.valueObject.RecmndResnValueObject" alias="recmndResnVo"/>  <!-- 추천 사유 vo --> 
+	<typeAlias type="net.su.market.valueObject.RecmndValueObject" alias="recmndVo"/>  <!-- 추천 vo -->
+	
+	<typeAlias type="net.su.deal.valueObject.ClintValueObject" alias="clintVo"/>	<!-- 거래처 vo -->
+	<typeAlias type="net.su.deal.valueObject.InstckValueObject" alias="instckVo"/>	<!-- 입고거래 vo -->
+	<typeAlias type="net.su.deal.valueObject.StckValueObject" alias="stckVo"/>
+	
+    <typeAlias type="net.su.end.valueObject.SalsValueObject" alias="SalsVo"/> <!--  분석 Vo -->	
+    <typeAlias type="net.su.end.valueObject.TodyAnalValueObject" alias="todyAnalVo"/> <!-- 투데이분석 vo --> 
+    <typeAlias type="net.su.end.valueObject.OrdrAnalValueObject" alias="ordrAnalVo"/>  <!-- 주문분석 vo -->
+    <typeAlias type="net.su.end.valueObject.ProdctAnalValueObject" alias="prodctAnalVo"/>  <!-- 상품분석 vo -->
+    
+    <typeAlias type="net.su.app.appComnty.valueObject.ComntyValueObject" alias="comntyVo"/>  <!-- 커뮤니티 Vo -->
+	<typeAlias type="net.su.app.appRecp.valueObject.AppRecpValueObject" alias="recpVo"/> <!--  앱 레시피 Vo -->
+	<typeAlias type="net.su.app.appPush.valueObject.AppPushValueObject" alias="appPushVo"/>  <!-- 푸시 vo -->
+	<typeAlias type="net.su.app.appLogin.valueObject.ShippingPlaceValueObject" alias="shipngPlaceVo"/>  <!-- 배송지 분석 vo -->
+	<typeAlias type="net.su.app.appMarket.valueObject.AppMarketValueObject" alias="AppMarketVo"/>  <!-- 앱 마켓 vo -->
+</typeAliases>
+   
+<mappers>
+	<mapper resource="/mybatis/sql/login/loginMapper.xml"/>
+	
+	<mapper resource="/mybatis/sql/prodct/mainDisplayMapper.xml"/> <!-- 메인 진열 관리 mapper -->
+	<mapper resource="/mybatis/sql/prodct/hotdlMapper.xml"/> <!-- 핫딜 상품 관리 mapper -->
+	<mapper resource="/mybatis/sql/prodct/freshMapper.xml"/> <!-- 신선 식품 관리 mapper -->
+	<mapper resource="/mybatis/sql/prodct/debecFestivalMapper.xml"/> <!-- 대백제 mapper -->
+	<mapper resource="/mybatis/sql/prodct/prodctMapper.xml"/>
+	<mapper resource="/mybatis/sql/prodct/packgMapper.xml"/> <!-- 패키지 관리 mapper -->
+	<mapper resource="/mybatis/sql/prodct/togthrMapper.xml"/> <!-- 다함께 관리 mapper -->
+
+	<mapper resource="/mybatis/sql/custmr/callOrderMapper.xml"/>
+	<mapper resource="/mybatis/sql/custmr/ordrMapper.xml"/>
+	<mapper resource="/mybatis/sql/custmr/custmrMapper.xml"/>
+	<mapper resource="/mybatis/sql/custmr/pushMapper.xml"/>
+	
+	<mapper resource="/mybatis/sql/market/empMapper.xml"/> <!-- 직원 mapper -->
+	<mapper resource="/mybatis/sql/market/vactnMapper.xml"/> <!-- 휴가 mapper -->
+	<mapper resource="/mybatis/sql/market/agremtMapper.xml"/>   
+	<mapper resource="/mybatis/sql/market/schedlMapper.xml"/>	
+	<mapper resource="/mybatis/sql/market/DJNMapper.xml"/> <!--대장남 mapper -->
+	
+	<mapper resource="/mybatis/sql/deal/clintMapper.xml"/>	<!-- 거래처 mapper  -->
+	<mapper resource="/mybatis/sql/deal/instckMapper.xml"/>	<!-- 입고거래 mapper -->
+	<mapper resource="/mybatis/sql/deal/stckMapper.xml"/>	
+	
+	<mapper resource="/mybatis/sql/end/prodctAnalMapper.xml"/>
+	<mapper resource="/mybatis/sql/end/salsMapper.xml"/>
+	<mapper resource="/mybatis/sql/end/todyAnalMapper.xml"/> <!-- 투데이분석 mapper -->
+	<mapper resource="/mybatis/sql/end/ordrAnalMapper.xml"/> <!-- 주문분석 mapper -->
+		
+	<!-- 앱 관련 mapper -->
+	<mapper resource="/mybatis/sql/app/appPush/appPushMapper.xml"/> <!-- 푸시 mapper -->
+	
+	<mapper resource="/mybatis/sql/app/appMain/appMainMapper.xml"/>
+	
+	<mapper resource="/mybatis/sql/app/appRecp/appRecpMapper.xml"/>
+	
+ 	<mapper resource="/mybatis/sql/app/appLogin/appLoginMapper.xml"/> <!-- 로그인 mapper -->
+ 	
+	<mapper resource="/mybatis/sql/app/appMyPg/appCusMyPgMapper.xml"/> <!-- 마이페이지 mapper -->
+	<mapper resource="/mybatis/sql/app/appMyPg/appEmpMyPgMapper.xml"/> <!-- 직원 마이페이지 mapper -->
+	
+	<mapper resource="/mybatis/sql/app/appMarket/appMarketMapper.xml"/> <!-- 마켓 공통 mapper -->
+	<mapper resource="/mybatis/sql/app/appMarket/appDebecFestivalMapper.xml"/> <!-- 대백제 mapper -->
+	<mapper resource="/mybatis/sql/app/appMarket/appOnlyYouMapper.xml"/> <!-- 너.만.상 mapper -->
+	<mapper resource="/mybatis/sql/app/appMarket/appDebecChoiceMapper.xml"/> <!-- 대백초이스 mapper -->
+	<mapper resource="/mybatis/sql/app/appMarket/appTogthrMapper.xml"/> <!-- 다함께 mapper -->
+	
+	<mapper resource="/mybatis/sql/app/appComnty/appComntyMapper.xml"/> <!-- 커뮤니티 mapper -->
+</mappers>
+</configuration>

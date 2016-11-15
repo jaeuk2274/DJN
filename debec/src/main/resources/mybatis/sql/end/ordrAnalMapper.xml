@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="ordrAnalMapper">
+	
+	
+	<resultMap id="salsValues" type="salsVo">		
+		<result property="ordrType" column="ordr_type"/> <!-- 주문종류(상일 추가) -->
+		<result property="btnDatSech" column="btnDatSech"/> <!-- 일자검색 버튼선택 -->
+		<result property="startDatSech" column="startDatSech"/> <!-- 일자검색 시작일 -->
+		<result property="endDatSech" column="endDatSech"/> <!-- 일자검색 종료일 -->
+		<result property="prodctNmeSech" column="prodctNmeSech"/> <!-- 상품명 검색 -->
+		<result property="prodctpricSech1" column="prodctNmeSech"/> <!-- 상품 판매가 검색 시작가격(상일 추가) -->
+		<result property="prodctpricSech2" column="prodctNmeSech"/> <!-- 상품 판매가 검색 끝가격(상일 추가) -->
+		
+		<result property="topCatgrNme" column="top_catgr_nme"/> <!-- 카테고리 (대) -->
+		<result property="midCatgrNme" column="mid_catgr_nme"/> <!-- 카테고리 (중) -->
+		<result property="botCatgrNme" column="bot_catgr_nme"/> <!-- 카테고리 (소) -->
+	</resultMap>
+	
+	<resultMap id="OrdrAnalValues" type="ordrAnalVo">
+		<result property="salsDay" column="ordr_dat"/> <!-- 매출 일자 -->
+		<result property="calOrdrCont" column="calOrdrCont"/> <!-- 전화주문 수 -->
+		<result property="appOrdrCont" column="appOrdrCont"/> <!-- 앱 주문수 -->
+		<result property="calSalsPric" column="calSalsPric"/> <!-- 전화주문 매출액 -->
+		<result property="appSalsPric" column="appsalsPric"/> <!-- 앱 매출액-->
+	</resultMap>
+	
+	<resultMap id="prodctValues" type="ordrAnalVo">
+		<result property="prodctSeq" column="prodct_seq"/> <!-- 상품코드 -->
+		<result property="prodctNme" column="prodct_nme"/> <!-- 상품명 -->
+		<result property="selPric" column="sel_pric"/> <!-- 판매가 -->
+		<result property="ordrAmont" column="ordr_amont"/> <!-- 판매수량 -->
+		<result property="selTot" column="sel_tot"/> <!-- 판매합계-->
+		<result property="netinc" column="netinc"/> <!--순이익-->
+		<result property="rank" column="rank"/> <!--판매순위-->
+	</resultMap>
+	
+
+	
+	<!-- 일별매출의 분석 리스트(검색조건 포함) -->
+	<select id="dayOrdrAnal" parameterType="salsVo" resultMap="OrdrAnalValues">
+			SELECT	ordr_dat
+				    ,calOrdrCont
+				    ,appOrdrCont
+				    ,calSalsPric
+				    ,appSalsPric
+			FROM	ordr_anal_view
+		<choose>
+			<when test="btnDatSech=='1day'">
+				WHERE		ordr_dat = DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='3day'">
+				WHERE		ordr_dat BETWEEN now()-INTERVAL 3 day and now()
+			</when>
+			<when test="btnDatSech=='7day'">
+				WHERE		ordr_dat BETWEEN now()-INTERVAL 7 day and now()
+			</when>
+			<when test="btnDatSech=='14day'">
+				WHERE		ordr_dat BETWEEN now()-INTERVAL 14 day and now()
+			</when>
+			<when test="btnDatSech=='30day'">
+				WHERE		ordr_dat BETWEEN now()-INTERVAL 30 day and now()
+			</when>
+			<otherwise>
+				WHERE		ordr_dat BETWEEN #{startDatSech} and #{endDatSech}
+			</otherwise>
+		</choose>		
+		GROUP BY   ordr_dat
+		ORDER BY   ordr_dat ASC;
+	</select>
+	
+	<!-- 월별매출의 분석 리스트(검색조건 포함) -->
+	<select id="monthOrdrAnal" parameterType="salsVo" resultMap="OrdrAnalValues">
+			SELECT	DATE_FORMAT(ordr_dat, '%Y-%m') as ordr_dat
+					,SUM(calOrdrCont) as calOrdrCont
+				    ,SUM(appOrdrCont) as appOrdrCont
+				    ,SUM(calSalsPric) as calSalsPric
+				    ,SUM(appSalsPric) as appSalsPric
+			FROM	ordr_anal_view
+		<choose>
+<!-- 			<when test="btnDatSech=='1개월' "> -->
+<!-- 				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now(), '%Y-%m') and DATE_FORMAT(now()+ INTERVAL 1 month, '%Y-%m') -->
+<!-- 			</when> -->
+			<when test="btnDatSech=='3month' or btnDatSech=='3day'">
+				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 2 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<when test="btnDatSech=='6month'">
+				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 5 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<when test="btnDatSech=='12month'">
+				WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 11 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<otherwise>
+				WHERE		ordr_dat BETWEEN #{startDatSech} and #{endDatSech}
+			</otherwise>
+		</choose>		
+		GROUP BY  DATE_FORMAT(ordr_dat, '%Y-%m')
+		ORDER BY ordr_dat ASC;
+	</select>
+	
+	<!-- 상품별 주문 분석 리스트(전체주문/검색조건 포함) -->
+	<select id="totProdctOrdrAnal" parameterType="salsVo" resultMap="prodctValues">
+		SELECT   @ROWNUM := @ROWNUM + 1 AS rank
+				,A.prodct_seq
+		        ,A.prodct_nme
+		        ,A.sel_pric
+		        ,A.ordr_amont
+		        ,A.netinc
+		        ,A.sel_tot
+		FROM(SELECT	prodct_seq
+					,prodct_nme
+					,sel_pric
+					,ordr_amont
+					,sel_pric-instck_pric as 'netinc'
+					,sel_pric*ordr_amont as 'sel_tot'
+			FROM	total_anal_view
+			<choose>
+				<when test="btnDatSech=='1month' or btnDatSech=='3day'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now(), '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<when test="btnDatSech=='3month'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 2 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<when test="btnDatSech=='6month'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 5 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<when test="btnDatSech=='12month'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 11 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<otherwise>
+					WHERE		ordr_dat BETWEEN #{startDatSech} and #{endDatSech}
+				</otherwise>
+			</choose>		
+			<if test="topCatgrNme!='대분류'">
+				AND 		top_catgr_nme = #{topCatgrNme}
+			</if>
+			<if test="midCatgrNme!='중분류'">
+				AND 		mid_catgr_nme = #{midCatgrNme}
+			</if>
+			<if test="botCatgrNme!='소분류'">
+				AND 		bot_catgr_nme = #{botCatgrNme}
+			</if>
+			<if test="prodctpricSech2!=0">
+				AND		sel_pric BETWEEN #{prodctpricSech1} and #{prodctpricSech2}
+			</if>
+			AND 	prodct_nme LIKE '%${prodctNmeSech}%'
+			GROUP BY prodct_seq
+			ORDER BY ordr_amont DESC)AS A, (SELECT @ROWNUM := 0) R;
+	</select>
+	
+	<!-- 상품별 주문 분석 리스트(어플,전화주문 /검색조건 포함) -->
+	<select id="prodctOrdrAnal" parameterType="salsVo" resultMap="prodctValues">
+		SELECT   @ROWNUM := @ROWNUM + 1 AS rank
+				,A.prodct_seq
+		        ,A.prodct_nme
+		        ,A.sel_pric
+		        ,A.ordr_amont
+		        ,A.netinc
+		        ,A.sel_tot
+		FROM(SELECT	prodct_seq
+					,prodct_nme
+					,sel_pric
+					,ordr_amont
+					,sel_pric-instck_pric as 'netinc'
+					,sel_pric*ordr_amont as 'sel_tot'
+			FROM	online_anal_view
+			<choose>
+				<when test="btnDatSech=='1month' or btnDatSech=='3day'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now(), '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<when test="btnDatSech=='3month'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 2 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<when test="btnDatSech=='6month'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 5 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<when test="btnDatSech=='12month'">
+					WHERE		DATE_FORMAT(ordr_dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 11 month, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+				</when>
+				<otherwise>
+					WHERE		ordr_dat BETWEEN #{startDatSech} and #{endDatSech}
+				</otherwise>
+			</choose>		
+			<if test="topCatgrNme!='대분류'">
+				AND 		top_catgr_nme = #{topCatgrNme}
+			</if>
+			<if test="midCatgrNme!='중분류'">
+				AND 		mid_catgr_nme = #{midCatgrNme}
+			</if>
+			<if test="botCatgrNme!='소분류'">
+				AND 		bot_catgr_nme = #{botCatgrNme}
+			</if>
+			<if test="prodctpricSech2!=0">
+				AND		sel_pric BETWEEN #{prodctpricSech1} and #{prodctpricSech2}	
+			</if>	
+			AND 	prodct_nme LIKE '%${prodctNmeSech}%'
+			GROUP BY prodct_seq
+			ORDER BY ordr_amont DESC)AS A, (SELECT @ROWNUM := 0) R;
+	</select>
+	<!-- 주문 종류 리스트를 조회 -->
+	<select id="ordrList" resultMap="salsValues" parameterType="salsVo">
+		SELECT ordr_type
+		FROM ordr_type_tb
+		ORDER BY ORDR_TYPE_SEQ DESC;
+	</select>
+</mapper>

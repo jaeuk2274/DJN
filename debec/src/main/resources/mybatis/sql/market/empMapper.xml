@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- 
+* 직원관리  Mapper입니다.
+* 
+* history :
+*        이인호, 1.0, 2016/08/09 – 초기 작성
+* author : 이인호
+* version : 1.0, 2016/08/09  - 초기 작성
+* see : 관련된 모듈을 기술한다.
+//-->
+
+<mapper namespace="empMapper">
+	<resultMap id="empValues" type="empVo">
+			<!-- 직원 정보 -->
+			<result property="empSeq" column="emp_seq"/>
+			<result property="id" column="id"/>
+			<result property="pw" column="pw"/>
+			<result property="nme" column="nme"/>
+			<result property="gendr" column="gendr"/>
+			<result property="postcd" column="postcd"/>
+			<result property="adrs" column="adrs"/>
+			<result property="detlAdrs" column="detl_adrs"/>
+			<result property="birth" column="birth"/>
+			<result property="hirDat" column="hir_dat"/>
+			<result property="tel" column="tel_hp"/>
+			<result property="mobl" column="mobl"/>
+			<result property="duty" column="duty"/>
+			<result property="task" column="task"/>
+			<result property="stat" column="stat"/>
+			<result property="imgRot" column="img_rot"/>
+
+			
+			<!-- 직원 권한 -->
+			<result property="empAthrty" column="emp_athrty"/>
+			<result property="clintAthrty" column="clint_athrty"/>
+			<result property="prodctAthrty" column="prodct_athrty"/>
+			<result property="cutmrAthrty" column="cutmr_athrty"/>
+			<result property="todayAthrty" column="today_athrty"/>
+			<result property="vactnAthrty" column="vactn_athrty"/>
+			<result property="exchngFlorAthrty" column="exchng_flor_athrty"/>
+			<result property="evntAthrty" column="evnt_athrty"/>
+			<result property="pushNotfcatnAthrty" column="push_notfcatn_athrty"/>
+			<result property="prodctAnlysAthrty" column="prodct_anlys_athrty"/>
+			<result property="schedlAthrty" column="schedl_athrty"/>
+			<result property="stckAthrty" column="stck_athrty"/>
+			<result property="togetherAthrty" column="together_athrty"/>
+			<result property="ordrRecrdAthrty" column="ordr_recrd_athrty"/>
+			<result property="ordrAnlysAthrty" column="ordr_anlys_athrty"/>
+			<result property="useAgremtAthrty" column="use_agremt_athrty"/>
+			<result property="salsAnlysAthrty" column="sals_anlys_athrty"/>
+			<result property="DJNAthrty" column="djn_athrty"/>
+			
+			<!-- 검색조건 -->
+			<result property="searchWrd" column="searchWrd"/>
+			<result property="searchCnd" column="searchCnd"/>
+			<result property="searchAry" column="searchAry"/>
+			
+			<!-- 페이징 조건 -->
+			<result property="recordCountPerPage" column="recordCountPerPage"/>
+			<result property="firstRecordIndex" column="firstRecordIndex"/>
+	</resultMap>
+	
+	<!-- 직원 총원 조회 -->
+	<select id="selectEmpCount" parameterType="empVo" resultType="int">
+		SELECT 	count(emp_seq)
+		FROM	emp_tb
+		WHERE stat = 'Y'
+		<if test="searchCnd == 0">
+			AND nme LIKE CONCAT ('%', #{searchWrd},'%')
+		</if>
+		<if test="searchCnd == 1">
+			AND duty LIKE CONCAT ('%', #{searchWrd},'%')
+		</if>
+	</select>
+
+	<!-- 직원 조회 -->
+	<select id="selectEmpList" parameterType="empVo" resultMap="empValues">
+		SELECT emp_seq
+			,  nme
+			,  mobl
+			,  duty
+			,  task
+			,  gendr
+			,  birth
+			,  stat
+		FROM emp_tb
+		WHERE stat = 'Y'
+		<if test="searchCnd == 0">
+			AND nme LIKE CONCAT ('%', #{searchWrd},'%')
+		</if>
+		<if test="searchCnd == 1">
+			AND duty LIKE CONCAT ('%', #{searchWrd},'%')
+		</if>
+		<if test="searchAry == 0">
+			ORDER BY nme
+		</if>
+		<if test="searchAry == 1">
+			ORDER BY duty
+		</if>
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 직원 정보 상세조회 -->
+	<select id="selectEmpRead" parameterType="int" resultMap="empValues">
+		SELECT e.emp_seq
+			,  e.id
+			,  e.nme
+			,  e.gendr
+			,  e.postcd
+			,  e.adrs
+			,  e.detl_adrs
+			,  e.birth
+			,  e.hir_dat
+			,  e.tel_hp
+			,  e.mobl
+			,  e.duty
+			,  e.task
+			,  e.img_rot
+            ,  a.emp_athrty
+            ,  a.clint_athrty
+            ,  a.prodct_athrty
+            ,  a.cutmr_athrty
+            ,  a.today_athrty
+            ,  a.vactn_athrty
+            ,  a.exchng_flor_athrty
+            ,  a.evnt_athrty
+            ,  a.push_notfcatn_athrty
+            ,  a.prodct_anlys_athrty
+            ,  a.schedl_athrty
+            ,  a.stck_athrty
+            ,  a.together_athrty
+            ,  a.ordr_recrd_athrty
+            ,  a.ordr_anlys_athrty
+            ,  a.use_agremt_athrty
+            ,  a.sals_anlys_athrty
+            ,  a.djn_athrty
+		FROM emp_tb e
+        LEFT JOIN athrty_tb a ON a.emp_seq = e.emp_seq
+		WHERE e.emp_seq = #{empSeq};
+	</select>
+	
+	<!-- 직원 등록 -->
+	<insert id="empCreate" parameterType="empVo">
+		INSERT INTO
+		emp_tb(emp_seq
+			,  id
+			,  pw
+			,  nme
+			,  gendr
+			,  postcd
+			,  adrs
+			,  detl_adrs
+			,  birth
+			,  hir_dat
+			,  tel_hp
+			,  mobl
+			,  duty
+			,  task
+			,  img_rot)
+		VALUES((SELECT IFNULL(MAX(e.emp_seq),0) + 1 AS emp_seq FROM emp_tb as e)
+			,  #{id}
+			,  #{pw}
+			,  #{nme}
+			,  #{gendr}
+			,  #{postcd}
+			,  #{adrs}
+			,  #{detlAdrs}
+			,  #{birth}
+			,  #{hirDat}
+			,  #{tel}
+			,  #{mobl}
+			,  #{duty}
+			,  #{task}
+			,  #{imgRot});
+	</insert>
+	
+	<!-- 직원 권한 등록 -->
+	<insert id="empAthrtyCreate" parameterType="empVo">
+		<selectKey keyProperty="empSeq" resultType="int" order="BEFORE">
+			SELECT IFNULL(MAX(emp_seq),0) AS empSeq
+			FROM emp_tb;
+		</selectKey>
+		INSERT INTO
+		athrty_tb(athrty_seq	  
+			,  emp_seq
+			,  emp_athrty
+			,  clint_athrty
+			,  prodct_athrty
+			,  cutmr_athrty
+			,  today_athrty
+			,  vactn_athrty
+			,  exchng_flor_athrty
+			,  evnt_athrty
+			,  push_notfcatn_athrty
+			,  prodct_anlys_athrty
+			,  schedl_athrty
+			,  stck_athrty
+			,  together_athrty
+			,  ordr_recrd_athrty
+			,  ordr_anlys_athrty
+			,  use_agremt_athrty
+			,  sals_anlys_athrty
+			,  djn_athrty)
+		VALUES((SELECT IFNULL(MAX(a.athrty_seq),0) + 1 AS athrty_seq FROM athrty_tb as a)
+			,  #{empSeq}
+			,  #{empAthrty}
+			,  #{clintAthrty}
+			,  #{prodctAthrty}
+			,  #{cutmrAthrty}
+			,  #{todayAthrty}
+			,  #{vactnAthrty}
+			,  #{exchngFlorAthrty}
+			,  #{evntAthrty}
+			,  #{pushNotfcatnAthrty}
+			,  #{prodctAnlysAthrty}
+			,  #{schedlAthrty}
+			,  #{stckAthrty}
+			,  #{togetherAthrty}
+			,  #{ordrRecrdAthrty}
+			,  #{ordrAnlysAthrty}
+			,  #{useAgremtAthrty}
+			,  #{salsAnlysAthrty}
+			,  #{DJNAthrty});
+	</insert>
+	
+	<!-- 직원 SEQ 조회 -->
+	<select id="maxEmpSeq"  resultType="int">
+		SELECT max(emp_seq)+1
+		FROM emp_tb;
+	</select>
+	
+	<!-- 직원 정보 수정 -->
+	<update id="empUpdate" parameterType="empVo">
+		UPDATE emp_tb
+		SET id = #{id}
+		,   nme = #{nme}
+		,   postcd = #{postcd}
+		,   adrs = #{adrs}
+		,   detl_adrs = #{detlAdrs}
+		,   birth = #{birth}
+		,   hir_dat = #{hirDat}
+		,   tel_hp = #{tel}
+		,   mobl = #{mobl}
+		,   duty = #{duty}
+		,   task = #{task}
+		,   img_rot = #{imgRot}
+		WHERE emp_seq = #{empSeq};
+	</update>
+	
+	<!-- 직원 개인 정보 수정 -->
+	<update id="empPersnlUpdate" parameterType="empVo">
+		UPDATE emp_tb
+		SET nme = #{nme}
+		,   postcd = #{postcd}
+		,   adrs = #{adrs}
+		,   detl_adrs = #{detlAdrs}
+		,   tel_hp = #{tel}
+		,   mobl = #{mobl}
+		,   img_rot = #{imgRot}
+		WHERE emp_seq = #{empSeq};
+	</update>
+	
+	<update id="empAthrtyUpdate" parameterType="empVo">
+		<if test="id != null">
+			UPDATE athrty_tb
+			SET emp_athrty = #{empAthrty}
+			,   clint_athrty = #{clintAthrty}
+			,   prodct_athrty = #{prodctAthrty}
+			,   cutmr_athrty = #{cutmrAthrty}
+			,   today_athrty = #{todayAthrty}
+			,   vactn_athrty = #{vactnAthrty}
+			,   exchng_flor_athrty = #{exchngFlorAthrty}
+			,   evnt_athrty = #{evntAthrty}
+			,   push_notfcatn_athrty = #{pushNotfcatnAthrty}
+			,   prodct_anlys_athrty = #{prodctAnlysAthrty}
+			,   schedl_athrty = #{schedlAthrty}
+			,   stck_athrty = #{stckAthrty}
+			,   together_athrty = #{togetherAthrty}
+			,   ordr_recrd_athrty = #{ordrRecrdAthrty}
+			,   ordr_anlys_athrty = #{ordrAnlysAthrty}
+			,   use_agremt_athrty = #{useAgremtAthrty}
+			,   sals_anlys_athrty = #{salsAnlysAthrty}
+			,   djn_athrty = #{DJNAthrty}
+			WHERE emp_seq = #{empSeq};
+		</if>
+	</update>
+	
+	<!-- 직원 삭제 -->
+	<delete id="empDelete" parameterType="empVo">
+		UPDATE emp_tb
+		SET stat = 'N'
+		WHERE emp_seq = #{empSeq};
+	</delete>
+	
+	<!-- 직원 비밀번호 수정 -->
+	<update id="empPWUpdate" parameterType="empVo">
+			UPDATE emp_tb
+			SET pw = #{pw}
+			WHERE emp_seq = #{empSeq};
+	</update>
+
+</mapper>

@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="instckMapper">
+<!-- 	instck_exchng_flor_tb, 입고거래장 테이블 -->
+	<resultMap id="instck" type="instckVo">
+		<result property="instckExchngFlorSeq" column="instck_exchng_flor_seq"/>
+		<result property="instckExchngFlorTitl" column="instck_exchng_flor_titl"/>
+		<result property="instckExchngFlorPric" column="instck_exchng_flor_pric"/>
+		<result property="instckExchngFlorImg1" column="instck_exchng_flor_img1"/>
+		<result property="instckExchngFlorImg2" column="instck_exchng_flor_img2"/>
+		<result property="instckExchngFlorImg3" column="instck_exchng_flor_img3"/>
+		<result property="instckExchngFlorRegstrtnDat" column="instck_exchng_flor_regstrtn_dat"/>
+		<result property="instckExchngFlorCnt" column="instck_exchng_flor_cnt"/>
+		<result property="clintSeq" column="clint_seq"/>
+		
+<!-- 	clint_tb, 거래처 테이블 -->
+		<result property="clintNme" column="clint_nme"/>
+		<result property="clintSeq" column="clint_seq"/>
+		
+<!-- 	instck_tb, 입고 테이블 -->
+		<result property="instckSeq" column="instck_seq"/>	
+		<result property="qunt" column="qunt"/>	
+		<result property="dat" column="dat"/>	
+		<result property="prodctSeq" column="prodct_seq"/>	
+		<result property="purchsPric" column="purchs_pric"/>
+<!-- 	입고내역에 사용 -->
+		<result property="price" column="price"/>
+		
+<!-- 	prodct_tb, 상품테이블, 입고내역(팝업)에 사용	 -->
+		<result property="prodctNme" column="prodct_nme"/>
+		
+		
+		
+	</resultMap>
+	
+	<!-- 거래처 상세조회화면에서 입고거래장 리스트 조회(팝업) -->
+	<select id="instckList" parameterType="instckVo" resultMap="instck">
+		SELECT instck_exchng_flor_seq
+			,  instck_exchng_flor_titl
+			,  instck_exchng_flor_PRIC
+			,  instck_exchng_flor_img1
+			,  instck_exchng_flor_img2
+			,  instck_exchng_flor_img3
+			,  instck_exchng_flor_regstrtn_dat
+			,  instck_exchng_flor_cnt
+			,  clint_seq
+		FROM instck_exchng_flor_tb 
+		WHERE clint_seq = #{clintSeq}
+		<if test="beginDatepicker != '' and endDatepicker == ''">
+			AND instck_exchng_flor_regstrtn_dat 
+			BETWEEN #{beginDatepicker} AND curdate()
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != ''">
+			AND instck_exchng_flor_regstrtn_dat 
+			BETWEEN '0000-00-00' AND #{endDatepicker}
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND instck_exchng_flor_regstrtn_dat
+			BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		ORDER BY
+			instck_exchng_flor_regstrtn_dat desc,
+			instck_exchng_flor_seq desc
+		LIMIT 
+			${recordCountPerPage} OFFSET ${firstRecordIndex};
+	</select>
+
+<!-- 	입고거래장(팝업) 목록 전체 페이지 수 -->
+	<select id="selectInstckCount" parameterType="instckVo" resultType="int">
+		SELECT count(*)
+		FROM instck_exchng_flor_tb
+		WHERE clint_seq = #{clintSeq}
+		<if test="beginDatepicker != '' and endDatepicker == ''">
+			AND instck_exchng_flor_regstrtn_dat 
+			BETWEEN #{beginDatepicker} AND curdate()
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != ''">
+			AND instck_exchng_flor_regstrtn_dat 
+			BETWEEN '0000-00-00' AND #{endDatepicker}
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND instck_exchng_flor_regstrtn_dat
+			BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		;
+	</select>
+	
+<!-- 	입고거래장(팝업) 상세조회 -->
+	<select id="instckExchngFlorReadPopup" parameterType="instckVo" resultMap="instck">
+		SELECT i.instck_exchng_flor_seq
+		,	   i.instck_exchng_flor_titl
+		,	   i.instck_exchng_flor_pric
+		,	   i.instck_exchng_flor_img1
+		,	   i.instck_exchng_flor_img2
+		,	   i.instck_exchng_flor_img3
+		,	   i.instck_exchng_flor_regstrtn_dat
+		,	   i.instck_exchng_flor_cnt
+		,	   i.clint_seq
+		,	   c.clint_nme
+		FROM   clint_tb c JOIN
+			   instck_exchng_flor_tb i ON
+			   c.clint_seq = i.clint_seq
+		WHERE  i.instck_exchng_flor_seq = ${instckExchngFlorSeq}
+<!-- 		   AND i.clint_seq = ${clintSeq}; -->
+	</select>
+	
+<!-- 	입고내역(팝업) 리스트 조회 -->
+	<select id="instckRecrdList" parameterType="instckVo" resultMap="instck">
+		SELECT p.prodct_nme
+		,	   i.qunt
+		,	   i.purchs_pric
+		,	   (i.purchs_pric * i.qunt) AS price
+		,	   i.dat
+		FROM instck_tb i LEFT JOIN
+		     prodct_tb p ON 
+		     i.prodct_seq = p.prodct_seq
+		WHERE i.clint_seq = ${clintSeq}
+		<if test="beginDatepicker != '' and endDatepicker == '' and prodctNmeText == ''">
+			AND i.dat 
+			BETWEEN #{beginDatepicker} AND curdate()
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and prodctNmeText == ''">
+			AND i.dat 
+			BETWEEN '0000-00-00' AND #{endDatepicker}
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and prodctNmeText == ''">
+			AND i.dat
+			BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker == '' and prodctNmeText != ''">
+			AND i.dat 
+			BETWEEN #{beginDatepicker} AND curdate()
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and prodctNmeText != ''">
+			AND i.dat 
+			BETWEEN '0000-00-00' AND #{endDatepicker}
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and prodctNmeText != ''">
+			AND i.dat
+			BETWEEN #{beginDatepicker} AND #{endDatepicker}
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker == '' and prodctNmeText != ''">
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		ORDER BY i.dat DESC 
+		,		 i.instck_seq DESC
+		LIMIT 
+			${recordCountPerPage} OFFSET ${firstRecordIndex};
+	</select>
+	
+<!-- 	입고내역(팝업) 목록 전체 수 -->
+	<select id="selectInstckRecrdCount" parameterType="instckVo" resultType="int">
+		SELECT count(*)
+		FROM instck_tb i LEFT JOIN
+			 prodct_tb p ON 
+		     i.prodct_seq = p.prodct_seq
+		WHERE clint_seq = #{clintSeq}
+		<if test="beginDatepicker != '' and endDatepicker == '' and prodctNmeText == ''">
+			AND i.dat 
+			BETWEEN #{beginDatepicker} AND curdate()
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and prodctNmeText == ''">
+			AND i.dat 
+			BETWEEN '0000-00-00' AND #{endDatepicker}
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and prodctNmeText == ''">
+			AND i.dat
+			BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker == '' and prodctNmeText != ''">
+			AND i.dat 
+			BETWEEN #{beginDatepicker} AND curdate()
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and prodctNmeText != ''">
+			AND i.dat 
+			BETWEEN '0000-00-00' AND #{endDatepicker}
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and prodctNmeText != ''">
+			AND i.dat
+			BETWEEN #{beginDatepicker} AND #{endDatepicker}
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker == '' and prodctNmeText != ''">
+			AND p.prodct_nme 
+			LIKE '%${prodctNmeText}%'
+		</if>
+		;
+	</select>
+	
+<!-- 	입고거래관리 - 입고거래장목록 조회 -->
+	<select id="selectInstckExchngFlor" parameterType="instckVo" resultMap="instck">
+		SELECT i.instck_exchng_flor_seq
+		,      i.instck_exchng_flor_titl
+		,      c.clint_nme
+		,      i.instck_exchng_flor_PRIC
+		,      i.instck_exchng_flor_regstrtn_dat
+		,      c.clint_seq
+		FROM   instck_exchng_flor_tb i JOIN
+		  	   clint_tb c ON i.clint_seq = c.clint_seq
+  	    <if test="beginDatepicker != '' and endDatepicker == '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN #{beginDatepicker} AND curdate()
+					AND i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker == '' and sechSelectBox == 'clint_nme'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN #{beginDatepicker} AND curdate()
+					AND c.clint_nme LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN '0000-00-00' AND #{endDatepicker}
+					AND i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and sechSelectBox == 'clint_nme'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN '0000-00-00' AND #{endDatepicker}
+					AND c.clint_nme LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat
+					BETWEEN #{beginDatepicker} AND #{endDatepicker}
+					AND i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and sechSelectBox == 'clint_nme'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat
+					BETWEEN #{beginDatepicker} AND #{endDatepicker}
+					AND c.clint_nme LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker == '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker == '' and sechSelectBox == 'clint_nme'">
+			WHERE 	c.clint_nme LIKE '%${sechText}%'
+		</if>
+		ORDER BY
+			instck_exchng_flor_regstrtn_dat desc,
+			instck_exchng_flor_seq desc
+		LIMIT 
+			${recordCountPerPage} OFFSET ${firstRecordIndex};
+	</select>
+	
+<!-- 	입고거래관리 - 입고거래장 리스트 갯수 -->
+	<select id="selectInstckListCount" parameterType="clintVo" resultType="int">
+		SELECT count(*)
+		FROM instck_exchng_flor_tb i JOIN
+		  	 clint_tb c ON i.clint_seq = c.clint_seq
+		<if test="beginDatepicker != '' and endDatepicker == '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN #{beginDatepicker} AND curdate()
+					AND i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker == '' and sechSelectBox == 'clint_nme'">
+			WHERE i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN #{beginDatepicker} AND curdate()
+					AND c.clint_nme LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN '0000-00-00' AND #{endDatepicker}
+					AND i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker != '' and sechSelectBox == 'clint_nme'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat 
+					BETWEEN '0000-00-00' AND #{endDatepicker}
+					AND c.clint_nme LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat
+					BETWEEN #{beginDatepicker} AND #{endDatepicker}
+					AND i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != '' and sechSelectBox == 'clint_nme'">
+			WHERE 	i.instck_exchng_flor_regstrtn_dat
+					BETWEEN #{beginDatepicker} AND #{endDatepicker}
+					AND c.clint_nme LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker == '' and sechSelectBox == 'instck_exchng_flor_titl'">
+			WHERE 	i.instck_exchng_flor_titl LIKE '%${sechText}%'
+		</if>
+		<if test="beginDatepicker == '' and endDatepicker == '' and sechSelectBox == 'clint_nme'">
+			WHERE 	c.clint_nme LIKE '%${sechText}%'
+		</if>
+		;
+	</select>
+	
+<!-- 	입고거래장 등록(팝업) - 거래처명 조회(셀렉타이즈) -->
+	<select id="selectClintNme" resultMap="instck">
+		SELECT clint_seq
+		,	   clint_nme
+		FROM   clint_tb;
+	</select>
+	
+<!-- 	입고거래장 등록(팝업) - 입고거래장 등록 -->
+	<insert id="insertInstckExchngFlor" parameterType="clintVo">
+		INSERT 
+		INTO instck_exchng_flor_tb(
+			 instck_exchng_flor_seq
+		,	 instck_exchng_flor_titl
+		,	 instck_exchng_flor_pric
+		,	 instck_exchng_flor_img1
+		,	 instck_exchng_flor_img2
+		,	 instck_exchng_flor_img3
+		, 	 instck_exchng_flor_regstrtn_dat
+		,	 instck_exchng_flor_cnt
+		,	 clint_seq)
+		VALUES ((SELECT IFNULL(MAX(instck_exchng_flor_seq),0)+1
+				FROM instck_exchng_flor_tb AS NO)
+		,	 	#{instckExchngFlorTitl}
+		,		${instckExchngFlorPric}
+		,		#{instckExchngFlorImg1}
+		,		#{instckExchngFlorImg2}
+		,		#{instckExchngFlorImg3}
+		,		curdate()
+		,		#{instckExchngFlorCnt}
+		,		${clintSeq});
+	</insert>
+	
+<!-- 	입고거래장 상세보기(팝업) - 입고거래장 수정 -->
+	<update id="updateInstckExchngFlor" parameterType="instckVo">
+		UPDATE instck_exchng_flor_tb 
+		SET instck_exchng_flor_titl = #{instckExchngFlorTitl}
+		,   clint_seq = ${clintSeq}
+		,   instck_exchng_flor_pric = ${instckExchngFlorPric}
+		,   instck_exchng_flor_img1 = #{instckExchngFlorImg1}
+		,   instck_exchng_flor_img2 = #{instckExchngFlorImg2}
+		,   instck_exchng_flor_img3 = #{instckExchngFlorImg3}
+		,   instck_exchng_flor_cnt = #{instckExchngFlorCnt}
+		WHERE instck_exchng_flor_seq = ${instckExchngFlorSeq};
+	</update>
+	
+<!-- 	입고거래장 상세보기(팝업) - 입고거래장 삭제 -->
+	<delete id="deleteInstckExchngFlorPopup" parameterType="instckVo">
+		DELETE
+		FROM instck_exchng_flor_tb
+		WHERE instck_exchng_flor_seq = ${instckExchngFlorSeq};
+	</delete>
+	
+<!-- 	입고거래장 체크해서 삭제 -->
+	<delete id="deleteInstckExchngFlor" parameterType="java.util.List">
+		DELETE
+		FROM instck_exchng_flor_tb
+		WHERE instck_exchng_flor_seq IN ( 
+		<foreach collection="list" item="item" separator=", ">
+			${item}
+		</foreach>);
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+
+

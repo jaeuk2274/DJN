@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="appTogthrMapper">
+	
+	<resultMap id="togthrValues" type="togthrVo">
+	    <result property="gropPurchsProdctSeq" column="grop_purchs_prodct_seq"/>
+	    <result property="gropPurchsSeq" column="grop_purchs_seq"/>
+	    <result property="ordrStarDat" column="ordr_star_dat"/> 
+		<result property="ordrEndDat" column="ordr_end_dat"/>
+		<result property="minOrdrAmont" column="min_ordr_amont"/>
+		<result property="maxOrdrAmont" column="max_ordr_amont"/>
+		<result property="existPric" column="exist_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="titl" column="titl"/>
+		<result property="stat" column="stat"/>
+		<result property="prodctSeqLength" column="prodctSeqLength"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		
+		<!-- 상품 이미지  -->
+		<result property="prodctMainImage" column="main_img"/>
+		<result property="prodctDetlImageOne" column="detl_img1"/>
+		<result property="prodctDetlImageTwo" column="detl_img2"/>
+		<result property="prodctDetlImageThree" column="detl_img3"/>
+	</resultMap>
+	
+	<!-- 앱 다함께 진열 상품 리스트 갯수 조회 -->
+	<select id="selectAppTogthrProdctCount" resultType="int">
+	    SELECT	COUNT(grop_purchs_prodct_seq)
+		FROM grop_purchs_tb 
+		WHERE  stat LIKE '모집중'
+		AND ordr_end_dat >= CURDATE()
+	</select>
+	
+	<!-- 앱 다함께 진열 상품 리스트 조회 -->
+	<select id="selectAppTogthrProdctList" parameterType="togthrVo" resultMap="togthrValues">
+		SELECT 
+			A.grop_purchs_prodct_seq,
+		    A.prodct_nme,
+		    A.grop_purchs_seq,
+		    A.ordr_star_dat,
+		    A.ordr_end_dat,
+		    A.min_ordr_amont,
+		    A.max_ordr_amont,
+		    A.exist_pric,
+		    A.sel_pric,
+		    A.titl,
+		    A.stat,
+		    A.main_img,
+		    COUNT(B.ordr_numbr_seq) AS joinPersns
+		FROM
+		    grop_purchs_tb AS A
+		LEFT JOIN
+		    grop_purchs_ordr_recrd_tb AS B ON A.grop_purchs_seq = B.grop_purchs_seq
+		WHERE
+		    A.stat LIKE '모집중'
+		AND A.ordr_end_dat >= CURDATE()
+		GROUP BY A.grop_purchs_prodct_seq
+		ORDER BY A.grop_purchs_prodct_seq;
+	</select>
+	
+	<!-- 앱 다함께 진열 상품 상세조회 -->
+	<select id="selectAppTogthrDetail" parameterType="int" resultMap="togthrValues">
+		SELECT 
+		    A.grop_purchs_prodct_seq,
+		    A.prodct_nme,
+		    A.grop_purchs_seq,
+		    A.ordr_star_dat,
+		    A.ordr_end_dat,
+		    A.min_ordr_amont,
+		    A.max_ordr_amont,
+		    A.exist_pric,
+		    A.sel_pric,
+		    A.titl,
+		    A.stat,
+		    A.main_img,
+		    A.detl_img1,
+		    A.detl_img2,
+		    A.detl_img3,
+		    COUNT(B.ordr_numbr_seq) AS joinPersns
+		FROM
+		    grop_purchs_tb AS A
+		LEFT JOIN
+		    grop_purchs_ordr_recrd_tb AS B ON A.grop_purchs_seq = B.grop_purchs_seq
+		WHERE
+		    A.grop_purchs_prodct_seq = #{gropPurchsProdctSeq};
+	</select>
+	
+</mapper>

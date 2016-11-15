@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="ordrMapper">
+	
+	<!--고객 리스트 SELECT-->
+	<resultMap id="ordrValues" type="ordrVo">		
+		<result property="ordrNumbrSeq" column="ordr_numbr_seq"/>	
+		<result property="ordrDat" column="ordr_dat"/>	
+		<result property="custmrNme" column="custmr_nme"/>	
+		<result property="pamntMethd" column="pamnt_methd"/>	
+		<result property="recvMethd" column="recv_methd"/>	
+		<result property="ordrStat" column="ordr_stat"/>	
+		<result property="cartImg1" column="cart_img1"/>
+		<result property="cartImg2" column="cart_img2"/>
+		<result property="cartImg3" column="cart_img3"/>
+		
+		<result property="custmrMobl" column="custmr_mobl"/>
+		<result property="recvrNme" column="recvr_nme"/>
+		<result property="recvrMobl" column="recvr_mobl"/>
+		<result property="recvrPostcd" column="recvr_postcd"/>
+		<result property="recvrAddrss" column="recvr_addrss"/>
+		<result property="recvrDetlAddress" column="recvr_detl_address"/>
+		<result property="hopDelvrDat" column="hop_delvr_dat"/>
+		<result property="hopDelvrTim" column="hop_delvr_tim"/>
+	
+		<result property="prodctNme" column="prodct_nme"/>	
+		<result property="ordrAmont" column="ordr_amont"/>	
+		<result property="selPric" column="sel_pric"/>	
+		<result property="empNme" column="emp_nme"/>
+		<result property="empMobl" column="emp_mobl"/>
+		
+		<result property="pricSum" column="pricSum"/>	
+		<result property="prodctCount" column="prodctCount"/>	
+		<result property="firstProdctNme" column="firstProdctNme"/>	
+		
+		<result property="empImg" column="empImg"/>	
+		
+		
+	</resultMap>
+																														
+					
+	<!-- 실시간 주문내역 조회 (오늘날짜만)-->
+	<select id="selectRealTimeOrdrRecrdList" parameterType="ordrVo" resultMap="ordrValues">
+		SELECT	 	 orn.ordr_numbr_seq as ordr_numbr_seq
+				   , orn.ORDR_DAT as ordr_dat
+				   , c.custmr_nme as custmr_nme
+				   , orn.PAMNT_METHD as pamnt_methd
+				   , orn.RECV_METHD as recv_methd
+				   , ors.ORDR_STAT as ordr_stat
+<!-- 				   , sum(orr.sel_pric*orr.ordr_amont) as pricSum -->
+				   , sum(empsp.all_pric) as pricSum
+				   , count(orr.prodct_seq) as prodctCount
+				   , CONCAT(p.prodct_nme, ' ' ,orr.ordr_amont, '개 ') as firstProdctNme
+				   , ifnull(orn.cart_img1, '/resources/image/common/no_image.gif') as cart_img1
+		FROM 		ordr_num_tb orn 
+		JOIN 		custmr_tb c
+		ON 			orn.custmr_seq = c.custmr_seq
+		JOIN 		ordr_stat_tb ors
+		ON 			orn.ORDR_STAT_SEQ = ors.ORDR_STAT_SEQ
+		JOIN 		ordr_recrd_tb orr
+		ON 			orn.ordr_numbr_seq = orr.ordr_numbr_seq
+		JOIN 		prodct_tb p
+		ON 			orr.prodct_seq = p.prodct_seq
+	 	JOIN        emp_shipng_tb empsp
+        ON          empsp.ordr_numbr_seq = orn.ordr_numbr_seq
+		WHERE 		DATE_FORMAT(orn.ORDR_DAT,'%Y-%m-%d') = DATE_FORMAT(NOW(),'%Y-%m-%d')
+		<choose>
+			<when test="ordrStatSeq != null and ordrStatSeq != 0">
+				AND 		orn.ORDR_STAT_SEQ = '${ordrStatSeq}'
+			</when>
+			<otherwise>
+				AND 		(orn.ORDR_STAT_SEQ = 1
+				OR			orn.ORDR_STAT_SEQ = 4)
+			</otherwise>
+		</choose>
+		GROUP BY 	orn.ordr_numbr_seq
+		order by 	orn.ordr_numbr_seq desc;
+	</select>
+		
+	<!-- 주문내역 상세조회 -->
+	<select id="ordrRecrdRead" parameterType="ordrVo" resultMap="ordrValues">
+		SELECT	 	 orn.ordr_numbr_seq as ordr_numbr_seq
+				   , ifnull(orn.CART_IMG1, '/resources/image/common/no_image.gif') as cart_img1
+				   , ifnull(orn.CART_IMG2, '/resources/image/common/no_image.gif') as cart_img2
+				   , ifnull(orn.CART_IMG3, '/resources/image/common/no_image.gif')  as cart_img3
+				   , c.custmr_nme as custmr_nme
+                   , c.custmr_mobl as custmr_mobl
+                   , orn.recvr_nme as recvr_nme
+                   , orn.RECVR_mobl as recvr_mobl
+                   , orn.RECVR_POSTCD as recvr_postcd
+                   , orn.RECVR_ADDRSS as recvr_addrss
+                   , orn.RECVR_DETL_ADDRSS as recvr_detl_address
+				   , orn.ORDR_DAT as ordr_dat	
+				   , orn.HOP_DELVR_DAT as hop_delvr_dat 
+				   , orn.HOP_DELVR_TIM as hop_delvr_tim   
+				   , orn.PAMNT_METHD as pamnt_methd
+				   , orn.RECV_METHD as recv_methd
+				   , ors.ORDR_STAT as ordr_stat
+                   , e.nme as emp_nme
+                   , e.mobl as emp_mobl
+<!--                    , sum(orr.sel_pric*orr.ordr_amont) as pricSum -->
+                   , (SELECT sum(empsp.all_pric) as pricSum
+                      FROM emp_shipng_tb empsp
+                      where empsp.ordr_numbr_seq = #{ordrNumbrSeq}
+                      group by empsp.ordr_numbr_seq ) as pricSum
+                   ,  ifnull(e.img_rot, '/resources/image/common/no_image.gif')  as empImg
+                                    
+		FROM 		ordr_num_tb orn 
+		JOIN 		custmr_tb c
+		ON 			orn.custmr_seq = c.custmr_seq
+		JOIN 		ordr_stat_tb ors
+		ON 			orn.ORDR_STAT_SEQ = ors.ORDR_STAT_SEQ
+        left JOIN		emp_tb e
+		ON			orn.emp_seq = e.emp_seq
+        left JOIN 		ordr_recrd_tb orr
+		ON 			orn.ordr_numbr_seq = orr.ordr_numbr_seq
+		WHERE		orn.ordr_numbr_seq = #{ordrNumbrSeq}
+        GROUP BY 	orn.ordr_numbr_seq
+	</select>
+
+	<!-- 주문내역 상세조회 (상품리스트) -->
+	<select id="ordrRecrdProdctRead" parameterType="ordrVo" resultMap="ordrValues">
+	     SELECT	  p.prodct_nme as prodct_nme
+			    	  ,o.ordr_amont as ordr_amont
+					  , o.sel_pric as sel_pric
+			    	 , o.ordr_amont as ordr_amont
+                     , o.sel_pric * o.ordr_amont as pricSum
+			FROM
+				(SELECT ordr_numbr_seq
+					  ,prodct_seq
+					  ,ordr_amont
+					  ,sel_pric AS sel_pric
+				FROM ordr_recrd_tb
+				UNION ALL
+				SELECT ordr_numbr_seq
+					  ,pb.prodct_seq
+					  ,ordr_amont
+					  ,p.sel_pric
+				FROM packg_ordr_desc_tb po 
+				JOIN packg_bridg_tb pb
+				ON pb.packg_seq = po.packg_seq
+                JOIN prodct_tb p
+                ON p.prodct_seq = pb.prodct_seq   
+				) o JOIN prodct_tb p
+			ON o.prodct_seq = p.prodct_seq
+			WHERE ordr_numbr_seq = #{ordrNumbrSeq};
+	    
+	    
+	    
+<!-- 		SELECT 		p.prodct_nme as prodct_nme -->
+<!-- 				  , orr.sel_pric as sel_pric -->
+<!-- 				  , orr.ordr_amont as ordr_amont -->
+<!-- 				  , orr.sel_pric*orr.ordr_amont as pricSum -->
+<!-- 		FROM 		ordr_recrd_tb orr -->
+<!-- 		JOIN 		prodct_tb p -->
+<!-- 		ON 			orr.prodct_seq = p.prodct_seq -->
+<!-- 		WHERE 		ordr_numbr_seq = #{ordrNumbrSeq} -->
+
+
+<!--  			 SELECT	  p.prodct_nme as prodct_nme -->
+<!-- 			    	  ,o.ordr_amont as ordr_amont -->
+<!-- 					  , o.sel_pric as sel_pric -->
+<!-- 			    	 , o.ordr_amont as ordr_amont -->
+<!--                      , o.sel_pric * o.ordr_amont as pricSum -->
+<!-- 			FROM -->
+<!-- 				(SELECT ordr_numbr_seq -->
+<!-- 					  ,prodct_seq -->
+<!-- 					  ,ordr_amont -->
+<!-- 					  ,sel_pric AS sel_pric -->
+<!-- 				FROM ordr_recrd_tb -->
+<!-- 				UNION ALL -->
+<!-- 				SELECT ordr_numbr_seq -->
+<!-- 					  ,prodct_seq -->
+<!-- 					  ,ordr_amont -->
+<!-- 					  ,sel_pric AS sel_pric -->
+<!-- 				FROM packg_ordr_desc_tb po  -->
+<!-- 				JOIN packg_bridg_tb pb -->
+<!-- 				ON pb.packg_seq = po.packg_seq  -->
+<!-- 				) o JOIN prodct_tb p -->
+<!-- 			ON o.prodct_seq = p.prodct_seq -->
+<!-- 			WHERE ordr_numbr_seq = #{ordrNumbrSeq}; -->
+
+
+
+
+	</select>
+
+
+	<!-- 주문 내역 조회 -->
+	<select id="ordrRecrdList" parameterType="ordrVo" resultMap="ordrValues">
+		SELECT 		orn.ordr_numbr_seq as ordr_numbr_seq
+				  , c.custmr_nme as custmr_nme
+				  , orn.ORDR_DAT as ordr_dat
+				  , orn.HOP_DELVR_DAT as hop_delvr_dat
+				  , orn.HOP_DELVR_TIM as hop_delvr_tim
+				  , orn.PAMNT_METHD as pamnt_methd
+				  , orn.RECV_METHD as recv_methd
+				  , ors.ORDR_STAT as ordr_stat
+		FROM 		ordr_num_tb orn 
+		JOIN 		custmr_tb c
+		ON 			orn.custmr_seq = c.custmr_seq
+        JOIN 		ordr_stat_tb ors
+		ON 			orn.ORDR_STAT_SEQ = ors.ORDR_STAT_SEQ   
+		<if test="ordrSechRecvMethd != null and ordrSechRecvMethd != 'all'">
+			AND 	orn.recv_methd = '${ordrSechRecvMethd}' 
+		</if>
+		<if test="ordrSechPamntMethd != null and ordrSechPamntMethd != 'all'">
+			AND 	orn.pamnt_methd = '${ordrSechPamntMethd}' 
+		</if>
+		<if test="ordrSechText != null">
+			AND 	c.custmr_nme like '%${ordrSechText}%' 		
+		</if>
+		<if test="ordrStatSeq != null and ordrStatSeq != 0">
+			AND 	orn.ORDR_STAT_SEQ = '${ordrStatSeq}'
+		</if>
+		<if test="ordrStatSeq == 0">
+			AND 	orn.ORDR_STAT_SEQ NOT IN (4)
+		</if>
+		ORDER BY	orn.ordr_stat_seq, ordr_dat desc
+		LIMIT 		#{recordCountPerPage} OFFSET #{firstRecordIndex};		
+	</select>	
+	
+	<!-- 주문 목록 전체 페이지 수 -->
+	<select id="selectOrdrCount" parameterType="ordrVo" resultType="int">
+		SELECT 		count(*)
+		FROM 		ordr_num_tb orn 
+		JOIN 		custmr_tb c
+		ON 			orn.custmr_seq = c.custmr_seq
+		<if test="ordrStatSeq == 0">
+			WHERE 	orn.ORDR_STAT_SEQ NOT IN (4)
+		</if>
+		<if test="ordrStatSeq != null and ordrStatSeq != 0">
+			WHERE 	orn.ORDR_STAT_SEQ = '${ordrStatSeq}'
+		</if>
+		<if test="ordrSechRecvMethd != null and ordrSechRecvMethd != 'all'">
+			AND	 	orn.recv_methd = '${ordrSechRecvMethd}' 
+		</if>
+		<if test="ordrSechPamntMethd != null and ordrSechPamntMethd != 'all'">
+			AND 	orn.pamnt_methd = '${ordrSechPamntMethd}' 
+		</if>
+		<if test="ordrSechText != null">
+			AND 	c.custmr_nme like '%${ordrSechText}%' 		
+		</if>	
+	</select>
+	
+						
+	<!-- 주문 상태 일괄 변경 -->
+	<update id="changeOrdrStatGroup" parameterType="hashmap">	
+		UPDATE		ordr_num_tb  
+		SET			ordr_stat_seq = '2'
+				  , emp_seq = #{OrdrVO.empSeq}
+		WHERE 		ordr_stat_seq = 1					  				  
+		AND 	  ordr_numbr_seq IN (	
+				  <foreach collection="OrdrStatChgGrop" item="item" separator=" , "> 						  	 
+				  	 #{item}
+			 	  </foreach>	
+			 	  )	  	
+	</update>					
+	
+																		
+	<!-- 배달 상태 변경(주문접수 -> 배달중) -->
+	<update id="changeOrdrStat1" parameterType="ordrVo" >	
+		UPDATE		ordr_num_tb  
+		SET			ordr_stat_seq = '2'
+				  , emp_seq = #{empSeq}					  				  
+		WHERE 	  	ordr_numbr_seq = #{ordrNumbrSeq}
+	</update>						
+						
+	<!-- 배달 상태 변경(배달중 -> 배달완료) -->
+	<update id="changeOrdrStat2" parameterType="ordrVo" >	
+		UPDATE		ordr_num_tb  
+		SET			ordr_stat_seq = '3'				  				  
+		WHERE 	  	ordr_numbr_seq = #{ordrNumbrSeq}
+	</update>				
+									
+			
+	<!-- 이미지 존재하는지 셀렉 -->
+	<select id="selectImgSrc" parameterType="ordrVo" resultMap="ordrValues">
+		SELECT 		ifnull(cart_img1, 'Not') as cart_img1
+				  , ifnull(cart_img2, 'Not') as cart_img2
+				  , ifnull(cart_img3, 'Not') as cart_img3
+		FROM 		ordr_num_tb
+		WHERE		ordr_numbr_seq = #{ordrNumbrSeq}
+	</select>		
+				
+			
+	<!-- 이미지 업데이트(1번 사진) -->
+	<update id="img1Update" parameterType="ordrVo" >	
+		UPDATE		ordr_num_tb  
+		SET			cart_img1 = #{cartImg1}			  				  
+		WHERE 	  	ordr_numbr_seq = #{ordrNumbrSeq}
+	</update>		
+			
+	<!-- 이미지 업데이트(2번 사진) -->
+	<update id="img2Update" parameterType="ordrVo" >	
+		UPDATE		ordr_num_tb  
+		SET			cart_img2 = #{cartImg2}			  				  
+		WHERE 	  	ordr_numbr_seq = #{ordrNumbrSeq}
+	</update>	
+	
+	<!-- 이미지 업데이트(3번 사진) -->
+	<update id="img3Update" parameterType="ordrVo" >	
+		UPDATE		ordr_num_tb  
+		SET			cart_img3 = #{cartImg3}			  				  
+		WHERE 	  	ordr_numbr_seq = #{ordrNumbrSeq}
+	</update>		
+					
+	<!-- 이미지 삭제(체크 한) -->
+	<update id="imgDelete" parameterType="ordrVo" >	
+		UPDATE		ordr_num_tb  
+		SET			<foreach collection="imgChkGrop" item="item" separator=" , "> 						  	 
+				  	 cart_img#{item} = null
+			 	  </foreach>
+		WHERE 	  	ordr_numbr_seq = #{ordrNumbrSeq}
+	</update>				
+					
+					
+					
+																
+</mapper>

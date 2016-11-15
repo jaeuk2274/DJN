@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="debecFestivalMapper">
+
+	<resultMap id="debecFestivalValues" type="debecFestivalVo">
+		<result property="schedlSeq" column="schedl_seq"/><!-- 일정 고유값 -->
+		<result property="schedlTitl" column="schedl_titl"/>
+		<result property="schedlStartDat" column="schedl_start_dat"/>
+		<result property="schedlEndDat" column="schedl_end_dat"/>
+		<result property="evntStat" column="evnt_stat"/>
+		<result property="evntImg" column="evnt_img"/>
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="prodctCount" column="prodct_count"/>
+	</resultMap>
+	
+	<resultMap id="prodctValues" type="prodctFestivalVo">
+		<result property="prodctSeq" column="prodct_seq"/><!-- 상품 고유값 -->
+		<result property="evntBridgSeq" column="evnt_bridg_seq"/><!-- 상품 고유값 -->
+		<result property="mainImg" column="main_img"/><!-- 메인 이미지 -->
+		<result property="prodctNme" column="prodct_nme"/><!-- 상품 이름 -->
+		<result property="prodctQunt" column="qunt"/><!-- 재고량 -->
+		<result property="purchsPric" column="purchs_pric"/><!-- 매입가 -->
+		<result property="selPric" column="sel_pric"/><!-- 판매가 -->
+		<result property="evntDiscntRat" column="evnt_discnt_rat"/><!-- 할인율 -->
+		<result property="salePric" column="sale_pric"/><!-- 할인가 -->
+		<result property="margnRat" column="margn_rat"/><!-- 마진율 -->
+		<result property="displyCheck" column="disply_check"/><!-- 진열 여부 -->	
+		<result property="prodctType" column="prodct_type"/><!-- 상품 타입 -->	
+	</resultMap>
+	
+	<!-- 대백제 리스트 조회 -->
+	<select id="debecFestivalList" resultMap="debecFestivalValues" parameterType="debecFestivalVo">
+		SELECT s.schedl_seq
+					, s.schedl_titl
+					, s.schedl_start_dat
+					, s.schedl_end_dat
+					, count(p.prodct_seq) as prodct_count
+					, e.evnt_stat
+		FROM schedl_tb s 
+		JOIN  evnt_tb e on s.schedl_seq = e.schedl_seq
+		LEFT JOIN  evnt_bridg_tb eb on e.schedl_seq = eb.schedl_seq
+		LEFT JOIN  prodct_tb p on eb.prodct_seq = p.prodct_seq
+		WHERE s.schedl_titl LIKE '%${schedlTitl}%'
+		<choose>
+			<when test="evntStat == '대기중'">
+				AND e.evnt_stat LIKE 'R'
+			</when>
+			<when test="evntStat == '진행중'">
+				AND e.evnt_stat LIKE 'Y'
+			</when>
+			<when test="evntStat == '종료'">
+				AND e.evnt_stat LIKE 'N'
+			</when>
+			<otherwise>
+				AND e.evnt_stat NOT LIKE 'D'
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="schedlStartDat == '' and schedlEndDat == ''">
+			</when>
+			<when test="schedlStartDat == null and schedlEndDat == null">
+			</when>
+			<when test="schedlStartDat == ''">
+			    AND s.schedl_end_dat <![CDATA[<=]]>' ${schedlEndDat}'
+			</when>		
+			<when test="schedlEndDat == ''">
+			    AND s.schedl_start_dat <![CDATA[>=]]> '${schedlStartDat}'
+			</when>			
+			<otherwise>
+			    AND s.schedl_start_dat <![CDATA[>=]]> '${schedlStartDat}'
+			    AND s.schedl_end_dat <![CDATA[<=]]>'${schedlEndDat}'
+			</otherwise>
+		</choose>
+		GROUP BY s.schedl_seq
+		ORDER BY
+			s.schedl_seq DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 대백제 리스트 카운트 -->
+	<select id="debecFestivalCount" parameterType="debecFestivalVo" resultType="int">
+		SELECT 	count(*)
+		FROM schedl_tb s 
+		JOIN  evnt_tb e on s.schedl_seq = e.schedl_seq
+		WHERE s.schedl_titl LIKE '%${schedlTitl}%'
+			<choose>
+			<when test="evntStat == '대기중'">
+				AND e.evnt_stat LIKE 'R'
+			</when>
+			<when test="evntStat == '진행중'">
+				AND e.evnt_stat LIKE 'Y'
+			</when>
+			<when test="evntStat == '종료'">
+				AND e.evnt_stat LIKE 'N'
+			</when>
+			<otherwise>
+				AND e.evnt_stat NOT LIKE 'D'
+			</otherwise>
+		</choose>
+		<choose>
+			<when test="schedlStartDat == '' and schedlEndDat == ''">
+			</when>
+			<when test="schedlStartDat == null and schedlEndDat == null">
+			</when>
+			<when test="schedlStartDat == ''">
+			    AND s.schedl_end_dat <![CDATA[<=]]>' ${schedlEndDat}'
+			</when>		
+			<when test="schedlEndDat == ''">
+			    AND s.schedl_start_dat <![CDATA[>=]]> '${schedlStartDat}'
+			</when>			
+			<otherwise>
+			    AND s.schedl_start_dat <![CDATA[>=]]> '${schedlStartDat}'
+			    AND s.schedl_end_dat <![CDATA[<=]]>'${schedlEndDat}'
+			</otherwise>
+		</choose>
+		;
+	</select>
+	
+	<!-- 대백제 상세보기 (상단 행사부분) -->
+	<select id="debecFestivalRead" parameterType="int" resultMap="debecFestivalValues">
+		SELECT s.schedl_seq
+					, s.schedl_titl
+					, s.schedl_start_dat
+					, s.schedl_end_dat
+					, e.evnt_stat
+                    , e.evnt_img
+		FROM schedl_tb s 
+		JOIN  evnt_tb e on s.schedl_seq = e.schedl_seq
+		WHERE s.schedl_seq = #{schedlSeq};
+	</select>
+	
+	<!-- 대백제 상세보기 (하단 상품부분) -->
+	<select id="debecFestivalProdctList" resultMap="prodctValues" parameterType="int">
+		SELECT p.prodct_seq
+					, evnt_bridg_seq
+					, main_img
+					, qunt
+					, prodct_nme
+					, disply_check
+                    , purchs_pric
+					, sel_pric
+					, evnt_discnt_rat
+					, sel_pric*((100-evnt_discnt_rat)/100) as sale_pric
+					, ((sel_pric-purchs_pric)/sel_pric*100) as margn_rat
+		FROM evnt_tb e 
+		JOIN evnt_bridg_tb eb ON e.schedl_seq = eb.schedl_seq
+		JOIN prodct_tb p ON eb.prodct_seq = p.prodct_seq
+		LEFT JOIN stck_tb s ON p.prodct_seq = s.prodct_seq 
+		WHERE e.schedl_seq = #{schedlSeq};
+	</select>
+	
+	<!-- 대백제 삭제1 (행사 테이블 삭제) -->
+	<update id="debecFestivalDelete"  parameterType="java.util.List">
+		UPDATE evnt_tb 
+		SET evnt_stat = 'D' 	
+		WHERE 
+			schedl_seq = #{schedlSeq};
+	</update>
+	
+	<!-- 대백제 삭제2 (행사브릿지 테이블 삭제) -->
+	<delete id="debecFestivalProdctDelete"  parameterType="java.util.List">
+		DELETE 
+		FROM evnt_bridg_tb 	
+		WHERE 
+			schedl_seq = #{schedlSeq};
+	</delete>
+	
+	<!-- 대백제 삭제3 (상품 타입을 업데이트 하기위해 상품SEQ 조회) -->
+	<update id="prodctTypeUpdate"  parameterType="int">
+	    UPDATE evnt_bridg_tb e 
+		JOIN prodct_tb p ON e.prodct_seq = p.prodct_seq
+		SET prodct_type = 0
+		WHERE e.schedl_seq = #{schedlSeq};	
+	</update>
+	
+	<!-- 	대백제 등록 STEP1 (일정테이블 등록) -->
+	<insert id="debecFestivalSchedlCreate" parameterType="debecFestivalVo">
+		INSERT INTO schedl_tb
+					(schedl_seq
+					, schedl_titl
+					, schedl_start_dat
+					, schedl_end_dat)
+
+		VALUES((SELECT IFNULL(MAX(schedl_seq),0)+1 FROM schedl_tb s)
+					, '${schedlTitl}'
+					, '${schedlStartDat}'
+					, '${schedlEndDat}');
+ 	 </insert>
+ 	 
+	<!-- 	대백제 등록 STEP1 (행사테이블 등록) -->
+	<insert id="debecFestivalEvntCreate" parameterType="debecFestivalVo">
+		INSERT INTO evnt_tb
+					(schedl_seq
+					, evnt_stat
+					, evnt_img)
+		VALUES((SELECT MAX(schedl_seq)
+						FROM schedl_tb)
+					, '${evntStat}'
+                   , #{evntImg});                   
+	</insert>
+ 	 
+	<!-- 대백제 등록 STEP2 (상품 등록)  -->
+	<insert id="debecFestivalProdctCreate" parameterType="int">	    
+		INSERT INTO evnt_bridg_tb
+							(evnt_bridg_seq
+							, prodct_seq
+							, schedl_seq)
+		VALUES((SELECT IFNULL(MAX(evnt_bridg_seq),0)+1 FROM evnt_bridg_tb AS e)
+					, #{prodctSeq}
+					, (SELECT IFNULL(MAX(schedl_seq),0) FROM schedl_tb AS s) );
+	</insert>
+	
+	<!-- 대백제 등록 STEP2 (상품 할인율 등록) -->
+ 	 <update id="debecFestivalDiscntRatCreate" parameterType="prodctFestivalVo">
+		UPDATE evnt_bridg_tb
+		SET evnt_discnt_rat=#{evntDiscntRat}
+		WHERE schedl_seq=(SELECT IFNULL(MAX(schedl_seq),0) FROM schedl_tb AS s)
+		AND prodct_seq = #{prodctSeq};
+ 	 </update>
+ 	 
+ 	 <!-- 대백제 등록 STEP2 (상품 TYPE 변경) -->
+ 	 <update id="prodctTypeCreate" parameterType="prodctFestivalVo">     
+ 	    UPDATE prodct_tb
+		SET prodct_type = #{prodctType}
+		WHERE 
+			prodct_seq = #{prodctSeq};
+ 	 </update>
+ 	 
+ 	<!-- 	대백제 상단수정1 (일정테이블 수정) --> 
+	<update id="debecFestivalSchedlUpdate" parameterType="debecFestivalVo">
+		UPDATE schedl_tb
+		SET schedl_titl = '${schedlTitl}'
+			, schedl_start_dat = '${schedlStartDat}'
+			, schedl_end_dat = '${schedlEndDat}'
+		WHERE 
+			schedl_seq = #{schedlSeq};
+ 	 </update>
+ 	 
+ 	 <!-- 대백제 상단수정2 (행사테이블 수정) --> 
+	<update id="debecFestivalEvntUpdate" parameterType="debecFestivalVo">
+		UPDATE evnt_tb
+		SET evnt_stat = '${evntStat}'
+			, evnt_img = #{evntImg}
+		WHERE 
+			schedl_seq = #{schedlSeq};
+ 	 </update>
+ 	 
+ 	 <!-- 대백제 하단수정1 (상품 수정) -->
+	<insert id="debecFestivaProdctlUpdate" parameterType="prodctFestivalVo">	    
+		INSERT INTO evnt_bridg_tb
+							(evnt_bridg_seq
+							, prodct_seq
+							, schedl_seq)
+		VALUES((SELECT IFNULL(MAX(evnt_bridg_seq),0)+1 FROM evnt_bridg_tb AS e)
+					, #{prodctSeq}
+					, #{schedlSeq} );
+	</insert>
+	
+ 	 <!-- 대백제 하단수정1 (상품 할인율 수정) -->
+ 	 <update id="debecFestivalProdctUpdate" parameterType="prodctFestivalVo">
+		UPDATE evnt_bridg_tb
+		SET evnt_discnt_rat=#{evntDiscntRat}
+		WHERE schedl_seq=#{schedlSeq}
+		AND prodct_seq = #{prodctSeq};
+ 	 </update>
+ 	 
+ 	 <!-- (수정) 대백제 상품리스트 삭제 -->
+	<delete id="debecFestivalUpdateDelete"  parameterType="java.util.List">
+		DELETE 
+		FROM evnt_bridg_tb 	
+		WHERE 
+			evnt_bridg_seq = #{evntBridgSeq};
+	</delete>
+	
+	<!-- 상품 임시 테이블1 리스트 카운트 -->
+	<select id="prodctAddListCount" parameterType="prodctFestivalVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN catgr_tb c1 ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq NOT IN (SELECT prodct_seq FROM prodct_evnt_tb)
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		AND prodct_type = 0
+		ORDER BY p.prodct_nme;
+	</select>
+	
+	<!-- 상품 임시 테이블1 리스트 조회 -->
+	<select id="prodctAddList" resultMap="prodctValues">
+		SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+		FROM prodct_tb p JOIN catgr_tb c1 ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM prodct_evnt_tb)
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		AND prodct_type = 0
+		ORDER BY p.prodct_nme
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 상품 임시 테이블2 리스트 카운트 -->
+	<select id="prodctAdTempCount" parameterType="prodctFestivalVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p 
+ 		JOIN prodct_evnt_tb pe ON p.prodct_seq = pe.prodct_seq
+        JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+        WHERE p.prodct_nme LIKE '%${tempSechText}%'
+		ORDER BY pe.prodct_seq;
+	</select>
+	
+	<!-- 상품 임시 테이블2 리스트 조회 -->
+	<select id="prodctAdTempList" resultMap="prodctValues">
+	    SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+        FROM prodct_tb p 
+		JOIN prodct_evnt_tb pe ON p.prodct_seq = pe.prodct_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+        WHERE p.prodct_nme LIKE '%${tempSechText}%'
+        ORDER BY pe.prodct_seq
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex}
+	</select>
+	
+	<!-- 상품 추가 임시 테이블 추가 -->
+	<insert id="prodctAdTempCreate" parameterType="int">	    
+		INSERT INTO prodct_evnt_tb(prodct_seq)
+		VALUES(#{prodctSeq});
+	</insert>
+	
+	<!-- 상품 추가 임시 테이블 선택 삭제 -->
+	<delete id="prodctAddTempDelete" parameterType="int">
+        DELETE FROM prodct_evnt_tb
+        WHERE prodct_seq = #{prodctSeq};
+	</delete>
+	
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 전체삭제 -->
+	<delete id="prodctTempAllDelete">
+        DELETE FROM prodct_evnt_tb;
+	</delete>
+	
+	<!-- (등록) 화면2 상품 리스트 조회 -->
+	<select id="prodctTempList" resultMap="prodctValues">
+		SELECT p.prodct_seq
+					, main_img
+					, qunt
+					, prodct_nme
+					, disply_check
+                    , purchs_pric
+					, sel_pric
+					, ((sel_pric-purchs_pric)/sel_pric*100) as margn_rat
+		FROM prodct_tb p 
+		LEFT JOIN stck_tb s ON p.prodct_seq = s.prodct_seq 
+		WHERE p.prodct_seq in( SELECT prodct_seq FROM prodct_evnt_tb);
+	</select>
+	
+	<!-- (등록) 임시테이블 일괄 삭제 -->
+	<delete id="prodctDelete"  parameterType="java.util.List">
+		DELETE 
+		FROM prodct_evnt_tb 	
+		WHERE 
+			prodct_seq = #{prodctSeq};
+	</delete>
+	
+	<!-- 엑셀 업로드 -->
+	<insert id="createXlsxUpload" parameterType="prodctFestivalVo">
+		INSERT INTO prodct_evnt_tb
+					(prodct_seq)
+		VALUES(#{prodctSeq});                   
+	</insert>
+</mapper>

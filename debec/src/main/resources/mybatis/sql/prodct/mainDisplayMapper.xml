@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="mainDisplayMapper">
+	
+	<!--메인 진열 상품 리스트 SELECT-->
+	<resultMap id="mainDisplayValues" type="mainDisplayVo">		
+	<!-- 메인 진열 상품 테이블 (시작) -->
+		<result property="seqnc" column="seqnc"/> 
+		<result property="purchsPric" column="purchs_pric"/>
+		<result property="img" column="main_img"/>
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="evntPric" column="evnt_pric"/> 
+		<result property="selAmount" column="sel_amont"/>	
+	<!-- 메인 진열 상품 테이블 (종료) -->
+	<!-- 메인 진열 상품 검색 조건 (시작) -->
+		<result property="mainDisplaySechText" column="mainDisplaySechText"/>	
+		<result property="mainDisplayMinPric" column="mainDisplayMinPric"/>	
+		<result property="mainDisplayMaxPric" column="mainDisplayMaxPric"/>	
+		
+		<!-- 상품 추가 테이블 검색어 -->
+		<result property="prodctSechText" column="prodctSechText"/>	
+		<result property="tempSechText" column="tempSechText"/>		
+		<!-- 상품 추가 테이블 검색어(끝) -->
+		
+		<result property="catgrSeq" column="catgr_seq"/>	
+	<!-- 메인 진열 상품 검색 조건 (끝) -->
+	<!-- 상품 추가 리스트 -->		
+		<result property="qunt" column="qunt"/>
+	</resultMap>
+	
+	<!--메인 진열 상품의 카테고리 리스트 SELECT-->
+	<resultMap id="catgrValues" type="catgrVo">		
+<!-- 	메인 진열 상품의 카테고리 리스트 (시작) -->
+		<result property="id" column="catgr_seq"/> 
+		<result property="parent" column="rot_catgr_seq"/>
+		<result property="text" column="catgr_nme"/>
+		<result property="icon" column="catgr_icon"/>
+<!-- 	메인 진열 상품의 카테고리 리스트 (종료) -->
+	</resultMap>
+	
+	<!-- 메인 진열 상품 목록 조회(검색) -->
+	<select id="selectMainDisplayList" parameterType="mainDisplayVo" resultMap="mainDisplayValues">
+		SELECT m.seqnc
+				, p.purchs_pric
+				, p.main_img
+				, p.prodct_seq
+				, p.prodct_nme
+				, p.sel_pric
+				, ifnull(round(p.sel_pric-(p.sel_pric*eb.evnt_discnt_rat)),'0') 'evnt_pric'
+				, sp.SEL_AMONT
+		FROM prodct_tb p JOIN main_display_tb m
+		ON p.prodct_seq = m.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		ON p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${mainDisplaySechText}%' 
+		<choose>
+			<when test="mainDisplayMinPric == '' and mainDisplayMaxPric == ''">
+			</when>
+			<when test="mainDisplayMinPric == null and mainDisplayMaxPric == null">
+			</when>
+			<when test="mainDisplayMinPric == ''">
+			    AND p.sel_pric <![CDATA[<=]]> ${mainDisplayMaxPric}
+			</when>		
+			<when test="mainDisplayMaxPric == ''">
+			    AND p.sel_pric <![CDATA[>=]]> ${mainDisplayMinPric}
+			</when>			
+			<otherwise>
+			    AND p.sel_pric BETWEEN ${mainDisplayMinPric} AND ${mainDisplayMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			m.seqnc;
+	</select>
+	
+	<!-- 메인 진열 상품 목록 전체 페이지 수 -->
+	<select id="selectMainDisplayCount" parameterType="mainDisplayVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN main_display_tb m
+		ON p.prodct_seq = m.prodct_seq
+		LEFT JOIN evnt_bridg_tb eb
+		ON p.prodct_seq = eb.prodct_seq
+		LEFT JOIN sals_presnt_tb sp
+		ON p.prodct_seq = sp.prodct_seq
+		WHERE p.prodct_nme LIKE '%${mainDisplaySechText}%'
+		<choose>
+			<when test="mainDisplayMinPric == '' and mainDisplayMaxPric == ''">
+			</when>
+			<when test="mainDisplayMinPric == null and mainDisplayMaxPric == null">
+			</when>
+			<when test="mainDisplayMinPric == ''">
+			    AND p.sel_pric <![CDATA[<=]]> ${mainDisplayMaxPric}
+			</when>		
+			<when test="mainDisplayMaxPric == ''">
+			    AND p.sel_pric <![CDATA[>=]]> ${mainDisplayMinPric}
+			</when>			
+			<otherwise>
+			    AND p.sel_pric BETWEEN ${mainDisplayMinPric} AND ${mainDisplayMaxPric}
+			</otherwise>
+		</choose>
+		ORDER BY
+			m.seqnc;
+	</select>
+	
+	<!-- 메인 진열 상품 목록의 카테고리 리스트 -->
+	<select id="selectCatgrList" resultMap="catgrValues">
+		SELECT catgr_seq
+			, rot_catgr_seq
+			, catgr_nme
+			, catgr_icon
+		FROM catgr_tb;
+	</select>
+	
+	<!-- 메인 진열 상품의 상품 추가 리스트 조회(검색) -->
+	<select id="selectProdctAdList" resultMap="mainDisplayValues">
+		SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt
+		FROM prodct_tb p JOIN catgr_tb c1 ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM prodct_emp_tb)
+		AND p.prodct_type = 0
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+		
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 조회 -->
+	<select id="selectProdctAdTempList" resultMap="mainDisplayValues">
+	    SELECT p.prodct_seq, main_img, prodct_nme, sel_pric, qunt, pe.seqnc
+        FROM prodct_tb p JOIN prodct_emp_tb pe
+        ON p.prodct_seq = pe.prodct_seq
+        JOIN stck_tb s
+        ON p.prodct_seq = s.prodct_seq
+        WHERE p.prodct_nme LIKE '%${tempSechText}%'
+        ORDER BY pe.seqnc
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex}
+	</select>
+	
+	<!-- 상품 테이블 전체 페이지 수 -->
+	<select id="selectProdctAdCount" parameterType="mainDisplayVo" resultType="int">
+		SELECT COUNT(*)
+		FROM prodct_tb p JOIN catgr_tb c1 ON p.catgr_seq = c1.catgr_seq
+		JOIN catgr_tb c2 ON c1.rot_catgr_seq = c2.catgr_seq
+		JOIN catgr_tb c3 ON c2.rot_catgr_seq = c3.catgr_seq
+		JOIN stck_tb s ON p.prodct_seq = s.prodct_seq
+		WHERE p.prodct_seq not in (SELECT prodct_seq FROM prodct_emp_tb)
+		AND p.prodct_type = 0
+		<if test="catgrSeq != 0">
+		AND (c3.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})	
+		OR c2.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq})
+		OR c1.catgr_seq = (SELECT catgr_seq FROM catgr_tb WHERE catgr_seq = #{catgrSeq}))
+		</if>
+		AND p.prodct_nme LIKE '%${prodctSechText}%'
+		AND qunt > 0
+		AND disply_check = 'Y'
+		ORDER BY p.prodct_nme;
+	</select>
+	
+	<!-- 임시 테이블 전체 페이지 수 -->
+	<select id="selectProdctAdTempCount" parameterType="mainDisplayVo" resultType="int">
+		SELECT COUNT(*)
+        FROM prodct_tb p JOIN prodct_emp_tb pe
+        ON p.prodct_seq = pe.prodct_seq
+        JOIN stck_tb s
+        ON p.prodct_seq = s.prodct_seq
+        WHERE p.prodct_nme LIKE '%${tempSechText}%'
+		ORDER BY pe.seqnc;
+	</select>
+	
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 처음 추가 -->
+	<insert id="insertProdctTempList">	    
+		INSERT INTO prodct_emp_tb(seqnc, prodct_seq)
+		SELECT *
+		FROM main_display_tb
+		ORDER BY seqnc;	    
+	</insert>
+	
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 추가 -->
+	<insert id="insertProdctAdTempList" parameterType="int">	    
+		INSERT INTO prodct_emp_tb(seqnc, prodct_seq)
+		VALUES((SELECT IFNULL(MAX(seqnc),0)+1 FROM prodct_emp_tb AS s),#{prodctSeq})
+	</insert>
+	
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 선택 삭제 -->
+	<delete id="deleteProdctAdTempList" parameterType="int">
+        DELETE FROM prodct_emp_tb
+        WHERE prodct_seq = #{prodctSeq};
+	</delete>
+	
+	<!-- 메인 진열 상품의 상품 추가 임시 테이블 전체삭제 -->
+	<delete id="deleteProdctTempList">
+        DELETE FROM prodct_emp_tb;
+	</delete>
+	
+	<!-- 임시 테이블의 상품 최종 추가 -->
+	<insert id="insertProdct" parameterType="int">	    
+		INSERT INTO main_display_tb
+		VALUES((SELECT IFNULL(MAX(seqnc),0)+1 FROM main_display_tb AS s),#{prodctSeq})
+	</insert>
+	
+	<!-- 진열순서 update -->
+	<update id="updateMainDisplayOrder" parameterType="mainDisplayVo">
+		UPDATE main_display_tb
+		SET seqnc = #{seqnc}
+        WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 메인 진열 상품 전체 삭제 -->
+	<delete id="deleteAllMainDisplayProdct">	
+		DELETE FROM main_display_tb;
+	</delete>
+	
+	<!-- 메인 진열 상품 삭제 -->
+	<delete id="deleteMainDisplayProdct" parameterType="long">	
+		DELETE FROM main_display_tb
+		WHERE prodct_seq = #{prodctSeq}
+	</delete>
+	
+	
+	<!-- 삭제 후 진열순서 update -->
+	<select id="updateMainDisplayOrderAfterDelete1" resultType="int">
+	    SELECT @seqnc:=0;
+	</select>
+	<update id="updateMainDisplayOrderAfterDelete2">	
+		UPDATE main_display_tb
+		SET seqnc=@seqnc:=@seqnc+1
+		ORDER BY seqnc;
+	</update>
+	
+	<!-- 메인 진열 상품 등록 후 타입 업데이트 -->
+	<update id="updateInsertMainDisplayProdctType" parameterType="long">
+	    UPDATE prodct_tb
+	    SET prodct_type = 2
+	    WHERE prodct_seq = #{prodctSeq};
+	</update>
+	
+	<!-- 메인 진열 상품 삭제 후 상품 타입 업데이트 -->
+	<update id="updateDeleteMainDisplayProdctType" parameterType="long">
+	    UPDATE prodct_tb
+	    SET prodct_type = 0
+	    WHERE prodct_seq = #{prodctSeq};
+	</update>
+</mapper>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="custmrMapper">
+	
+	<!--고객 리스트 SELECT-->
+	<resultMap id="custmrValues" type="custmrVo">		
+	<!-- 고객 테이블 (시작) -->
+		<result property="custmrSeq" column="custmr_seq"/> 
+		<result property="custmrId" column="custmr_id"/>
+		<result property="custmrPw" column="custmr_pw"/>
+		<result property="custmrNme" column="custmr_nme"/>
+		<result property="custmrGendr" column="custmr_gendr"/>
+		<result property="custmrBirth" column="custmr_birth"/>
+		<result property="custmrTelHp" column="custmr_tel_hp"/> 
+		<result property="custmrMobl" column="custmr_mobl"/>
+		<result property="custmrPostcd" column="custmr_postcd"/>
+		<result property="custmrAdrs" column="custmr_adrs"/>
+		<result property="custmrDetalAdrs" column="custmr_detal_adrs"/>
+		<result property="custmrEml" column="custmr_eml"/>
+		<result property="custmrCardNumbr" column="custmr_card_numbr"/>
+		<result property="custmrNumbr" column="custmr_numbr"/>
+		<result property="custmrCardCheck" column="custmr_card_check"/>
+		<result property="custmrQuscncCheck" column="custmr_quscnc_check"/>
+		<result property="custmrNicknme" column="custmr_nicknme"/>	
+		<result property="loginDat" column="login_dat"/>	
+		<result property="dat" column="dat"/>
+		
+	<!-- 고객 테이블 (종료) -->
+	<!-- 고객 검색 조건 (시작) -->
+		<result property="custmrSechOption" column="custmrSechOption"/>	
+		<result property="custmrSechText" column="custmrSechText"/>	
+		<result property="custmrSechCardCheck" column="custmrSechCardCheck"/>	
+	<!-- 고객 검색 조건 (끝) -->
+		<result property="custmrSechCardCheck" column="custmrSechCardCheck"/>	
+	</resultMap>
+	
+	<!-- 고객 목록 조회(검색) -->
+	<select id="selectCustmrList" parameterType="custmrVo" resultMap="custmrValues">
+		SELECT 	custmr_seq
+				, custmr_id
+				, custmr_nme
+				, custmr_gendr
+				, custmr_mobl
+				, custmr_card_check
+				, custmr_quscnc_check
+				, datediff(now(), login_dat) as dat
+				, login_dat
+		FROM	custmr_tb
+		WHERE 	custmr_quscnc_check = #{custmrQuscncCheck}
+		<if test="custmrSechOption=='id'">
+			AND custmr_id LIKE '%${custmrSechText}%' 
+		</if>
+		<if test="custmrSechOption=='nme'">
+			AND custmr_nme LIKE '%${custmrSechText}%' 
+		</if>
+		<if test="custmrSechOption=='mobl'">
+			AND custmr_mobl LIKE '%${custmrSechText}%' 
+		</if>
+		<if test="custmrSechCardCheck != null and custmrSechCardCheck != 'all'">
+			AND custmr_card_check = '${custmrSechCardCheck}' 
+		</if>
+		ORDER BY
+			custmr_seq DESC
+		LIMIT #{recordCountPerPage} OFFSET #{firstRecordIndex};
+	</select>
+	
+	<!-- 고객 목록 전체 페이지 수 -->
+	<select id="selectCustmrCount" parameterType="custmrVo" resultType="int">
+		SELECT 	count(*)
+		FROM	custmr_tb
+		WHERE 	custmr_quscnc_check = #{custmrQuscncCheck}
+		<if test="custmrSechOption=='id'">
+			AND custmr_id LIKE '%${custmrSechText}%' 
+		</if>
+		<if test="custmrSechOption=='nme'">
+			AND custmr_nme LIKE '%${custmrSechText}%' 
+		</if>
+		<if test="custmrSechOption=='mobl'">
+			AND custmr_mobl LIKE '%${custmrSechText}%' 
+		</if>
+		<if test="custmrSechCardCheck != null and custmrSechCardCheck != 'all'">
+			AND custmr_card_check = '${custmrSechCardCheck}' 
+		</if>
+	</select>
+	
+	<!-- 고객 카드여부 일괄 변경 --> 
+	<update id="changeCustmrCardChkGroup" parameterType="java.util.List">
+		UPDATE	custmr_tb  
+        SET		custmr_card_check = 'Y'         	
+		WHERE 
+		  custmr_seq in(
+		  	<foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+		  )	
+	</update>
+																										
+	<!-- 나의 명함 상세보기  --> 
+	<select id="custmrRead" parameterType="custmrVo" resultMap="custmrValues">
+		SELECT 	custmr_seq
+				, custmr_nme
+				, custmr_id
+				, custmr_gendr
+				, custmr_mobl
+				, custmr_postcd
+				, custmr_adrs
+				, custmr_detal_adrs
+				, custmr_birth
+				, custmr_eml
+				, custmr_card_check
+		FROM	custmr_tb
+		WHERE 	custmr_seq = #{custmrSeq}
+	</select>
+	
+	<!-- 고객 정보 변경 --> 
+	<update id="custmrUpdate" parameterType="custmrVo">
+		UPDATE	custmr_tb  
+        SET		custmr_mobl = #{custmrMobl}
+        	 ,  custmr_postcd = #{custmrPostcd}
+        	 ,  custmr_adrs = #{custmrAdrs}
+        	 ,  custmr_detal_adrs = #{custmrDetalAdrs}
+        	 ,  custmr_birth = #{custmrBirth}
+        	 ,  custmr_eml = #{custmrEml}
+			 ,  custmr_card_check = #{custmrCardCheck}
+		WHERE 	custmr_seq = #{custmrSeq}
+	</update>
+	
+	<!-- 고객 정보 삭제 --> 
+	<delete id="custmrDelete" parameterType="custmrVo">
+		DELETE 
+		FROM	custmr_tb  
+		WHERE 	custmr_seq = #{custmrSeq}
+	</delete>
+	
+	<!-- 휴면고객 일반회원 일괄 변경 --> 
+	<update id="changeQuscncCustmrGroup" parameterType="java.util.List">
+		UPDATE	custmr_tb  
+        SET		custmr_quscnc_check = 'N'         	
+		WHERE 
+		  custmr_seq in(
+		  	<foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+		  )	
+	</update>
+	
+	<!-- 휴면고객 일괄 삭제 --> 
+	<delete id="deleteQuscncCustmrGroup" parameterType="java.util.List">
+		DELETE	
+		FROM	custmr_tb      	
+		WHERE 
+		  custmr_seq in(
+		  	<foreach collection="list" item="item" separator=" , "> #{item} </foreach>
+		  )	
+	</delete>
+	
+	
+	
+	
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="agremtMapper">
+
+	<resultMap id="agremtValues" type="agremtVo">
+		<result property="useAgremtSeq" column="use_agremt_seq"/>
+		<result property="titl" column="titl"/>
+		<result property="cnt" column="cnt"/>
+		<result property="standrd" column="standrd"/>		
+		<result property="useCheck" column="use_check"/>				
+	</resultMap>
+
+	<!-- 이용약관 내용 조회 -->
+	<select id="selectAgremt" parameterType="agremtVo" resultMap="agremtValues">
+		SELECT	 *
+		FROM	 use_agremt_tb
+		WHERE	 use_agremt_seq = #{useAgremtSeq};
+	</select>
+	
+	<!-- 이용약관 내용 수정 -->
+	<update id="updateAgremt" parameterType="agremtVo" >
+		UPDATE	use_agremt_tb  
+        SET		cnt = #{cnt},
+        		use_check = #{useCheck}      	
+		WHERE 	use_agremt_seq = #{useAgremtSeq}
+	</update>
+</mapper>

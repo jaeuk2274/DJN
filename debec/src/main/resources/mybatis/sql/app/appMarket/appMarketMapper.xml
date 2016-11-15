@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="appMarketMapper">
+	
+	<resultMap id="prodctValues" type="prodctVo">
+		<result property="prodctSeq" column="prodct_seq"/><!-- 상품 고유값 -->
+		<result property="prodctNme" column="prodct_nme"/><!-- 상품 이름 -->
+		<result property="prodctStck" column="qunt"/><!-- 재고량 -->
+		<result property="prodctPurchsPric" column="purchs_pric"/><!-- 매입가 -->
+		<result property="prodctSelPric" column="sel_pric"/><!-- 판매가 -->
+		<result property="prodctSalePric" column="sale_pric"/><!-- 할인가 -->
+		<result property="prodctMargnrat" column="margn_rat"/><!-- 마진율 -->
+		<result property="prodctDisplyCheck" column="disply_check"/><!-- 진열 여부 -->	
+		<result property="prodctType" column="prodct_type"/><!-- 진열 여부 -->	
+		
+		<result property="cusSeq" column="custmr_Seq"/><!-- 고객 SEQ -->
+		<result property="prodctAmont" column="amont"/><!-- 장바구니 상품 수량 -->
+		
+		<result property="packgSeq" column="PACKG_SEQ"/>
+		
+		<result property="catgrSeq" column="catgr_seq"/>
+		<result property="prodctNetinc" column="netinc"/>
+		
+		
+		<result property="prodctMainImage" column="main_img"/>
+		<result property="prodctDetlImageOne" column="detl_img1"/>
+		<result property="prodctDetlImageTwo" column="detl_img2"/>
+		<result property="prodctDetlImageThree" column="detl_img3"/>
+		
+		<result property="selStrtTime" column="sel_strt_time"/>
+		<result property="selEndTime" column="sel_end_time"/>
+		<result property="schedlSeq" column="schedl_seq"/>
+		
+		<result property="prodctSechText" column="prodctSechText"/>
+				
+		<!-- 연관 상품 정보-->
+		<result property="reltnProdctOneSeq" column="reltnProdctOneSeq"/>
+		<result property="reltnProdctOneImg" column="reltnProdctOneImg"/>
+		<result property="reltnProdctOneNme" column="reltnProdctOneNme"/>
+		<result property="reltnProdctOneSelPric" column="reltnProdctOneSelPric"/>
+		<result property="reltnProdctOneDiscntPric" column="reltnProdctOneDiscntPric"/>
+		
+		
+		<result property="reltnProdctTwoSeq" column="reltnProdctTwoSeq"/>
+		<result property="reltnProdctTwoImg" column="reltnProdctTwoImg"/>
+		<result property="reltnProdctTwoNme" column="reltnProdctTwoNme"/>
+		<result property="reltnProdctTwoSelPric" column="reltnProdctTwoSelPric"/>
+		<result property="reltnProdctTwoDiscntPric" column="reltnProdctTwoDiscntPric"/>
+		
+		<result property="reltnProdctThreeSeq" column="reltnProdctThreeSeq"/>
+		<result property="reltnProdctThreeImg" column="reltnProdctThreeImg"/>
+		<result property="reltnProdctThreeNme" column="reltnProdctThreeNme"/>
+		<result property="reltnProdctThreeSelPric" column="reltnProdctThreeSelPric"/>
+		<result property="reltnProdctThreeDiscntPric" column="reltnProdctThreeDiscntPric"/>
+	</resultMap>
+	
+	<resultMap id="agremtValues" type="agremtVo">
+		<result property="useAgremtSeq" column="use_agremt_seq"/>
+		<result property="cnt" column="cnt"/>
+	</resultMap>
+	
+	<resultMap id="appMarketValues" type="appMarketVo">
+		<result property="gropPurchsSeq" column="grop_purchs_seq"/>
+		<result property="custmrSeq" column="custmr_seq"/>
+	</resultMap>
+	
+	<!-- 앱 히스토리 등록-->
+	<insert id="appInsertHistory" parameterType="appMarketVo" >
+		INSERT INTO history_tb 
+					(history_seq,history_dat,custmr_seq,prodct_seq)
+		VALUE ((SELECT IFNULL(MAX(history_seq),0) + 1 AS history_seq FROM history_tb as historyTb), curdate(),#{custmrSeq},#{prodctSeq});
+	</insert>
+	
+	<!-- 상품 검색 -->
+	<select id="appProdctSearch"  resultMap="prodctValues" parameterType="prodctVo" >
+		SELECT prodct_seq
+			 , main_img
+   			 , prodct_nme
+     		 , sel_pric
+     	     , discnt_pric AS sale_pric
+     		 , prodct_type
+     		 , catgr_seq
+     		 , packg_seq
+     		 , sel_strt_time
+     		 , schedl_seq 
+		FROM all_sel_prodct_view
+		WHERE prodct_nme LIKE CONCAT ('%', #{prodctSechText} ,'%');
+	</select>
+	
+	<!-- 장바구니 상품 조회 -->
+	<select id="appCartItemCheck"  resultType="int" parameterType="prodctVo" >
+		SELECT COUNT(cart_bridg_seq)
+		FROM   cart_bridg_tb
+        WHERE  prodct_seq = #{prodctSeq}
+        AND    custmr_seq = #{cusSeq};
+	</select>
+	
+	<!-- 장바구니 담기 -->
+	<insert id="appCartItemCreat" parameterType="prodctVo" >
+		INSERT INTO cart_bridg_tb (cart_bridg_seq
+				  , prodct_seq
+				  , amont
+				  , custmr_seq)
+		VALUE((SELECT IFNULL(MAX(cb.cart_bridg_seq),0) + 1 AS cart_bridg_seq FROM cart_bridg_tb as cb)
+			, #{prodctSeq}
+         	, #{prodctAmont}
+        	, #{cusSeq})
+	</insert>
+	
+	<!-- 패키지 장바구니 담기 -->
+	<insert id="appPackgCartItemCreat" parameterType="prodctVo" >
+		INSERT INTO packg_bridg_cart_tb (packg_bridg_cart_seq
+				  , PACKG_SEQ
+				  , amont
+				  , custmr_seq)
+		VALUE((SELECT IFNULL(MAX(pbc.packg_bridg_cart_seq),0) + 1 AS packg_bridg_cart_seq FROM packg_bridg_cart_tb as pbc)
+			, #{packgSeq}
+         	, #{prodctAmont}
+        	, #{cusSeq})
+	</insert>
+	
+	<!-- 장바구니 추가 담기 -->
+	<update id="appCartItemUpdate" parameterType="prodctVo" >
+		UPDATE cart_bridg_tb 
+		SET	   amont = amont+#{prodctAmont}
+		WHERE  prodct_seq = #{prodctSeq}
+        AND	   custmr_seq = #{cusSeq}
+	</update>
+	
+	<!-- 패키지 장바구니 추가 담기 -->
+	<update id="appPackgCartItemUpdate" parameterType="prodctVo" >
+		UPDATE packg_bridg_cart_tb 
+		SET	   amont = amont+#{prodctAmont}
+		WHERE  PACKG_SEQ = #{packgSeq}
+        AND	   custmr_seq = #{cusSeq}
+	</update>
+	
+	<!-- 상품 상세 조회 -->
+	<select id="appProdctRead" resultMap="prodctValues" parameterType="prodctVo" >
+		SELECT prodct_seq
+			 , main_img
+			 , detl_img1
+			 , detl_img2
+			 , detl_img3
+   			 , prodct_nme
+     		 , sel_pric
+     	     , discnt_pric AS sale_pric
+     		 , prodct_type
+     		 , sel_strt_time
+     		 , sel_end_time
+		FROM all_sel_prodct_view
+		WHERE prodct_seq = ${prodctSeq};
+	</select>
+	
+	<!-- 상품 상세 조회 -->
+	<select id="appReltnProdctRead" resultMap="prodctValues" parameterType="prodctVo" >
+		SELECT asp1.prodct_seq AS reltnProdctOneSeq
+			 , asp1.main_img AS  reltnProdctOneImg
+			 , asp1.prodct_nme AS reltnProdctOneNme
+			 , asp1.sel_pric AS reltnProdctOneSelPric
+			 , asp1.discnt_pric AS reltnProdctOneDiscntPric
+			 , asp2.prodct_seq AS reltnProdctTwoSeq
+			 , asp2.main_img AS reltnProdctTwoImg
+			 , asp2.prodct_nme AS reltnProdctTwoNme
+			 , asp2.sel_pric AS reltnProdctTwoSelPric
+			 , asp2.discnt_pric AS reltnProdctTwoDiscntPric
+			 , asp3.prodct_seq AS reltnProdctThreeSeq
+			 , asp3.main_img AS reltnProdctThreeImg
+			 , asp3.prodct_nme AS reltnProdctThreeNme
+			 , asp3.sel_pric AS reltnProdctThreeSelPric
+			 , asp3.discnt_pric AS reltnProdctThreeDiscntPric
+		FROM reltn_prodct_tb rp
+		LEFT JOIN all_sel_prodct_view asp1 
+			   ON rp.reltn_prodct_seq1 = asp1.prodct_seq
+		LEFT JOIN all_sel_prodct_view asp2 
+			   ON rp.reltn_prodct_seq2 = asp2.prodct_seq
+		LEFT JOIN all_sel_prodct_view asp3 
+			   ON rp.reltn_prodct_seq3 = asp3.prodct_seq
+		WHERE rp.prodct_seq = ${prodctSeq};
+	</select>
+	
+	<!-- 안내 약관 조회 -->
+	<select id="appDeliveryAgremtRead" resultMap="agremtValues" parameterType="int" >
+		SELECT cnt 
+		FROM use_agremt_tb
+		WHERE use_agremt_seq = ${useAgremtSeq}
+		AND   use_check = 'Y';
+	</select>
+	
+	<!-- 신선식품 판매시작시간 count 조회 -->
+	<select id="selectSelStrtTimeCount" resultType="int" parameterType="prodctVo" >
+		SELECT count(sel_strt_time) AS sel_strt_time_count
+		FROM fresh_fod_tb
+		WHERE prodct_seq = ${prodctSeq};
+	</select>
+</mapper>

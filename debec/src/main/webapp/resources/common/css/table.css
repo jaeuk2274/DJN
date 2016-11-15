@@ -1,0 +1,76 @@
+@charset "utf-8"; 
+
+
+p + .tableStyle01{margin-top:14px;}
+
+ table tfoot tr td.type02{text-align:right; border-left:none; background:#fff;}
+
+.tableStyle01 table tbody tr.tFoot td{padding-right:16px; font-weight:bold; text-align:right; background:#f9f9f9;}
+
+.tableStyle03 table tr td{padding:11px 16px 13px; height:18px; text-align:left; line-height:160%; vertical-align:middle; color:#4d4d4d; border:1px solid #d8d8d8; border-width:1px 0 0 1px;}
+
+ul.tableInner li:first-child{border:none;}
+
+
+table tr td.vt{vertical-align:top;} /* ��� ��� */
+table tr th.tl{padding-left:16px !important; padding-right:16px !important; text-align:left !important;} 
+table tr td.tr{padding-left:16px !important; padding-right:16px !important; text-align:right;} /* �ㅻⅨ履���� */
+table tr td.tr input[type="text"]{padding-right:16px !important; text-align:right;}
+
+
+table tbody tr.noDate td{padding:30px 0 !important; text-align:center;} /* 寃���댁� ��� */
+p.noDate{padding:30px 0 !important; text-align:center; border-top: 1px solid #d8d8d8;}
+
+table td ol > li{margin-bottom:5px; line-height:160%; padding-left:13px; text-indent:-14px;}
+
+
+.tableScroll + .txtReferBlue{margin-top:-33px !important; margin-bottom:34px;}
+
+
+.h3BoxStyle h3{margin-bottom:0; padding-bottom:13px; padding-left:12px; line-height:160%; font-size:14px; font-weight:bold; color:#333; background:url('../../image/common/bul/bul_stick.gif') no-repeat 0 6px;}
+.h3BtnStyle h3{margin-bottom:0; padding-left:12px; line-height:160%; font-size:14px; font-weight:bold; color:#333; background:url('../../image/common/bul/bul_stick.gif') no-repeat 0 6px;}
+.h4BtnStyle h4{margin-bottom:0; padding-left:12px; line-height:160%; font-weight:bold; vertical-align:top; background:url('../../image/common/bul/bul_dot.gif') no-repeat 0 7px;}
+.h4BoxStyle h4.dot{margin-bottom:0; padding-bottom:6px; padding-left:12px; line-height:160%; font-weight:bold; vertical-align:top; background:url('../../image/common/bul/bul_dot.gif') no-repeat 0 7px;}
+.boxStyle .rText{display:block; position:absolute; right:0; bottom:0;}
+
+.h3TxtStyle{overflow:hidden; margin-bottom:20px; width:100%;} 
+.h3TxtStyle h3{float:left; margin-bottom:0; padding-left:12px; line-height:160%; vertical-align:top; font-size:14px; font-weight:bold; color:#333; background:url('../../image/common/bul/bul_stick.gif') no-repeat 0 6px;}
+
+
+.yearInfo.type01 input[type="text"]{padding:5px 0 5px; border:1px solid #c1c2c2;}
+
+html.ie7html.ie7{padding-top:11px; padding-bottom:12px; height:17px;}
+
+@-moz-document url-prefix(){
+}
+
+@media only screen and (max-width:850px){
+	.tableScroll{overflow-x:auto; margin-bottom:30px;}
+	
+	.tableScroll + .liBulDash{margin-top:-23px !important;}
+}
+
+@media only screen and (max-width:727px){
+
+	.h3TxtStyle h3{float:none; margin-bottom:15px;}
+	
+	.h4BtnStyle{position:inherit; margin-bottom:10px; width:100%; min-height:12px;} 
+	.h4BtnStyle h4{margin-bottom:0; padding-left:12px; line-height:160%; font-weight:bold; vertical-align:top; background:url('../../image/common/bul/bul_dot.gif') no-repeat 0 7px;}
+
+ 
+	
+	.tableStyle01{margin-bottom:27px;}
+
+	
+	table tr th span.br{display:block;}
+ 
+	.yearInfo fieldset label{display:block}
+	
+	.yearInfo fieldset .btnSm{float:left; margin-top:6px; margin-left:5px;} 
+	.subText{ display:block; clear:both; padding-top:5px; line-height:140%}
+	
+	.yearInfo.type01{padding:20px 20px 55px; background:#fff;}
+
+	
+	.yearInfo.type01 select{width:100% !important; margin-bottom: 3px;}
+

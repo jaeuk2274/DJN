@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="appOnlyYouMapper">
+	
+	<resultMap id="prodctValues" type="prodctVo">
+		<result property="prodctSeq" column="prodct_seq"/><!-- 상품 고유값 -->
+		<result property="prodctNme" column="prodct_nme"/><!-- 상품 이름 -->
+		<result property="prodctStck" column="qunt"/><!-- 재고량 -->
+		<result property="prodctPurchsPric" column="purchs_pric"/><!-- 매입가 -->
+		<result property="prodctSelPric" column="sel_pric"/><!-- 판매가 -->
+		<result property="prodctSalePric" column="sale_pric"/><!-- 할인가 -->
+		<result property="prodctMargnrat" column="margn_rat"/><!-- 마진율 -->
+		<result property="prodctDisplyCheck" column="disply_check"/><!-- 진열 여부 -->	
+		<result property="prodctType" column="prodct_type"/><!-- 상품 진열 타입 -->	
+		
+		<result property="catgrSeq" column="catgr_seq"/>
+		<result property="prodctNetinc" column="netinc"/>
+		
+		<!-- 상품 이미지  -->
+		<result property="prodctMainImage" column="main_img"/>
+		<result property="prodctDetlImageOne" column="detl_img1"/>
+		<result property="prodctDetlImageTwo" column="detl_img2"/>
+		<result property="prodctDetlImageThree" column="detl_img3"/>
+		
+	</resultMap>
+	
+	<resultMap id="ordrValues" type="ordrVo">		
+		<result property="ordrNumbrSeq" column="ordr_numbr_seq"/>
+		<result property="custmrSeq" column="custmr_Seq"/>
+		<result property="ordrDat" column="ordr_dat"/>	
+		<result property="custmrNme" column="custmr_nme"/>	
+		<result property="pamntMethd" column="pamnt_methd"/>	
+		<result property="recvMethd" column="recv_methd"/>	
+		<result property="ordrStat" column="ordr_stat"/>	
+		<result property="cartImg1" column="cart_img1"/>
+		<result property="cartImg2" column="cart_img2"/>
+		<result property="cartImg3" column="cart_img3"/>
+		<result property="custmrMobl" column="custmr_mobl"/>
+		<result property="recvrNme" column="recvr_nme"/>
+		<result property="recvrMobl" column="recvr_mobl"/>
+		<result property="recvrPostcd" column="recvr_postcd"/>
+		<result property="recvrAddrss" column="recvr_addrss"/>
+		<result property="recvrDetlAddress" column="recvr_detl_address"/>
+		<result property="hopDelvrDat" column="hop_delvr_dat"/>
+		<result property="hopDelvrTim" column="hop_delvr_tim"/>
+		<result property="prodctNme" column="prodct_nme"/>	
+		<result property="ordrAmont" column="ordr_amont"/>	
+		<result property="selPric" column="sel_pric"/>	
+		<result property="empNme" column="emp_nme"/>
+		<result property="empMobl" column="emp_mobl"/>
+		<result property="pricSum" column="pricSum"/>	
+		<result property="prodctCount" column="prodctCount"/>	
+		<result property="firstProdctNme" column="firstProdctNme"/>	
+		<result property="empImg" column="empImg"/>	
+	</resultMap>
+	
+	<!-- 너만상 진행 여부 조회 -->
+	<select id="appOnlyYou" resultType="int" parameterType="ordrVo" >
+		SELECT COUNT(DISTINCT(orr.prodct_seq))
+		FROM ordr_recrd_tb orr
+		LEFT JOIN ordr_num_tb orn
+			   ON orr.ordr_numbr_seq = orn.ordr_numbr_seq
+		LEFT JOIN prodct_tb p 
+			   ON orr.prodct_seq = p.prodct_seq
+		WHERE orn.custmr_seq = #{custmrSeq}
+		AND p.disply_check = 'Y';
+	</select>
+	
+	
+	<!-- 너만상 상품 리스트 조회 -->
+	<select id="appOnlyYouRead" resultMap="prodctValues" parameterType="ordrVo" >
+	SELECT orr.prodct_seq
+		 , p.main_img
+		 , p.prodct_nme
+	     , p.sel_pric
+	     , p.prodct_type
+	     , p.discnt_pric AS sale_pric
+	FROM ordr_recrd_tb orr
+	LEFT JOIN ordr_num_tb orn
+		   ON orr.ordr_numbr_seq = orn.ordr_numbr_seq
+	LEFT JOIN  all_sel_prodct_view p
+		   ON orr.prodct_seq = p.prodct_seq
+	WHERE orn.custmr_seq = #{custmrSeq}
+	GROUP BY orr.prodct_seq
+	ORDER BY sum(orr.ordr_amont) DESC
+	LIMIT 0, 10;
+	
+	</select>
+	
+</mapper>

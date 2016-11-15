@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+
+
+<mapper namespace="todyAnalMapper">
+
+	<resultMap id="todyAnal" type="todyAnalVo">
+<!-- 	주문번호 -->
+<!-- 		<result property="ordrNumbrSeq" column="ordr_numbr_seq"/> -->
+<!-- 		<result property="" column="reqmnt"/> -->
+<!-- 		<result property="" column="hop_delvr_tim"/> -->
+<!-- 		<result property="" column="ordr_dat"/> -->
+<!-- 		<result property="" column="ordr_stat_seq"/> -->
+<!-- 		<result property="" column="ordr_type_seq"/> -->
+<!-- 		<result property="" column="emp_seq"/> -->
+<!-- 		<result property="" column="recvr_detl_address"/> -->
+<!-- 		<result property="" column="recvr_mobl"/> -->
+<!-- 		<result property="" column="recv_methd"/> -->
+<!-- 		<result property="" column="pamnt_methd"/> -->
+<!-- 		<result property="" column="recvr_postcd"/> -->
+<!-- 		<result property="" column="recvr_addrss"/> -->
+<!-- 		<result property="" column="hop_delvr_Dat"/> -->
+<!-- 		<result property="" column="ordrr_nme"/> -->
+<!-- 		<result property="" column="cart_img1"/> -->
+<!-- 		<result property="" column="cart_img2"/> -->
+<!-- 		<result property="" column="cart_img3"/> -->
+<!-- 		<result property="" column="custmr_seq"/> -->
+<!-- 		<result property="" column="recmnd_cehck"/> -->
+<!-- 		<result property="" column="ordrr_mobl"/> -->
+<!-- 		<result property="" column="recvr_nme"/> -->
+		
+<!-- 		view -->
+		<result property="ordrDat" column="ordr_dat"/>
+		<result property="ordrNumbrSeq" column="ordr_numbr_seq"/>
+		<result property="ordrTypeSeq" column="ordr_type_seq"/>
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="topCatgrNme" column="top_catgr_nme"/>
+		<result property="midCatgrNme" column="mid_catgr_nme"/>
+		<result property="botCatgrNme" column="bot_catgr_nme"/>
+		<result property="instckPric" column="instck_pric"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="ordrAmont" column="ordr_amont"/>
+		
+		<result property="salsPric" column="sals_pric"/>
+		<result property="tody" column="tody"/>
+		<result property="day" column="day"/>
+		<result property="now" column="now"/>
+		<result property="qunt" column="qunt"/>
+		<result property="todyOrdrAmont" column="tody_ordr_amont"/>
+	</resultMap>
+	
+<!-- 	투데이 리포트 매출액 조회 -->
+	<select id="selectTodyResult" resultMap="todyAnal">
+		SELECT 
+		    IFNULL(SUM(sel_pric * qunt), 0) AS sals_pric,
+		    DATE_FORMAT(CURDATE(), '%Y년 %m월 %d일') AS tody,
+		    CONCAT(SUBSTR(_UTF8'일월화수목금토',
+		                DAYOFWEEK(CURDATE()),
+		                1),
+		            '요일') AS day,
+		    DATE_FORMAT(SYSDATE(), '%y-%m-%d %h:%i') AS now
+		FROM
+		    rels_tb
+		WHERE
+		    DATE_FORMAT(dat, '%y-%m-%d') = CURDATE();
+	</select>
+	
+<!-- 	투데이 리포트 전화주문건수 -->
+	<select id="telOrdrCount" resultType="int">
+		SELECT COUNT(*)
+		FROM   online_anal_view
+		WHERE  ordr_type_seq = 1 AND
+		 	   ordr_dat = CURDATE();
+	</select>
+	
+<!-- 	투데이 리포트 어플주문건수 -->
+	<select id="appOrdrCount" resultType="int">
+		SELECT COUNT(*)
+		FROM   online_anal_view
+		WHERE  ordr_type_seq = 2 AND
+			   ordr_dat = CURDATE();
+	</select>
+
+<!-- 	투데이 리포트 주문취소건수 -->
+	<select id="ordrCancelCount" resultType="int">
+		SELECT COUNT(*)
+		FROM   ordr_num_tb
+		WHERE  ordr_stat_seq = 4 AND
+		  	   ordr_dat = CURDATE();
+	</select>
+
+<!-- 	투데이 리포트 교환/환불건수 -->
+	<select id="exchngRefndCount" resultType="String">
+		SELECT 
+		    COUNT(qunt) AS qunt
+		FROM
+		    exchng_refnd_tb
+		WHERE
+		    dat = CURDATE();
+	</select>	
+	
+<!-- 	투데이 리포트 오늘 상품 판매량순위 top10 -->
+	<select id="todySalesList" resultMap="todyAnal">
+		SELECT 
+		    IFNULL(pr.prodct_nme, '-') AS prodct_nme,
+		    sum(re.qunt) as qunt,
+		    (re.sel_pric * sum(re.qunt)) AS sals_pric
+		FROM
+		    rels_tb re
+		        JOIN
+		    prodct_tb pr ON re.prodct_seq = pr.prodct_seq
+		WHERE
+		    DATE_FORMAT(dat, '%y-%m-%d') = CURDATE()
+		GROUP BY re.prodct_seq
+		ORDER BY qunt DESC
+		LIMIT 0 , 10;
+	</select>
+	
+<!-- 	투데이 리포트 급상승 판매상품 순위 -->
+	<select id="surgeSelProdctList" resultMap="todyAnal">
+		SELECT 
+		    IFNULL(a.prodct_nme, '-') AS prodct_nme,
+		    IFNULL(a.ordr_amont, 0) AS tody_ordr_amont,
+		    (IFNULL(a.ordr_amont, 0) - IFNULL(b.ordr_amont, 0)) AS ordr_amont,
+		    IFNULL(a.sals_pric, 0) AS sals_pric
+		FROM
+		    (SELECT 
+		        re.prodct_seq,
+		            IFNULL(pr.prodct_nme, '-') AS prodct_nme,
+		            SUM(re.qunt) AS ordr_amont,
+		            re.dat,
+		            SUM(re.sel_pric * re.qunt) AS sals_pric
+		    FROM
+		        rels_tb re
+		    JOIN prodct_tb pr ON re.prodct_seq = pr.prodct_seq
+		    WHERE
+		        DATE_FORMAT(re.dat, '%Y-%m-%d') = CURDATE()
+		    GROUP BY re.prodct_seq) a
+		        LEFT JOIN
+		    (SELECT 
+		        re.prodct_seq,
+		            IFNULL(pr.prodct_nme, '-') AS prodct_nme,
+		            SUM(re.qunt) AS ordr_amont,
+		            re.dat,
+		            SUM(re.sel_pric * re.qunt) AS sals_pric
+		    FROM
+		        rels_tb re
+		    JOIN prodct_tb pr ON re.prodct_seq = pr.prodct_seq
+		    WHERE
+		        DATE_FORMAT(re.dat, '%Y-%m-%d') = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+		    GROUP BY re.prodct_seq) b ON a.prodct_seq = b.prodct_seq
+		ORDER BY ordr_amont DESC , tody_ordr_amont DESC
+		LIMIT 0 , 10;
+	</select>
+	
+<!-- 	투데이 리포트 일일 매출 매출액(차트) -->
+	<select id="salsTime" resultMap="todyAnal">
+		SELECT 
+		    IFNULL(SUM(A.sals_pric), 0) AS sals_pric
+		FROM
+		    (SELECT 
+		        IFNULL(sel_pric * SUM(ordr_amont), 0) AS sals_pric
+		    FROM
+		        total_anal_view
+		    WHERE
+		        ordr_dat BETWEEN DATE_FORMAT(SYSDATE(), '%Y-%m-%d 09:00:00') AND DATE_FORMAT(SYSDATE(), '%Y-%m-%d 11:59:59')
+		    GROUP BY prodct_seq) AS A 
+		UNION ALL SELECT 
+		    IFNULL(SUM(A.sals_pric), 0) AS sals_pric
+		FROM
+		    (SELECT 
+		        IFNULL(sel_pric * SUM(ordr_amont), 0) AS sals_pric
+		    FROM
+		        total_anal_view
+		    WHERE
+		        ordr_dat BETWEEN DATE_FORMAT(SYSDATE(), '%Y-%m-%d 12:00:00') AND DATE_FORMAT(SYSDATE(), '%Y-%m-%d 14:59:59')
+		    GROUP BY prodct_seq) AS A 
+		UNION ALL SELECT 
+		    IFNULL(SUM(A.sals_pric), 0) AS sals_pric
+		FROM
+		    (SELECT 
+		        IFNULL(sel_pric * SUM(ordr_amont), 0) AS sals_pric
+		    FROM
+		        total_anal_view
+		    WHERE
+		        ordr_dat BETWEEN DATE_FORMAT(SYSDATE(), '%Y-%m-%d 15:00:00') AND DATE_FORMAT(SYSDATE(), '%Y-%m-%d 17:59:59')
+		    GROUP BY prodct_seq) AS A 
+		UNION ALL SELECT 
+		    IFNULL(SUM(A.sals_pric), 0) AS sals_pric
+		FROM
+		    (SELECT 
+		        IFNULL(sel_pric * SUM(ordr_amont), 0) AS sals_pric
+		    FROM
+		        total_anal_view
+		    WHERE
+		        ordr_dat BETWEEN DATE_FORMAT(SYSDATE(), '%Y-%m-%d 18:00:00') AND DATE_FORMAT(SYSDATE(), '%Y-%m-%d 21:00:00')
+		    GROUP BY prodct_seq) AS A;
+	</select>
+	
+<!-- 	출고 테이블 엑셀 업로드 -->
+	<insert id="insertRels">
+		INSERT 
+		INTO rels_tb(
+			 rels_seq
+		, 	 dat
+		,	 prodct_seq
+		,	 sel_pric
+		,	 qunt
+		,	 instck_pric)
+		VALUES ((SELECT IFNULL(MAX(rels_seq),0)+1 FROM rels_tb AS rels_seq)
+		,	 sysdate()
+		,
+		<foreach item="value" collection="relsCellList" separator=", ">
+			${value}
+		</foreach>
+		);
+	</insert>
+	
+<!-- 	반품 테이블 엑셀 업로드 -->
+	<insert id="insertRetrn">
+		INSERT
+		INTO retrn_tb(
+			 retrn_seq
+		,	 dat
+		,	 prodct_seq
+		,	 qunt)
+		VALUES ((SELECT IFNULL(MAX(retrn_seq),0)+1 FROM retrn_tb AS retrn_seq)
+		,	   curdate()
+		, 
+		<foreach item="value" collection="retrnCellList" separator=", ">
+			${value}
+		</foreach>
+		);
+	</insert>
+	
+<!-- 	재고 테이블 업데이트 (출고수량, 반품수량만큼 재고량 감소)-->
+	<update id="updateStck" parameterType="todyAnalVo">
+		UPDATE stck_tb
+        SET qunt =  qunt - ${qunt} - ${retrnQunt}
+        WHERE prodct_seq = ${prodctSeq};
+	</update>
+	
+</mapper>
+
+
+
+
+

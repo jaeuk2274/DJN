@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="recpMapper">
+	
+	<!--고객 리스트 SELECT-->
+	<resultMap id="recpValues" type="recpVo">		
+		<result property="recpSeq" column="recp_Seq"/>	
+		<result property="recpTitl" column="recp_Titl"/>	
+		<result property="recpCnt" column="recp_Cnt"/>	
+		<result property="recpImg" column="recp_Img"/>	
+		<result property="likeCount" column="likeCount"/>	
+		<result property="likeState" column="likeState"/>	
+		<result property="replyCount" column="replyCount"/>
+		<result property="recpSeq" column="pageType"/>
+		
+		<result property="memSeq" column="mem_Seq"/>
+		<result property="memNme" column="mem_nme"/>
+		
+		<result property="recpReplySeq" column="recp_reply_seq"/>
+		<result property="replyCnt" column="reply_Cnt"/>
+		<result property="custmrNme" column="custmr_nme"/>
+		<result property="empNme" column="emp_nme"/>
+		<result property="memType" column="mem_Type"/>
+		
+		<result property="recpProdctSeq" column="recp_Prodct_Seq"/>
+		<result property="prodctSeq" column="prodct_seq"/>
+		<result property="prodctNme" column="prodct_nme"/>
+		<result property="selPric" column="sel_pric"/>
+		<result property="mainImg" column="main_img"/>
+			
+		<result property="dat" column="dat"/>
+		<result property="recpSechText" column="recpSechText"/>
+		
+
+	</resultMap>
+																														
+					
+	<!-- 실시간 주문내역 조회 (오늘날짜만)-->
+	<select id="recpList" resultMap="recpValues"  parameterType="recpVo">
+		SELECT r.recp_seq
+			,  r.recp_titl
+			,  r.recp_cnt
+			,  r.recp_img
+			,  (SELECT COUNT(rl.recp_like_Seq) FROM recp_like_tb rl WHERE rl.recp_seq = r.recp_Seq) likeCount
+            ,  (SELECT COUNT(rl.recp_like_Seq) FROM recp_like_tb rl WHERE rl.mem_Seq = #{memSeq} AND r.recp_seq = rl.recp_Seq AND rl.mem_type = #{memType}) likeState
+			,  (SELECT COUNT(rr.recp_reply_Seq) FROM recp_reply_tb rr WHERE rr.recp_seq = r.recp_Seq) replyCount
+		FROM   recp_tb r #전체
+		<if test="pageType==2">
+        JOIN   recp_like_tb rl
+        ON     rl.recp_seq = r.recp_Seq
+        WHERE  DATE_FORMAT(r.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 7 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+        GROUP BY r.recp_seq
+        ORDER BY likeCount DESC #인기
+        LIMIT 0,10;
+        </if>
+		<if test="pageType==3"> 
+        JOIN   recp_like_tb rl
+        ON     rl.recp_seq = r.recp_Seq
+        WHERE  rl.mem_Seq  = #{memSeq}
+        AND    rl.mem_type = #{memType}
+        ORDER BY r.dat DESC;#좋아요
+		</if>
+		<if test="pageType==4 and recpSechText neq ''">
+        WHERE r.recp_Titl LIKE CONCAT ('%', #{recpSechText},'%') ;#검색
+        </if>
+		<if test="pageType==5">
+        WHERE r.mem_seq = #{memSeq}
+        AND   r.mem_type= #{memType}
+        
+        <if test="recpSechText neq ''">         
+        AND   r.recp_Titl LIKE CONCAT ('%', #{recpSechText},'%')#내 레시피에서 검색
+        </if>
+        </if>
+        
+	</select>
+	<select id="recpRead" resultMap="recpValues"  parameterType="recpVo">
+		SELECT r.recp_seq
+			,  r.recp_titl
+			,  r.recp_cnt
+			,  r.recp_img
+			,  (SELECT COUNT(rl.recp_like_Seq) FROM recp_like_tb rl WHERE rl.recp_seq = r.recp_Seq) likeCount
+            ,  (SELECT COUNT(rl.recp_like_Seq) FROM recp_like_tb rl WHERE rl.mem_Seq = #{memSeq} AND r.recp_seq = rl.recp_Seq AND rl.mem_type = #{memType}) likeState
+			,  (SELECT COUNT(rr.recp_reply_Seq) FROM recp_reply_tb rr WHERE rr.recp_seq = r.recp_Seq) replyCount
+			,  mem_Seq
+		FROM   recp_tb r
+		WHERE  r.recp_seq = #{recpSeq}
+	</select>
+	<insert id="recpLikeInsert" parameterType="recpVo">
+		INSERT INTO recp_like_tb(recp_like_seq, recp_seq, mem_Seq,mem_type, dat)
+		VALUES((SELECT IFNULL(MAX(r.recp_like_seq),0)+1 FROM recp_like_tb r)
+			  , #{recpSeq}
+			  , #{memSeq}
+			  , #{memType}
+			  , SYSDATE());
+	</insert>
+	<delete id="recpLikeDelete" parameterType="recpVo">
+		DELETE FROM recp_like_tb
+		WHERE recp_seq = #{recpSeq}
+		AND   mem_seq = #{memSeq}
+		AND   mem_Type = #{memType};
+	</delete>
+	
+	<insert id="recpReplyInsert" parameterType="recpVo">
+		INSERT INTO recp_reply_tb(recp_reply_seq, recp_seq, mem_Seq,mem_Type, reply_cnt, dat)
+		VALUES((SELECT IFNULL(MAX(r.recp_reply_seq),0)+1 FROM recp_reply_tb r)
+			  , #{recpSeq}
+			  , #{memSeq}
+			  , #{memType}
+			  , #{replyCnt}
+			  , SYSDATE());
+	</insert>
+	
+	<select id="recpReplyList" resultMap="recpValues"  parameterType="recpVo">
+		SELECT r.recp_reply_seq
+			,  r.recp_Seq
+			,  r.mem_Seq
+			,  r.reply_cnt
+			,  c.custmr_nme
+            ,  e.nme 'emp_nme'
+			,  r.dat
+			,  r.mem_Type
+		FROM   recp_reply_tb r
+		LEFT JOIN   custmr_tb c
+		ON     r.mem_seq = c.custmr_seq
+        AND    r.mem_type = 1
+        LEFT JOIN   emp_tb e
+        ON	   r.mem_seq = e.emp_seq
+        AND    r.mem_Type = 0
+		WHERE  r.recp_seq = #{recpSeq};
+	</select>	
+	<select id="recpProdctList" resultMap="recpValues"  parameterType="recpVo">
+		SELECT r.recp_prodct_seq
+			,  p.prodct_seq
+			,  p.prodct_nme
+			,  p.sel_pric
+			,  p.main_img
+		FROM recp_prodct_tb r
+		JOIN prodct_tb p
+		ON   p.prodct_seq= r.prodct_Seq
+		WHERE recp_Seq = #{recpSeq}
+	</select>	
+			
+	<select id="appRecpProdctSearch" resultMap="recpValues"  parameterType="String">
+		SELECT prodct_seq
+			,  prodct_nme
+			,  main_img
+			,  sel_pric
+		FROM debec.prodct_tb 
+		WHERE prodct_nme LIKE CONCAT ('%', #{recpSechText},'%') ;
+	</select>
+	
+	<select id="appRecpProdctList" resultMap="recpValues"  parameterType="long[]">
+		SELECT prodct_seq
+			,  prodct_nme
+			,  main_img
+			,  sel_pric
+		FROM prodct_tb 
+		WHERE 
+		<foreach item="item" collection="recpProdct"  separator="OR">
+		 prodct_Seq =  #{item}
+		</foreach>	
+	</select>
+	<insert id="appRecpInsert" parameterType="recpVo">
+		INSERT INTO recp_tb(recp_seq, recp_titl, recp_cnt, recp_img, mem_Type, mem_Seq, dat)
+		VALUES((SELECT IFNULL(MAX(r.recp_seq),0)+1 FROM recp_tb r)
+			  , #{recpTitl}
+			  , #{recpCnt}
+			  , null
+			  , #{memType}
+			  , #{memSeq}
+			  , SYSDATE());
+	</insert>
+	<insert id="appRecpProdctInsert" parameterType="recpVo">
+		INSERT INTO recp_prodct_tb(recp_prodct_seq, prodct_seq, recp_seq)
+		VALUES((SELECT IFNULL(MAX(r.recp_prodct_seq),0)+1 FROM recp_prodct_tb r)
+			  , #{prodctSeq}
+			  , #{recpSeq});
+	</insert>
+		
+	<select id="appRecpMaxSeq" resultType="int">
+	    SELECT MAX(recp_Seq) recp_Seq
+	    FROM recp_tb;
+	</select>	
+	
+	<update id="appRecpImgSrcUpdate" parameterType="recpVo">
+		UPDATE recp_tb 
+		SET recp_img = #{recpImg}
+		WHERE recp_seq = #{recpSeq};
+	</update>
+	<delete id="appRecpDelete" parameterType="recpVo">
+		DELETE FROM recp_tb 
+		WHERE recp_seq = #{recpSeq};
+	</delete>	
+	<delete id="appRecpLikeDelete" parameterType="recpVo">
+		DELETE FROM recp_like_tb 
+		WHERE recp_seq = #{recpSeq};
+	</delete>
+	<delete id="appRecpProdctDelete" parameterType="recpVo">
+		DELETE FROM recp_Prodct_tb 
+		WHERE recp_seq = #{recpSeq};
+	</delete>
+	<delete id="appRecpReplyDelete" parameterType="recpVo">
+		DELETE FROM recp_Reply_tb 
+		WHERE recp_seq = #{recpSeq};
+	</delete>
+		
+	<update id="appRecpUpdate" parameterType="recpVo">
+		UPDATE recp_tb
+		SET    recp_titl = #{recpTitl}
+			,  recp_cnt  = #{recpCnt}
+			,  recp_img  = #{recpImg}
+		WHERE  recp_seq  = #{recpSeq}
+	</update>		
+	
+	<insert id="appRecpProdctCartInsert" parameterType="recpVo">
+		INSERT INTO cart_bridg_tb(cart_bridg_seq, prodct_seq, amont, custmr_seq)
+		VALUES((SELECT IFNULL(MAX(c.cart_bridg_seq),0)+1 FROM cart_bridg_tb c)
+			  , #{prodctSeq}
+			  , 1
+			  , #{memSeq});
+	</insert>	
+	<select id="appRecpProdctCartCheck" parameterType="recpVo" resultType="int">
+		SELECT COUNT(cart_bridg_seq)
+		FROM   cart_bridg_tb
+		WHERE  custmr_seq = #{memSeq}
+		AND    prodct_Seq = #{prodctSeq};
+	</select>
+	
+																
+</mapper>

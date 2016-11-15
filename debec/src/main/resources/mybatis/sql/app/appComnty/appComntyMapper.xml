@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="appComntyMapper">
+	
+	<resultMap id="comntyValues" type="comntyVo">
+	    <result property="boardSeq" column="board_seq"/><!-- 게시판 고유값 -->
+	     <result property="hotlistBoardSeq" column="hotlist_board_seq"/><!-- 즐겨찾는 게시판 고유값 -->
+	    <result property="boardImg" column="img"/><!-- 게시판 이미지 -->
+	    <result property="boardTitl" column="titl"/><!--게시판  제목 -->
+	    <result property="boardIntrodun" column="introdun"/><!-- 게시판 소개글 -->
+	   	<result property="boardEntryCount" column="board_entry_count"/><!-- 게시판 참가자수 -->
+	   	<result property="boardPw" column="pw"/><!-- 게시판 비밀번호 -->
+	    <result property="custmrSeq" column="custmr_seq"/><!-- 고객 고유값 -->
+	     <result property="talkSeq" column="talk_seq"/><!-- 글 고유값 -->
+	     <result property="talk" column="talk"/><!-- 글 -->
+	     <result property="talkRegstrtnDat" column="talk_regstrtn_dat"/><!-- 글 등록일 -->
+	     <result property="custmrNme" column="custmr_nme"/><!-- 고객 이름 -->
+	     <result property="custmrId" column="custmr_id"/><!-- 고객 아이디 -->
+	     <result property="hotlistCheck" column="hotlist_check"/><!-- 즐겨찾기 체크 -->
+	     <result property="boardPwCheck" column="board_pw_check"/><!-- 비밀번호 체크 -->
+	     <result property="searchText" column="search_text"/><!-- 검색어 -->
+	     
+	</resultMap>
+	
+	<!-- 	담소방 등록 -->
+	<insert id="communityCreate" parameterType="comntyVo">
+       INSERT INTO comuni_tb 
+					(board_seq
+		            , img
+		            , titl
+		            , introdun
+		            , custmr_seq
+		            , pw)
+		VALUES((SELECT IFNULL(MAX(board_seq),0)+1 FROM comuni_tb c)
+				, '${boardImg}'
+		        , '${boardTitl}'
+		        , '${boardIntrodun}'
+		        , #{custmrSeq}
+		        , '${boardPw}');                 
+	</insert>
+
+	<!-- 담소방 리스트 -->		
+	<select id="communityList" resultMap="comntyValues" parameterType="comntyVo">
+		SELECT c.board_seq AS board_seq
+				, titl
+		        , img
+		        , pw
+		        , introdun
+		        , c.custmr_seq
+		        , count(h.board_seq) AS hotlist_board_seq
+		        , count(e.custmr_seq) AS board_entry_count
+		FROM comuni_tb AS c
+		LEFT JOIN entry_tb AS e ON c.board_seq = e.board_seq
+		LEFT JOIN (SELECT * FROM hotlist_tb h  WHERE h.custmr_seq = #{custmrSeq} ) AS h ON c.board_seq = h.board_seq
+		WHERE titl LIKE '%${searchText}%'
+		GROUP BY c.board_seq
+		;
+	</select>
+
+	<!-- 담소방 즐겨찾는 리스트 -->			
+	<select id="communityHotList" resultMap="comntyValues" parameterType="comntyVo">
+		SELECT c.board_seq
+				, img
+				, titl
+				, introdun
+				, c.custmr_seq
+				, pw
+		        , count(e.custmr_seq) AS board_entry_count
+		FROM hotlist_tb h
+		JOIN comuni_tb c ON h.board_seq = c.board_seq
+		LEFT JOIN entry_tb e ON c.board_seq = e.board_seq
+		WHERE h.custmr_seq = #{custmrSeq}
+		GROUP BY c.board_seq;
+	</select>
+
+	<!-- 담소방 나의 리스트 -->	
+	<select id="communityMyList" resultMap="comntyValues" parameterType="comntyVo">
+		SELECT c.board_seq
+				, img
+				, titl
+				, introdun
+				, c.custmr_seq
+				, pw
+		        , count(e.custmr_seq) as board_entry_count
+		FROM comuni_tb c
+		LEFT JOIN entry_tb e ON c.board_seq = e.board_seq
+        WHERE c.custmr_seq = #{custmrSeq}
+		GROUP BY c.board_seq;
+	</select>
+	
+	<!-- 담소방 수정화면 -->
+	<select id="comntyMyUpdateRead" resultMap="comntyValues" parameterType="int">
+		SELECT board_seq
+				, img
+				, titl
+				, introdun
+				, custmr_seq
+				, pw
+		FROM comuni_tb
+        WHERE board_seq = #{boardSeq};
+	</select>
+	
+	<!-- 담소방 수정 -->
+ 	 <update id="communityUpdate" parameterType="comntyVo">
+		UPDATE comuni_tb
+		SET img = '${boardImg}'
+			, titl = '${boardTitl}'
+		    , introdun = '${boardIntrodun}'
+		    , pw = '${boardPw}'
+		WHERE board_seq = #{boardSeq};
+ 	 </update>
+	
+	<!-- 즐겨찾기 등록 --> 	 
+ 	 <insert id="hotlistCreate" parameterType="comntyVo">
+ 	     INSERT INTO hotlist_tb(
+						board_seq
+						, custmr_seq)
+		VALUES(#{boardSeq}
+					, #{custmrSeq});
+	</insert>
+
+ 	 <!-- 즐겨찾기 취소 --> 	 	
+ 	 <delete id="hotlistCancel"  parameterType="comntyVo">
+		DELETE 
+		FROM hotlist_tb
+		WHERE 
+			board_seq = #{boardSeq}
+		AND custmr_seq = #{custmrSeq};
+	</delete>
+	
+ 	 <!-- 즐겨찾기 조회 --> 
+  	<select id="hotlistSelect" resultMap="comntyValues" parameterType="comntyVo"> 
+  	    SELECT count(board_seq) AS hotlist_check
+  	    FROM hotlist_tb
+  	    WHERE board_seq = #{boardSeq}
+  	    AND custmr_seq = #{custmrSeq};
+      </select>
+        
+ 	<!-- 담소방 상세보기 리스트 --> 			 
+ 	<select id="comntyReadList" resultMap="comntyValues" parameterType="comntyVo"> 
+ 	    SELECT talk_seq
+ 	    	, com.titl
+			, ct.board_seq
+	        , ct.custmr_seq
+	        , talk
+	        , talk_regstrtn_dat
+	        , custmr_nme
+		FROM comuni_talk_tb ct
+        JOIN comuni_tb com ON ct.board_seq = com.board_seq
+		JOIN custmr_tb c ON ct.custmr_seq = c.custmr_seq
+		WHERE ct.board_seq =#{boardSeq};
+	</select>
+	
+ 	 <!-- 담소방 오른쪽 패널 조회 --> 			 
+ 	<select id="comntyReadPanelList" resultMap="comntyValues" parameterType="comntyVo"> 
+		SELECT c.board_seq
+				, c.titl
+				, c.introdun
+				, c.custmr_seq
+		        , cu.custmr_id
+		        , cu.custmr_nme
+		FROM comuni_tb c
+		JOIN entry_tb e ON c.board_seq = e.board_seq
+		JOIN custmr_tb cu ON e.custmr_seq = cu.custmr_seq
+		WHERE c.board_seq = #{boardSeq};
+	</select>
+	
+ 	<!-- 담소방 참가 --> 
+ 	 <insert id="comntyEntryCreate" parameterType="comntyVo">
+ 	     INSERT INTO entry_tb(
+						board_seq
+						, custmr_seq)
+		VALUES(#{boardSeq}
+					, #{custmrSeq});
+	</insert>
+	
+ 	 <!-- 담소방 글 등록 -->
+	<insert id="talkCreate" parameterType="comntyVo">
+       INSERT INTO comuni_talk_tb 
+					(talk_seq
+		            , board_seq
+		            , custmr_seq
+		            , talk
+		            , talk_regstrtn_dat)
+		VALUES((SELECT IFNULL(MAX(talk_seq),0)+1 FROM comuni_talk_tb c)
+				, #{boardSeq}
+		        , #{custmrSeq}
+		        , '${talk}'
+		        , sysdate());                 
+	</insert>
+	
+	 <!-- 담소방 나가기 -->
+	<insert id="comntyEntryLeave" parameterType="comntyVo">
+        DELETE FROM entry_tb
+		WHERE board_seq = #{boardSeq}
+		AND custmr_seq = #{custmrSeq};               
+	</insert>
+	
+	 <!-- 담소방 비밀번호 체크 --> 			 
+ 	<select id="comntyPwSelect" resultMap="comntyValues" parameterType="comntyVo"> 
+		SELECT count(pw) AS board_pw_check
+		FROM comuni_tb 
+		WHERE board_seq = #{boardSeq}
+		AND pw = #{boardPw};
+	</select>
+	
+ 	<!-- 관리자 담소방 리스트 -->		
+	<select id="empCommunityList" resultMap="comntyValues" parameterType="comntyVo">
+		SELECT c.board_seq AS board_seq
+				, titl
+		        , img
+		        , pw
+		        , introdun
+		        , c.custmr_seq
+		        , count(e.custmr_seq) AS board_entry_count
+		FROM comuni_tb AS c
+		LEFT JOIN entry_tb AS e ON c.board_seq = e.board_seq
+		WHERE titl LIKE '%${searchText}%'
+		GROUP BY c.board_seq
+		;
+	</select>
+</mapper>

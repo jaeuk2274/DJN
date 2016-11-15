@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >	
+
+<mapper namespace="prodctAnalMapper">
+	<resultMap id="prodctValues" type="prodctAnalVo">
+	    <result property="ordrDat" column="ordr_dat"/>		<!-- 주문일자  -->
+		<result property="prodctSeq" column="prodct_seq"/>		<!-- 상품 seq  -->
+		<result property="prodctNme" column="prodct_nme"/>		<!-- 상품명  -->
+		<result property="topCatgrNme" column="top_catgr_nme"/>	<!-- 카테고리(대)  -->
+		<result property="midCatgrNme" column="mid_catgr_nme"/>	<!-- 카테고리(중)  -->
+		<result property="botCatgrNme" column="bot_catgr_nme"/>	<!-- 카테고리(소)  -->
+		<result property="catgrNme" column="catgr_nme"/>	<!-- 카테고리(소)  -->
+		<result property="instckPric" column="instck_pric"/>	<!-- 입고가격  -->
+		<result property="selPric" column="sel_pric"/>			<!-- 판매가격  -->
+		<result property="qunt" column="qunt"/>					<!-- 수량  -->
+		<result property="refndRat" column="refnd_rat"/>		<!-- 환불비율 -->
+		<result property="refndQunt" column="refnd_qunt"/>		<!-- 환불수량 -->
+		<result property="selQunt" column="sel_qunt"/>			<!-- 판매수량 -->
+		<result property="profit" column="profit"/>				<!-- 순이익 -->
+		<result property="margnRat" column="margn_rat"/>		<!-- 마진율 -->
+		<result property="selSum" column="sel_sum"/>			<!-- 판매금액 합계 -->
+		<result property="stckQunt" column="stck_qunt"/>		<!-- 재고수량 -->
+		
+		<result property="retrnQunt" column="retrnQunt"/>		<!-- 환불 수량  -->
+		<result property="relQunt" column="relQunt"/>			<!-- 판매 수량  -->
+		<result property="netInc" column="netInc"/>				<!-- 순이익 -->
+		<result property="marginRat" column="marginRat"/>		<!-- 마진율 -->
+		<result property="totalSelPric" column="totalSelPric"/>	<!-- 판매 합계 -->
+		<result property="retrnConTnTotalSelPric" column="retrnConTnTotalSelPric"/> <!-- 환불 수량 포함 판매 합계 -->
+	</resultMap>
+	
+<!-- 	판매수량이 상위 top 10 상품을 조회하는 메서드입니다. -->
+	<select id="selectSelProdctQunt" parameterType="prodctAnalVo" resultMap="prodctValues">
+		SELECT 
+		    ordr_dat,
+		    prodct_seq,
+		    prodct_nme,
+		    top_catgr_nme,
+		    mid_catgr_nme,
+		    bot_catgr_nme,
+		    instck_pric,
+		    sel_pric,
+		    SUM(ordr_amont) as qunt
+		FROM
+		    total_anal_view
+		WHERE 
+			prodct_nme LIKE '%${prodctNmeSech}%'
+		<if test="btnDatSech == '0일'">
+		    AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') = CURDATE()
+		</if>
+		<if test="btnDatSech == '3일'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 3 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '7일'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '1개월'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '3개월'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '6개월'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 180 DAY) AND CURDATE()
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		<if test="selectedTopCatgrNme != '대분류'">
+		    AND top_catgr_nme = #{selectedTopCatgrNme}
+		</if>
+		<if test="selectedMidCatgrNme != '중분류'">
+			AND mid_catgr_nme = #{selectedMidCatgrNme}
+		</if>
+		<if test="selectedBotCatgrNme != '소분류'">
+			AND bot_catgr_nme = #{selectedBotCatgrNme}
+		</if>
+		<if test="endSelPrice != 0">
+		    AND sel_pric BETWEEN ${beginSelPrice} AND ${endSelPrice}
+		</if>
+		GROUP BY prodct_seq
+		ORDER BY qunt DESC
+		LIMIT 0 , 10;
+	</select>
+	
+<!-- 	판매금액합계가 상위 top 10 상품을 조회하는 메서드입니다. -->
+	<select id="selectSelProdctSum" parameterType="prodctAnalVo" resultMap="prodctValues">
+	    SELECT 
+		    ordr_dat,
+		    prodct_seq,
+		    prodct_nme,
+		    top_catgr_nme,
+		    mid_catgr_nme,
+		    bot_catgr_nme,
+		    instck_pric,
+		    (sel_pric * SUM(ordr_amont)) AS sel_pric,
+		    SUM(ordr_amont) as qunt
+		FROM
+		    total_anal_view
+		WHERE 
+			prodct_nme LIKE '%${prodctNmeSech}%'
+		<if test="btnDatSech == '0일'">
+		    AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') = CURDATE()
+		</if>
+		<if test="btnDatSech == '3일'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 3 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '7일'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '1개월'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '3개월'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '6개월'">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 180 DAY) AND CURDATE()
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND DATE_FORMAT(ordr_dat, '%Y-%m-%d') BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		<if test="selectedTopCatgrNme != '대분류'">
+		    AND top_catgr_nme = #{selectedTopCatgrNme}
+		</if>
+		<if test="selectedMidCatgrNme != '중분류'">
+			AND mid_catgr_nme = #{selectedMidCatgrNme}
+		</if>
+		<if test="selectedBotCatgrNme != '소분류'">
+			AND bot_catgr_nme = #{selectedBotCatgrNme}
+		</if>
+		<if test="endSelPrice != 0">
+		    AND sel_pric BETWEEN ${beginSelPrice} AND ${endSelPrice}
+		</if>
+		GROUP BY prodct_seq
+		ORDER BY sel_pric DESC
+		LIMIT 0 , 10;
+	</select>
+	
+	<select id="catgrSelQuntList" resultMap="prodctValues" parameterType="prodctAnalVo">
+		SELECT  
+			<choose>
+				<when test="selectedTopCatgrNme eq '대분류'">
+					top.catgr_nme catgr_nme #상품코드 
+				</when>
+				<when test="selectedMidCatgrNme neq '중분류'">
+					bot.catgr_nme catgr_nme #상품코드
+				</when>
+				<when test="selectedTopCatgrNme neq '대분류'">
+					mid.catgr_nme catgr_nme #상품코드
+				</when>
+			</choose>
+			 ,  SUM(rel.qunt)'selQunt' #판매수량
+			 ,  SUM(IFNULL(r.qunt,0)+IFNULL(e.qunt,0))'retrnQunt' #환불수량
+			 ,  SUM(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0))) 'relQunt' #순 판매수량
+		FROM	  all_sel_prodct_view p
+	    LEFT JOIN retrn_tb r
+	    ON 		  r. prodct_seq = p.prodct_seq
+	    LEFT JOIN stck_tb s
+	    ON 		  s. prodct_seq = p.prodct_seq
+	    LEFT JOIN exchng_refnd_tb e
+	    ON 		  e. prodct_seq = p.prodct_seq
+	    LEFT JOIN rels_tb rel
+	    ON 		  rel.prodct_seq = p.prodct_seq
+	    
+	   <choose>
+			<when test="selectedTopCatgrNme eq '대분류'">
+	    JOIN	  catgr_tb top
+	    ON		  top.catgr_seq = p.top_catgr_Seq # 유동적
+			</when>
+			<when test="selectedMidCatgrNme neq '중분류'">
+	    JOIN	  catgr_tb top
+	    ON		  top.catgr_seq = p.top_catgr_Seq # 유동적
+	    AND       top.catgr_nme = #{selectedTopCatgrNme}
+	    JOIN 	  catgr_tb  mid
+	    ON		  mid.catgr_seq = p.mid_catgr_Seq # 유동적
+	    AND       mid.catgr_nme = #{selectedMidCatgrNme}
+	    JOIN 	  catgr_tb bot
+	    ON		  bot.catgr_seq = p.bot_catgr_Seq # 유동적
+			</when>
+			<when test="selectedTopCatgrNme neq '대분류'">
+	    JOIN	  catgr_tb top
+	    ON		  top.catgr_seq = p.top_catgr_Seq # 유동적
+	    AND       top.catgr_nme = #{selectedTopCatgrNme}
+	    JOIN 	  catgr_tb  mid
+	    ON		  mid.catgr_seq = p.mid_catgr_Seq # 유동적
+			</when>
+		</choose>
+		WHERE p.prodct_Seq>0
+		
+		<choose>
+			<when test="btnDatSech=='0일'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='3일'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 3 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='7일'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 7 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='1개월'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 30 DAY, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<when test="btnDatSech=='3개월'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 90 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='6개월'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 180 DAY, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<otherwise>
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDatSech}, '%Y-%m-%d') and DATE_FORMAT(#{endDatSech}, '%Y-%m-%d')
+			</otherwise>
+		</choose>
+				 	  
+		GROUP BY 
+			<choose>
+				<when test="selectedTopCatgrNme eq '대분류'">
+					top.catgr_nme
+				</when>
+				<when test="selectedMidCatgrNme neq '중분류'">
+					bot.catgr_nme
+				</when>
+				<when test="selectedTopCatgrNme neq '대분류'">
+					mid.catgr_nme
+				</when>
+			</choose>
+		ORDER BY SUM(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0)))  DESC
+		limit 0,10;
+	    
+	</select>
+	
+	<select id="catgrSelSumList" resultMap="prodctValues" parameterType="prodctAnalVo">
+		SELECT  
+			<choose>
+				<when test="selectedTopCatgrNme eq '대분류'">
+					top.catgr_nme catgr_nme #상품코드 
+				</when>
+				<when test="selectedMidCatgrNme neq '중분류'">
+					bot.catgr_nme catgr_nme #상품코드
+				</when>
+				<when test="selectedTopCatgrNme neq '대분류'">
+					mid.catgr_nme catgr_nme #상품코드
+				</when>
+			</choose>
+			 ,  SUM(rel.sel_pric) 'sel_Pric' #판매가
+			 ,  SUM(rel.qunt)'selQunt' #판매수량
+			 ,  SUM(IFNULL(r.qunt,0)+IFNULL(e.qunt,0))'retrnQunt' #환불수량
+			 ,  SUM(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0))) 'relQunt' #순 판매수량
+			 ,  SUM(rel.sel_pric *(IFNULL(rel.qunt,0))) 'retrnConTnTotalSelPric' #판매금액
+			 ,  SUM((rel.sel_pric - rel.instck_pric)*(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0)))) 'netInc' #순이익
+			 ,  (SUM((rel.sel_pric - rel.instck_pric)*(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0))))) 
+			    / (SUM(rel.sel_pric *(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0)))))*100'marginRat' #마진율 
+			 ,  SUM(rel.sel_pric *(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0)))) 'totalSelPric' #판매합계
+		FROM	  all_sel_prodct_view p
+	    LEFT JOIN retrn_tb r
+	    ON 		  r. prodct_seq = p.prodct_seq
+	    LEFT JOIN stck_tb s
+	    ON 		  s. prodct_seq = p.prodct_seq
+	    LEFT JOIN exchng_refnd_tb e
+	    ON 		  e. prodct_seq = p.prodct_seq
+	    LEFT JOIN rels_tb rel
+	    ON 		  rel.prodct_seq = p.prodct_seq
+	    
+	   <choose>
+			<when test="selectedTopCatgrNme eq '대분류'">
+	    JOIN	  catgr_tb top
+	    ON		  top.catgr_seq = p.top_catgr_Seq # 유동적
+			</when>
+			<when test="selectedMidCatgrNme neq '중분류'">
+	    JOIN	  catgr_tb top
+	    ON		  top.catgr_seq = p.top_catgr_Seq # 유동적
+	    AND       top.catgr_nme = #{selectedTopCatgrNme}
+	    JOIN 	  catgr_tb  mid
+	    ON		  mid.catgr_seq = p.mid_catgr_Seq # 유동적
+	    AND       mid.catgr_nme = #{selectedMidCatgrNme}
+	    JOIN 	  catgr_tb bot
+	    ON		  bot.catgr_seq = p.bot_catgr_Seq # 유동적
+			</when>
+			<when test="selectedTopCatgrNme neq '대분류'">
+	    JOIN	  catgr_tb top
+	    ON		  top.catgr_seq = p.top_catgr_Seq # 유동적
+	    AND       top.catgr_nme = #{selectedTopCatgrNme}
+	    JOIN 	  catgr_tb  mid
+	    ON		  mid.catgr_seq = p.mid_catgr_Seq # 유동적
+			</when>
+		</choose>
+		WHERE p.prodct_Seq>0
+		
+		<choose>
+			<when test="btnDatSech=='0일'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 1 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='3일'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 3 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='7일'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 7 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='1개월'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 30 DAY, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<when test="btnDatSech=='3개월'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(now() - INTERVAL 90 DAY, '%Y-%m-%d') and DATE_FORMAT(now(), '%Y-%m-%d')
+			</when>
+			<when test="btnDatSech=='6개월'">
+				AND DATE_FORMAT(rel.dat, '%Y-%m') BETWEEN DATE_FORMAT(now() - INTERVAL 180 DAY, '%Y-%m') and DATE_FORMAT(now(), '%Y-%m')
+			</when>
+			<otherwise>
+				AND DATE_FORMAT(rel.dat, '%Y-%m-%d') BETWEEN DATE_FORMAT(#{startDatSech}, '%Y-%m-%d') and DATE_FORMAT(#{endDatSech}, '%Y-%m-%d')
+			</otherwise>
+		</choose>
+				 	  
+		GROUP BY 
+			<choose>
+				<when test="selectedTopCatgrNme eq '대분류'">
+					top.catgr_nme
+				</when>
+				<when test="selectedMidCatgrNme neq '중분류'">
+					bot.catgr_nme
+				</when>
+				<when test="selectedTopCatgrNme neq '대분류'">
+					mid.catgr_nme
+				</when>
+			</choose>
+		ORDER BY SUM(rel.sel_pric *(IFNULL(rel.qunt,0) - (IFNULL(r.qunt,0)+IFNULL(e.qunt,0))))  DESC
+		limit 0,10;
+	    
+	</select>
+<!-- 	판매상품 순위 내역(테이블) -->
+	<select id="selectProdctRanking" parameterType="prodctAnalVo" resultMap="prodctValues">
+		SELECT 
+		    tv.prodct_seq,
+		    tv.prodct_nme,
+		    IFNULL(tv.sel_pric, 0) as sel_pric,
+		    IFNULL(st.qunt, 0) AS stck_qunt,
+		    IFNULL(SUM(ex.qunt), 0) AS refnd_qunt,
+		    IFNULL(SUM(tv.ordr_amont), 0) AS sel_qunt,
+		    IFNULL(tv.sel_pric * SUM(tv.ordr_amont), 0) AS sel_sum
+		FROM
+		    total_anal_view tv
+		        LEFT JOIN
+		    stck_tb st ON tv.prodct_seq = st.prodct_seq
+		        LEFT JOIN
+		    exchng_refnd_tb ex ON tv.prodct_seq = ex.prodct_seq
+		WHERE 
+			tv.prodct_nme LIKE '%${prodctNmeSech}%'
+		<if test="btnDatSech == '0일'">
+		    AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') = CURDATE()
+		</if>
+		<if test="btnDatSech == '3일'">
+			AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 3 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '7일'">
+			AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '1개월'">
+			AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '3개월'">
+			AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '6개월'">
+			AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(), INTERVAL 180 DAY) AND CURDATE()
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND DATE_FORMAT(tv.ordr_dat, '%Y-%m-%d') BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		<if test="selectedTopCatgrNme != '대분류'">
+		    AND tv.top_catgr_nme = #{selectedTopCatgrNme}
+		</if>
+		<if test="selectedMidCatgrNme != '중분류'">
+			AND tv.mid_catgr_nme = #{selectedMidCatgrNme}
+		</if>
+		<if test="selectedBotCatgrNme != '소분류'">
+			AND tv.bot_catgr_nme = #{selectedBotCatgrNme}
+		</if>
+		<if test="endSelPrice != 0">
+		    AND tv.sel_pric BETWEEN ${beginSelPrice} AND ${endSelPrice}
+		</if>
+		GROUP BY tv.prodct_seq
+		ORDER BY sel_qunt DESC
+		LIMIT 0 , 10;
+	</select>
+
+<!-- 	교환환불 Top10 차트(환불수량) -->
+	<select id="selectRefndQunt" parameterType="prodctAnalVo" resultMap="prodctValues">
+		SELECT 
+		    ex.prodct_seq, pr.prodct_nme, SUM(ex.qunt) AS qunt
+		FROM
+		    exchng_refnd_tb ex
+		        LEFT JOIN
+		    prodct_tb pr ON ex.prodct_seq = pr.prodct_seq
+		WHERE 
+			pr.prodct_nme LIKE '%${prodctNmeSech}%'
+		<if test="btnDatSech == '0일'">
+		    AND ex.dat = CURDATE()
+		</if>
+		<if test="btnDatSech == '3일'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 3 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '7일'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '1개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '3개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '6개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 180 DAY) AND CURDATE()
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND ex.dat BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		GROUP BY ex.prodct_seq
+		ORDER BY qunt DESC
+		LIMIT 0 , 10;
+	</select>
+	
+<!-- 	교환환불 Top10 차트(환불비율) -->
+	<select id="selectRefndRat" parameterType="prodctAnalVo" resultMap="prodctValues">
+	    SELECT 
+		    ex.prodct_seq,
+		    pr.prodct_nme,
+		    ex.qunt AS refnd_qunt,
+		    re.qunt AS sel_qunt,
+		    (SUM(ex.qunt) / SUM(re.qunt)) * 100 AS refnd_rat
+		FROM
+		    exchng_refnd_tb ex
+		        LEFT JOIN
+		    prodct_tb pr ON ex.prodct_seq = pr.prodct_seq
+		        LEFT JOIN
+		    rels_tb re ON ex.prodct_seq = re.prodct_seq
+	    WHERE 
+			pr.prodct_nme LIKE '%${prodctNmeSech}%'
+		<if test="btnDatSech == '0일'">
+		    AND ex.dat = CURDATE()
+		</if>
+		<if test="btnDatSech == '3일'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 3 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '7일'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '1개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '3개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '6개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 180 DAY) AND CURDATE()
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND ex.dat BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		GROUP BY ex.prodct_seq
+		ORDER BY refnd_rat DESC
+		LIMIT 0 , 10;
+	</select>
+	
+<!-- 	환불상품 순위 내역(테이블) -->
+	<select id="selectRefndRanking" parameterType="prodctAnalVo" resultMap="prodctValues">
+		SELECT 
+		    ex.prodct_seq,
+		    pr.prodct_nme,
+		    pr.sel_pric,
+		    SUM(ex.qunt) AS refnd_qunt,
+		    IFNULL(SUM(re.qunt), 0) AS sel_qunt,
+		    IFNULL((re.sel_pric - re.instck_pric) * SUM(re.qunt),
+		            0) AS profit,
+		    (1 - SUM(re.instck_pric * re.qunt) / SUM(re.sel_pric * re.qunt)) * 100 AS margn_rat,
+		    IFNULL(re.sel_pric * SUM(re.qunt), 0) AS sel_sum
+		FROM
+		    exchng_refnd_tb ex
+		        LEFT JOIN
+		    prodct_tb pr ON ex.prodct_seq = pr.prodct_seq
+		        LEFT JOIN
+		    rels_tb re ON ex.prodct_seq = re.prodct_seq
+	    WHERE 
+			pr.prodct_nme LIKE '%${prodctNmeSech}%'
+		<if test="btnDatSech == '0일'">
+		    AND ex.dat = CURDATE()
+		</if>
+		<if test="btnDatSech == '3일'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 3 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '7일'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '1개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '3개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+		</if>
+		<if test="btnDatSech == '6개월'">
+			AND ex.dat BETWEEN DATE_SUB(CURDATE(), INTERVAL 180 DAY) AND CURDATE()
+		</if>
+		<if test="beginDatepicker != '' and endDatepicker != ''">
+			AND ex.dat BETWEEN #{beginDatepicker} AND #{endDatepicker}
+		</if>
+		GROUP BY ex.prodct_seq
+		ORDER BY refnd_qunt DESC
+		LIMIT 0 , 10;
+	</select>
+	
+</mapper>

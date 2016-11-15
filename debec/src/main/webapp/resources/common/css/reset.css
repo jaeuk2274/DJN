@@ -1,0 +1,24 @@
+@CHARSET "UTF-8";
+
+html, body, div, span,h1,p,address,img,strong,ul, li,
+footer,nav, section{margin:0; padding:0; border:0; font-size:100%; font-family:"맑은 고딕", "돋움", Dotum, AppleSDGothicNeo ,Droid Sans, arial, sans-serif; vertical-align:baseline; background:transparent; list-style:none;} /*font-size:100%*/
+body{line-height:1; -webkit-text-size-adjust:none; font-family:"맑은 고딕", "돋움", Dotum, AppleSDGothicNeo ,Droid Sans, arial, sans-serif; color:#4d4d4d; font-size:12px;} 
+footer,nav, section{display:block;}
+img{border:0;} 
+ol, ul{list-style:none;}
+
+legend{font-size:0; overflow:hidden; text-indent:-9999999px; height:0; width:0; line-height:0;} 
+td{word-break:break-all}
+
+input{vertical-align:middle;}
+   
+em{font-style:normal;}
+a, a:link, a:visited, a:active{text-decoration:none; color:#4d4d4d;}
+a:hover{text-decoration:none; color:#333;}
+
+button{margin:0; padding:0; border:0; border-radius:0 !important; -webkit-border-radius:1px !important; -webkit-appearance:none !important; cursor:pointer; font-family:"맑은 고딕", "돋움", Dotum, AppleSDGothicNeo ,Droid Sans, arial, sans-serif;} 
+button{line-height:normal; border:none;}
+
+input[type="checkbox"]:disabled +{color:#999 !important;} 
+
+input:disabled{background:#f1f1f1;}

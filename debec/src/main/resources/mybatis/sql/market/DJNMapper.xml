@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="DJNMapper">
+	
+	<!--대장남 SELECT-->
+	<resultMap id="djnValues" type="djnVo">		
+		<!-- 대장남 포인트 뷰테이블 (시작) -->
+		<result property="empSeq" column="emp_seq"/> <!-- 직원 고유값  -->
+		<result property="empNme" column="emp_nme"/> <!-- 직원 이름  -->
+		<result property="empDuty" column="emp_duty"/> <!-- 직원 직책  -->
+		<result property="empTask" column="emp_task"/> <!-- 직원 업무  -->
+		<result property="empRecmndPoint" column="empRecmndPoint"/> <!-- 직원 추천포인트  -->
+		<result property="custmrRecmndPoint" column="custmrRecmndPoint"/> <!-- 고객 추천포인트  -->
+		<result property="custmrPraisPoint" column="custmrPraisPoint"/> <!-- 고객 칭찬포인트  -->
+		<result property="deliContPoint" column="deliPoint"/> <!-- 배달포인트  -->
+		<result property="totPoint" column="totPoint"/> <!-- 포인트 합  -->
+		<result property="selectMon" column="selectMon"/> <!-- 조회기준일  -->
+		<result property="empImg" column="img_rot"/> <!-- 직원 사진 -->
+		<result property="dat" column="dat"/> <!-- 대장남 기간 -->
+	</resultMap>
+	
+	<resultMap id="djnPointValues" type="djnPointVo">		
+	<!-- 대장남 포인트 퍼센트 테이블 (시작) -->
+		<result property="empRecmnd" column="emp_recmnd"/> <!-- 직원 추천 포인트비율  -->
+		<result property="custmrRecmnd" column="custmr_recmnd"/> <!-- 고객 추천 포인트비율  -->
+		<result property="custmrPrais" column="custmr_prais"/> <!-- 직원 칭찬 포인트비율  -->
+		<result property="deliCont" column="deli_cont"/> <!-- 배달 포인트비율  -->
+	</resultMap>
+	
+	<resultMap id="recmndResnValues" type="recmndResnVo">		
+	<!-- 고객추천사유 테이블 (시작) -->
+		<result property="recmndResnCont" column="recmnd_resn_cont"/> <!-- 고객 추천 사유별 횟수  -->
+		<result property="recmndResn" column="recmnd_resn"/> <!-- 고객 추천 사유명  -->
+	</resultMap>
+	
+	
+	<resultMap id="recmndValues" type="recmndVo">
+	<!-- 직원추천 테이블 (시작) -->
+		<result property="giveRecmndEmp" column="give_recmnd_emp"/> <!--추천해준 직원고유값 -->
+		<result property="getRecmndEmp" column="get_recmnd_emp"/> <!--추천받은 직원고유값 -->
+		<result property="recmndDat" column="dat"/> <!--추천해준 날짜 -->
+	</resultMap>
+	
+	
+	<!-- 이달의 대장남 정보 조회  -->
+	<select id="selectDJN" parameterType="djnVo" resultMap="djnValues">
+				SELECT d.emp_seq as 'emp_seq'
+				, d.emp_nme
+		        , d.emp_duty
+		        , d.emp_task
+		        , d.img_rot
+		        , d.dat
+		        , sum(empRecmndPoint) as `empRecmndPoint`
+		        , sum(custmrRecmndPoint) as `custmrRecmndPoint`
+		        , sum(custmrPraisPoint) as `custmrPraisPoint`
+		        , sum(deliPoint) as `deliPoint`
+		        , sum(empRecmndPoint+custmrRecmndPoint+custmrPraisPoint+deliPoint) AS `totPoint`
+		FROM (select e.emp_seq
+				, e.nme as 'emp_nme'
+		        , e.duty as 'emp_duty'
+		        , e.task as 'emp_task'
+		        , e.img_rot as 'img_rot'
+		        , e.stat as 'stat'
+		        , DATE_FORMAT(a.dat, '%Y-%m') AS 'dat'
+		        , COUNT(a.get_recmnd_emp)*(SELECT emp_recmnd FROM djn_point_tb) AS `empRecmndPoint`
+				, 0 AS `custmrRecmndPoint`
+		        , 0 AS `custmrPraisPoint`
+				, 0  AS `deliPoint`
+		FROM emp_tb e
+		LEFT JOIN emp_recmnd_tb a  ON e.emp_seq = a.get_recmnd_emp
+		WHERE DATE_FORMAT(a.dat, '%Y-%m') like '%${selectMon}%'
+		GROUP by e.emp_seq
+		HAVING stat = 'Y'
+		
+		UNION
+		
+		select  e.emp_seq
+				, e.nme as 'emp_nme'
+		        , e.duty as 'emp_duty'
+		        , e.task as 'emp_task'
+		        , e.img_rot as 'img_rot'
+		        , e.stat as 'stat'
+		        , DATE_FORMAT(b.DAT, '%Y-%m') AS 'dat'
+		        , 0 AS `empRecmndPoint`
+				, COUNT(b.emp_seq)*(SELECT custmr_recmnd FROM djn_point_tb) AS `custmrRecmndPoint`
+				, 0 AS `custmrPraisPoint`
+				, 0  AS `deliPoint`
+		FROM emp_tb e
+		LEFT JOIN custmr_recmnd_tb b  ON e.emp_seq = b.emp_seq
+		WHERE DATE_FORMAT(b.DAT, '%Y-%m') like '%${selectMon}%'
+		GROUP by e.emp_seq
+		HAVING stat = 'Y'
+		
+		UNION
+		
+		select  e.emp_seq
+				, e.nme as 'emp_nme'
+		        , e.duty as 'emp_duty'
+		        , e.task as 'emp_task'
+		        , e.img_rot as 'img_rot'
+		        , e.stat as 'stat'
+		        , DATE_FORMAT(c.ORDR_DAT, '%Y-%m') AS 'dat'
+				, 0 AS `empRecmndPoint`
+				, 0 AS `custmrRecmndPoint`
+				, COUNT(c.RECMND_CHECK)*(SELECT custmr_prais FROM djn_point_tb) AS `custmrPraisPoint`
+				, COUNT(c.emp_seq)*(SELECT deli_cont FROM djn_point_tb) AS `deliPoint`
+		FROM emp_tb e
+		LEFT JOIN ordr_num_tb c  ON e.emp_seq = c.emp_seq
+		WHERE DATE_FORMAT(c.ORDR_DAT, '%Y-%m') like '%${selectMon}%'
+		GROUP by e.emp_seq
+		HAVING stat = 'Y') AS d
+		GROUP by d.emp_seq
+		LIMIT 1;
+	</select>
+	
+	<!-- 이달의 대장남 고객 추천사유 조회  -->
+	<select id="selectDjnRecmndResn" parameterType="djnVo" resultMap="recmndResnValues">
+		SELECT count(a.recmnd_resn_code_seq) AS recmnd_resn_cont
+			  ,b.recmnd_resn AS recmnd_resn
+		FROM custmr_recmnd_tb a
+		JOIN recmnd_resn_code_tb b
+		ON b.recmnd_resn_code_seq= a.recmnd_resn_code_seq
+		WHERE a.emp_seq = #{empSeq}
+		AND a.DAT like '%${selectMon}%'
+<!-- 		AND DATE_FORMAT(a.DAT, '%Y-%m') like '%${selectMon}%' -->
+		GROUP BY b.recmnd_resn_code_seq
+		ORDER BY count(a.recmnd_resn_code_seq) DESC;
+	</select>
+	
+	<!-- 직원별 대장남 포인트 구분  -->
+	<select id="selectDJNPointDivision" parameterType="djnVo" resultType="int">
+		SELECT 
+		    COUNT(d.emp_seq)
+		FROM
+		    (SELECT 
+		        e.emp_seq,
+		            e.nme AS 'emp_nme',
+		            e.duty AS 'emp_duty',
+		            e.task AS 'emp_task',
+		            e.img_rot AS 'img_rot',
+		            e.stat AS 'stat',
+		            DATE_FORMAT(a.dat, '%Y-%m') AS 'dat',
+		            COUNT(a.get_recmnd_emp) * (SELECT 
+		                    emp_recmnd
+		                FROM
+		                    djn_point_tb) AS `empRecmndPoint`,
+		            0 AS `custmrRecmndPoint`,
+		            0 AS `custmrPraisPoint`,
+		            0 AS `deliPoint`
+		    FROM
+		        emp_tb e
+		    LEFT JOIN emp_recmnd_tb a ON e.emp_seq = a.get_recmnd_emp
+		    WHERE
+		        DATE_FORMAT(a.dat, '%Y-%m') LIKE '%${selectMon}%'
+		    GROUP BY e.emp_seq
+		    HAVING stat = 'Y' UNION SELECT 
+		        e.emp_seq,
+		            e.nme AS 'emp_nme',
+		            e.duty AS 'emp_duty',
+		            e.task AS 'emp_task',
+		            e.img_rot AS 'img_rot',
+		            e.stat AS 'stat',
+		            DATE_FORMAT(b.DAT, '%Y-%m') AS 'dat',
+		            0 AS `empRecmndPoint`,
+		            COUNT(b.emp_seq) * (SELECT 
+		                    custmr_recmnd
+		                FROM
+		                    djn_point_tb) AS `custmrRecmndPoint`,
+		            0 AS `custmrPraisPoint`,
+		            0 AS `deliPoint`
+		    FROM
+		        emp_tb e
+		    LEFT JOIN custmr_recmnd_tb b ON e.emp_seq = b.emp_seq
+		    WHERE
+		        DATE_FORMAT(b.DAT, '%Y-%m') LIKE '%${selectMon}%'
+		    GROUP BY e.emp_seq
+		    HAVING stat = 'Y' UNION SELECT 
+		        e.emp_seq,
+		            e.nme AS 'emp_nme',
+		            e.duty AS 'emp_duty',
+		            e.task AS 'emp_task',
+		            e.img_rot AS 'img_rot',
+		            e.stat AS 'stat',
+		            DATE_FORMAT(c.ORDR_DAT, '%Y-%m') AS 'dat',
+		            0 AS `empRecmndPoint`,
+		            0 AS `custmrRecmndPoint`,
+		            COUNT(c.RECMND_CHECK) * (SELECT 
+		                    custmr_prais
+		                FROM
+		                    djn_point_tb) AS `custmrPraisPoint`,
+		            COUNT(c.emp_seq) * (SELECT 
+		                    deli_cont
+		                FROM
+		                    djn_point_tb) AS `deliPoint`
+		    FROM
+		        emp_tb e
+		    LEFT JOIN ordr_num_tb c ON e.emp_seq = c.emp_seq
+		    WHERE
+		        DATE_FORMAT(c.ORDR_DAT, '%Y-%m') LIKE '%${selectMon}%'
+		    GROUP BY e.emp_seq
+		    HAVING stat = 'Y') AS d;
+	</select>
+	
+	<!-- 직원별 대장남 포인트 리스트 조회  -->
+	<select id="selectDJNPointList" parameterType="djnVo" resultMap="djnValues">
+		SELECT d.emp_seq as 'emp_seq'
+				, d.emp_nme
+		        , d.emp_duty
+		        , d.emp_task
+		        , d.img_rot
+		        , d.dat
+		        , sum(empRecmndPoint) as `empRecmndPoint`
+		        , sum(custmrRecmndPoint) as `custmrRecmndPoint`
+		        , sum(custmrPraisPoint) as `custmrPraisPoint`
+		        , sum(deliPoint) as `deliPoint`
+		        , sum(empRecmndPoint+custmrRecmndPoint+custmrPraisPoint+deliPoint) AS `totPoint`
+		FROM (select e.emp_seq
+				, e.nme as 'emp_nme'
+		        , e.duty as 'emp_duty'
+		        , e.task as 'emp_task'
+		        , e.img_rot as 'img_rot'
+		        , e.stat as 'stat'
+		        , DATE_FORMAT(a.dat, '%Y-%m') AS 'dat'
+		        , COUNT(a.get_recmnd_emp)*(SELECT emp_recmnd FROM djn_point_tb) AS `empRecmndPoint`
+				, 0 AS `custmrRecmndPoint`
+		        , 0 AS `custmrPraisPoint`
+				, 0  AS `deliPoint`
+		FROM emp_tb e
+		LEFT JOIN emp_recmnd_tb a  ON e.emp_seq = a.get_recmnd_emp
+		WHERE DATE_FORMAT(a.dat, '%Y-%m') like '%${selectMon}%'
+		GROUP by e.emp_seq
+		HAVING stat = 'Y'
+		
+		UNION
+		
+		select  e.emp_seq
+				, e.nme as 'emp_nme'
+		        , e.duty as 'emp_duty'
+		        , e.task as 'emp_task'
+		        , e.img_rot as 'img_rot'
+		        , e.stat as 'stat'
+		        , DATE_FORMAT(b.DAT, '%Y-%m') AS 'dat'
+		        , 0 AS `empRecmndPoint`
+				, COUNT(b.emp_seq)*(SELECT custmr_recmnd FROM djn_point_tb) AS `custmrRecmndPoint`
+				, 0 AS `custmrPraisPoint`
+				, 0  AS `deliPoint`
+		FROM emp_tb e
+		LEFT JOIN custmr_recmnd_tb b  ON e.emp_seq = b.emp_seq
+		WHERE DATE_FORMAT(b.DAT, '%Y-%m') like '%${selectMon}%'
+		GROUP by e.emp_seq
+		HAVING stat = 'Y'
+		
+		UNION
+		
+		select  e.emp_seq
+				, e.nme as 'emp_nme'
+		        , e.duty as 'emp_duty'
+		        , e.task as 'emp_task'
+		        , e.img_rot as 'img_rot'
+		        , e.stat as 'stat'
+		        , DATE_FORMAT(c.ORDR_DAT, '%Y-%m') AS 'dat'
+				, 0 AS `empRecmndPoint`
+				, 0 AS `custmrRecmndPoint`
+				, COUNT(c.RECMND_CHECK)*(SELECT custmr_prais FROM djn_point_tb) AS `custmrPraisPoint`
+				, COUNT(c.emp_seq)*(SELECT deli_cont FROM djn_point_tb) AS `deliPoint`
+		FROM emp_tb e
+		LEFT JOIN ordr_num_tb c  ON e.emp_seq = c.emp_seq
+		WHERE DATE_FORMAT(c.ORDR_DAT, '%Y-%m') like '%${selectMon}%'
+		GROUP by e.emp_seq
+		HAVING stat = 'Y') AS d
+		GROUP by d.emp_seq;
+	</select>
+	
+	<!-- 대장남 포인트 선정기준  -->
+	<select id="selectDjnPointPerct" resultMap="djnPointValues">
+		SELECT emp_recmnd
+		      ,custmr_recmnd
+		      ,custmr_prais
+		      ,deli_cont
+		FROM
+		    djn_point_tb;
+	</select>
+	
+	<!-- 직원별 고객 추천사유 조회  -->
+	<select id="selectRecmndResn" parameterType="djnVo" resultMap="recmndResnValues">
+		SELECT count(a.recmnd_resn_code_seq) AS recmnd_resn_cont
+			  ,b.recmnd_resn AS recmnd_resn
+		FROM custmr_recmnd_tb a
+		JOIN recmnd_resn_code_tb b
+		ON b.recmnd_resn_code_seq= a.recmnd_resn_code_seq
+		WHERE a.emp_seq = #{empSeq}
+		AND a.DAT like '%${selectMon}%'
+		GROUP BY b.recmnd_resn_code_seq
+		ORDER BY count(a.recmnd_resn_code_seq) DESC;
+	</select>
+	
+	<!-- 대장남 포인트 선정기준 수정  -->
+	<update id="updateDjnPointPerct" parameterType="djnPointVo" >
+		UPDATE djn_point_tb
+		SET emp_recmnd=#{empRecmnd}
+		    ,custmr_recmnd=#{custmrRecmnd}
+		    ,custmr_prais=#{custmrPrais}
+		    ,deli_cont=#{deliCont};
+	</update>
+	
+	<!-- 직원 리스트 조회  -->
+	<select id="selectEmpList" resultMap="djnValues">
+		SELECT emp_seq
+		      ,nme AS emp_nme
+		      ,duty AS emp_duby
+		      ,task AS emp_task
+		      ,img_rot
+		FROM emp_tb
+		WHERE stat = 'Y';
+	</select>
+	
+	<!-- 직원추천  -->
+	<insert id="recmndEmp" parameterType="recmndVo" >
+		INSERT INTO emp_recmnd_tb
+		(give_recmnd_emp
+		  ,get_recmnd_emp
+		  ,dat)
+		VALUES(
+		  #{giveRecmndEmp}
+		  ,#{getRecmndEmp}
+		  ,curdate());
+	</insert>
+	
+	<!-- 직원 추천 여부 확인  -->
+	<select id="memRecmnChck" parameterType="int" resultType="int">
+		SELECT	IFNULL(COUNT(give_recmnd_emp),0)
+		FROM	emp_recmnd_tb
+		WHERE	YEAR(dat) = YEAR(NOW())
+		AND	MONTH(dat) = MONTH(NOW())
+		AND	give_recmnd_emp = #{userSeq};
+	</select>
+	
+</mapper>
