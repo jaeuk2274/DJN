@@ -1,0 +1,55 @@
+<div data-role="page" id="cusMyPageSetupPage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #9E9E9E;
+			border-right: 1px solid #9E9E9E;			
+		}
+		li{
+			border-bottom: 1px solid #9E9E9E;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">환경설정</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">				
+	    <div data-role="content">
+	    	<div class="font-md">로그아웃</div>
+			<hr>	
+		   <a onclick="logout()" class="ui-btn ui-btn-raised clr-primary font-btn"><b>로그아웃</b></a>		   
+		</div>
+	    <div data-role="content">
+	    	<div class="font-md">개인정보 관리</div>
+			<hr>	
+		   <a href="MyPageCusSetupConfirm.html" class="ui-btn ui-btn-raised clr-primary font-btn"><b>개인정보 수정</b></a>		   
+		</div>
+		<div data-role="content">
+	    	<div class="font-md">알림설정</div>
+			<hr>
+			<ul data-role="listview" data-inset="true">
+		        <li>
+		        	<span style="margin-top:3%; float:left">푸시알림</span>        	
+		        	<span style="float:right">
+						<select id="pushCheckToggle" data-role="flipswitch" onchange="pushCheckUpdate()">
+							<option id="pushCheckToggleOff" value="N">Off</option>
+							<option id="pushCheckToggleOn" value="Y">On</option>
+						</select>
+					</span>
+		        </li>			        
+		    </ul>		
+		    <a href="MyPageCusDelete.html" class="ui-btn font-btn" style="background-color:#F3F3F3; border:1px solid #D5D5D5"><b>회원탈퇴</b></a>	   
+		</div>
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MyPageCusBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

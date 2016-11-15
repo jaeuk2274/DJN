@@ -1,0 +1,147 @@
+<div data-role="page" id="communityListPage" class="nd2-no-menu-swipe">	
+	<style>	
+		.mdl-tabs__tab{
+			width:50%;
+			padding:0;
+		}
+		
+				nd2Tabs li {		
+				display: inline-block;
+				width:49%;
+				line-height: 48px;
+				text-align: center;
+				font-weight: 500;
+				text-transform: uppercase;
+				font-size: 14px;
+			
+				cursor: pointer;
+				color: #747474;
+			
+				-webkit-transition: all 0.4s;
+				-moz-transition: all 0.4s;
+				-ms-transition: all 0.4s;
+				-o-transition: all 0.4s;
+				transition: all 0.4s;
+	
+			}
+			
+			.nd2Tabs li:hover {
+				color: #8bc34a;
+			}
+			
+			.nd2Tabs .nd2Tabs-active {
+				color: #8bc34a;
+				position: relative;
+				font-weight: bold;
+			}
+			
+			.nd2Tabs .nd2Tabs-active:after {
+			
+					content : "";
+					position: absolute;
+					width: 100%;
+					height: 2px;
+					background-color: #8bc34a;
+					bottom: 0px;
+					left: 0px;
+			
+					-webkit-animation: zoomIn 0.4s;
+					-moz-animation: zoomIn 0.4s;
+					-ms-animation: zoomIn 0.4s;
+					-o-animation : zoomIn 0.4s;
+					animation : zoomIn 0.4s;			
+			}
+						
+			.nd2-card .card-title.has-supporting-text {
+			padding: 24px 16px 1px 16px;
+			}
+
+			.nd2-card {
+				display: block;
+				border-radius: 4px;
+				box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+				margin: 15px auto;
+				max-width: 90%;
+				overflow: hidden;				
+			}
+			
+			.nd2-card.card-media-right.card-media-small .card-title { min-height: 56px; }
+			.nd2-card.card-media-right.card-media-medium .card-title { min-height: 60px; }
+			.nd2-card.card-media-right.card-media-large .card-title {  min-height: 128px;  }
+	</style>      
+	<nd2-include data-src="CommunityReadPanel.html"></nd2-include>
+	<!-- Header 시작 --> 
+	<div data-role="header" data-position="fixed">
+		<div id="heading-1" class="ui-body ui-header">
+			<div class="row" style="margin-top:10px"> 
+				 <div class="col-xs-10" >
+					<input type="search" name="searchText" id="searchText">
+				</div>
+				<div class="ui-input-btn ui-btn ui-icon-search ui-btn-icon-notext col-xs-1" >
+					<input data-role="button" data-inline="true" onclick="javascript:communityCustmrSearch(document.getElementById('searchText').value)">
+				</div>
+			</div>
+		</div>	
+		<a href="#popupDialog" class="ui-btn ui-btn-right"  data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-transition="pop" class="ui-btn" style="margin-left:280%">
+		<i class="zmdi zmdi-more-vert" style="margin-left:25px;"></i></a>			
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" style="background-color:#F3F3F3">
+		<form id="communityForm">		
+			<input type="hidden" name="boardSeq" id="boardSeq" value="0">
+			<input type="hidden" name="custmrSeq" id="custmrSeq" value="0">
+			<input type="hidden" name="boardPw" id="boardPw" value="0">
+		</form>
+		<!-- MDL 판넬 메뉴 -->
+		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+			<div class="mdl-tabs__tab-bar">
+				<a href="#general" class="mdl-tabs__tab is-active">담소방</a>
+				<a href="#special" class="mdl-tabs__tab">즐겨찾는 담소방</a>
+			</div>
+			<!-- 담소방 리스트 시작 -->
+			<div class="mdl-tabs__panel is-active" id="general">
+				<div data-role="nd2tab" data-tab="popularity" >
+					<div id="communityList" data-role="listview" data-icon="false">
+					</div>
+				</div>				
+			</div>					
+			<!-- 즐겨찾는 담소방 리스트 시작 -->
+			<div class="mdl-tabs__panel" id="special">	
+				<div data-role="nd2tab" data-tab="popularity" >
+					<div id="communityHotList" data-role="listview" data-icon="false">
+					</div>
+				</div>	
+			</div>
+		</div>
+	    <!-- MDL 판넬 메뉴 -->
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<nd2-include data-src="MainCusBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+	<div data-role="popup" id="popupDialog">         
+		<div data-role="header">
+			<h1 class='nd-title'>나만의 담소방</h1>
+		</div>
+		<div data-role="content">         
+			<a href="CommunityCret.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 담소방 만들기</a>
+			<a href="CommunityMyList.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 나의 담소방 관리</a>
+		</div>
+	</div>
+	<div data-role="popup" id="popupRead">         
+		<div data-role="header" role="banner" class="ui-header ui-bar-inherit">
+			<h1 class="class=nd-title ui-title" role="heading" aria-level="1">비공개 담소방</h1>
+		</div>
+		<div data-role="content" class="ui-content">
+			<div class="ui-input-text ui-body-inherit ui-corner-all ui-shadow-inset ui-input-has-clear">
+				<input type="password" name="password" id="password" value="" data-clear-btn="true" placeholder="비밀번호를 입력해주세요." style="min-height:3.0em;">
+				<a data-role="button" data-inline="true" class="ui-btn ui-btn-primary" onclick="javascript:lockPopupClear(document.getElementById('password').value)"> 들어가기</a>
+				<a data-role="button" data-inline="true" class="ui-btn ui-btn-primary" onclick="javascript:lockPopUpCancel()"> 닫기</a>
+			</div>     
+		</div>
+	</div>
+
+</div>

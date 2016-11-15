@@ -1,0 +1,183 @@
+<div data-role="page" id="joinPage">
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1>회원가입</h1>
+	</div>	
+	<div role="main" class="ui-content" data-inset="false">		
+		<div class="col-xs-12 col-xs-6 col-md-4">
+			<form id="insertCusJoinFrm" method="POST">
+			<h4 style="border-bottom:1px solid #2196F3; margin-top:0; padding-bottom:5%;">회원정보 입력</h4>		
+				<div class="box" style="border-bottom:1px solid #ddd;">
+					<input type="hidden" name="token" id="token">
+					<div class="row">
+						<div class="col-xs-12">
+							<input type="text" name="custmrId" id="cusJoinId" value="" data-clear-btn="true" placeholder="아이디를 입력하세요.">
+						</div>
+					</div>
+					<div id="loadtext" class="col-xs-12;" style="color: red"></div>
+					<div id="idMsg" style="color: #2eaa08;"></div>
+					<div class="row">
+						<div class="col-xs-12">	
+							<input type="password" name="custmrPw" id="cusJoinPw" value="" data-clear-btn="true" placeholder="비밀번호를 입력하세요.">
+						</div>
+					</div>
+					<div id="labelPw" class="col-xs-12" style="color: red"></div>
+					<div id="pwCheck" style="color: #2eaa08;"></div>
+					<div class="row">
+						<div class="col-xs-12">
+							<input type="password" id="reCusJoinPw" data-clear-btn="true" placeholder="비밀번호를 다시 입력하세요.">
+						</div>
+					</div>
+					<div id="labelRePw" class="col-xs-12" style="color: red"></div>
+					<div id="rePwCheck" style="color: #2eaa08;"></div>
+					<div class="row">
+						<div class="col-xs-12">
+							<input type="text" name="custmrNme" id="cusNme" data-clear-btn="true" class="row" placeholder="이름을 입력하세요.">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12">
+							<input type="text" name="custmrEml" id="cusEml" data-clear-btn="true" class="row" placeholder="비상용 이메일을 입력하세요.">
+						</div>
+					</div>
+					<div id="labelcusEml" class="col-xs-12" style="color: red"></div>
+					<div id="cusEmlCheck" style="color: #2eaa08;"></div>
+					<div class="row">
+						<div  class="col-xs-12">
+							<input type="text" name="custmrMobl" id="cusMobile" data-clear-btn="true" class="row" placeholder="휴대폰 번호를 입력하세요.">
+						</div>
+					</div>
+					<div id="labelCusMobile" class="col-xs-12" style="color: red"></div>
+					<div id="cusMobileCheck" style="color: #2eaa08;"></div>
+				</div>
+				<br>
+				<p style="float: left; margin-top:5px;">성별</p>
+				<fieldset data-role="controlgroup">
+					<label style="float:left" for="man">남</label>
+					<input type="radio" name="custmrGendr" style="margin-top: 0px;" id="man" value="남자" checked >
+					<label style="float:left" for="girl">여</label>
+					<input type="radio" name="custmrGendr" id="girl" value="여자">
+				</fieldset>
+				<h4 class="font-md">생년월일</h4>		
+				<div class="row" style="margin-left: 10px;">
+					<div class="col-xs-4">
+						<div class="ui-select">
+							<div id="hopDelvrHdiv" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">
+								<label id="hopDelvrPMAM" >생년</label>
+								<select name="birthdayYear" id="birthdayYear" data-mini="true" data-inline="true" onchange="javascript:yearChng(this);">
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row col-xs-4">
+						<div class="ui-select">
+							<div id="hopDelvrHdiv" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">
+								<label>월</label>
+								<select name="birthdayMonth" id="birthdayMonth" data-mini="true" data-inline="true" onchange="javascript:selectChange(this);">
+									<option value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>	
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row col-xs-4">
+						<div class="ui-select">
+							<div class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">
+								<label>일</label>
+								<select name="birthdayDay" id="birthdayDay" data-mini="true" data-inline="true" onchange="javascript:selectChange(this);">
+									<option value="1">1</option>
+									<option value="2">2</option>
+									<option value="3">3</option>
+									<option value="4">4</option>
+									<option value="5">5</option>
+									<option value="6">6</option>
+									<option value="7">7</option>
+									<option value="8">8</option>
+									<option value="9">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+									<option value="13">13</option>
+									<option value="14">14</option>
+									<option value="15">15</option>
+									<option value="16">16</option>
+									<option value="17">17</option>
+									<option value="18">18</option>
+									<option value="19">19</option>
+									<option value="20">20</option>
+									<option value="21">21</option>
+									<option value="22">22</option>
+									<option value="23">23</option>
+									<option value="24">24</option>
+									<option value="25">25</option>
+									<option value="26">26</option>
+									<option value="27">27</option>
+									<option value="28">28</option>
+									<option value="29">29</option>
+									<option value="30">30</option>
+									<option value="31">31</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				<br>
+				<h4 style="border-bottom:1px solid #2196F3; margin-top:0; padding-bottom:2%;">기본 배송지</h4>	
+					<div>
+						<table style="width:100%;">
+							<colgroup>
+								<col style="width: 20%;">
+								<col style="width: 30%;">
+								<col style="width: 50%;">
+							</colgroup>
+							<tr>
+								<td rowspan="3">
+									<h4>주소</h4>
+								</td>
+								<td>
+									<input type="search" id="postNum" name="custmrPostcd" style="width: 50px;" placeholder="우편번호" >
+								</td>
+								<td>
+									<a onClick="addrsPage()" class="ui-btn ui-btn-raised" class="font-sm" style="font-size: 13px; margin-top:-10px;">우편번호</a>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									<input type="search" id="loadNmeAdds" name="custmrAdrs" placeholder="기본주소">
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									<input type="search" id="loadNmeAddsDetl" name="custmrDetalAdrs" placeholder="상세주소">
+								</td>
+							</tr>
+						</table>
+					</div>
+					<br><br>
+				<h4 style="border-bottom:1px solid #2196F3; margin-top:0; padding-bottom:5%;">선택정보</h4>
+				<p style="float: left;">포인트 카드 보유 여부</p>
+				<fieldset data-role="controlgroup">
+					<label style="float:left" for="yes">예</label>
+					<input type="radio" name="custmrCardCheck" style="margin-top: 0px;" id="yes" value="Y" checked >
+					<label style="float:left" for="no">아니오</label>
+					<input type="radio" name="custmrCardCheck" id="no" value="N">
+					<label for="call" style="float:left">요청</label>
+					<input type="radio" name="custmrCardCheck" id="call" value="R">
+				</fieldset>
+				<input type="text" value="" id="custmrBirth" name="custmrBirth">
+				<input type="hidden" id="cusToken" name="custmrToken" data-clear-btn="true" class="font-sm" style="height: 40px; background-color: #F3F3F3;">
+			</form>
+			<a class="ui-btn ui-btn-raised clr-primary" onclick="insertCus()">가입 완료</a>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,84 @@
+<div data-role="page" id="recpListPage" class="nd2-no-menu-swipe">
+	<style>
+	ul{
+		border-top: 2px solid #8BC34A;
+		border-left: 1px solid #9E9E9E;
+		border-right: 1px solid #9E9E9E;			
+	}
+	li{
+		border-bottom: 1px solid #9E9E9E;
+	}
+	.ui-input-text:after{
+		width:88%;
+	}
+	.ui-input-text{
+		margin: 0 0 0 0;
+	}		
+	.ui-autocomplete
+	{  
+		margin-left: 2%;
+		margin-top:14%; 
+		width: 94%;
+		z-index: 2;
+		border:2px solid gray;
+		BORDER-COLLAPSE: collapse;
+	}  
+	.ui-menu-item 
+	{ 
+		border:0.1px solid gray;
+		height:30px;
+		padding-top: 1.5%;
+		padding-left: 5px;
+		background-color:white;
+	} 
+	</style>
+	<nd2-include data-src="MainCusPanelLeft.html"></nd2-include>		
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<h1 class="font-lg font-center" onclick="$.mobile.changePage('MainCusFrame.html')">레시피 목록</h1>			
+		<a href="#recpPopupDialog" id = "recpDialogBtn" class="ui-btn ui-btn-right" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-transition="pop"><i class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div>
+			<nd2-include data-src="RecpSearchRecp.html"/>
+		</div>
+	</div>
+	
+
+	<!-- Header 끝 -->				
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">
+		<!-- MDL 판넬 메뉴 -->
+		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+			<div class="mdl-tabs__tab-bar">
+				<a href="#newestRecpCont" class="mdl-tabs__tab is-active">최신</a>
+				<a href="#popularRecpCont" class="mdl-tabs__tab">인기</a>
+				<a href="#likeRecpCont" class="mdl-tabs__tab">좋아요</a>
+			</div>
+			<!-- 첫번째 탭 -->
+			<div class="mdl-tabs__panel is-active" id="newestRecpCont">
+			</div>		
+			<!-- 두번째 탭 시작 -->
+			<div class="mdl-tabs__panel" id="popularRecpCont">
+			</div>
+			<!-- 세번째 탭 시작 -->
+			<div class="mdl-tabs__panel" id="likeRecpCont">
+			</div>
+		</div>
+		<!-- MDL 판넬 메뉴 -->
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+      <!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+      <nd2-include id="recpFooter" data-src="MainCusBottom.html"></nd2-include>
+   </div>
+	<!-- Footer 끝 -->
+	<div data-role="popup" id="recpPopupDialog">         
+		<div data-role="header">
+			<h1 class='nd-title'>레시피 메뉴</h1>
+      	</div>
+	    <div data-role="content">         
+			<a href="RecpCret.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 레시피 작성</a>
+			<a href="RecpMyRecpList.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 나의 레시피 관리</a>
+	    </div>
+   </div>
+</div>

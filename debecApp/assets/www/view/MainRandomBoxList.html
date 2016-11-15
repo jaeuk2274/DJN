@@ -1,0 +1,43 @@
+	<div data-role="page" id="randomBoxList" class="nd2-no-menu-swipe" style="background-color:#F3F3F3;">
+		<nd2-include data-src="MainCusPanelLeft"></nd2-include>
+		<nd2-include data-src="MainCusPanelRight"></nd2-include>
+		<!-- Header 시작 -->
+<!-- 		<div data-role="header" data-position="fixed" class="wow fadeIn"> -->
+<!-- 			<a  class="ui-btn ui-btn-inline"><img src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png" style="height:25px; padding-top:5px;"></a>			 -->
+<!-- 			<h1 class="font-lg font-center">랜덤박스</h1>	 -->
+<!-- 		</div> -->
+		
+		<div data-role="header" data-position="fixed">
+			<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>		
+			<h1 class="font-lg font-center">추천 레시피</h1>	
+		</div>
+		
+		
+		<!-- Header 끝 -->
+		<!-- content 시작 -->
+		<div id="recpListPart" role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" style="padding-top:0px">
+			<div align="center" style="margin-top:25px; margin-bottom:15px">
+				<font class="font-lg"><b>오늘의 뭐 먹지??</b></font>
+			</div>
+<!-- 			<div class="nd2-card" onclick="$.mobile.changePage('RandomBoxRead.html')" style="float:left; width:50%; margin:0px; padding:0px;"> -->
+<!-- 				<div style="padding-top:10px;" align="center"> -->
+<!-- 					<img src="../../img/random_box.png" style="width:100%; height:100%"/> -->
+<!-- 				</div> -->
+<!-- 				<div style="width:100%; height:40px;"> -->
+<!-- 					<font class="font-sm" style="float:right; margin-top:9px">&nbsp;&nbsp;추천수&nbsp;</font> -->
+<!-- 					<img src="../../img/like.png" style="width:30px; height:30px; float:right;"/> -->
+<!-- 				</div> -->
+<!-- 				<div style="margin-left:20px"> -->
+<!-- 					<font class="font-sm"><b>[양식]프렌치 요리!<br>매콤한 아라비아따 스파게티</b></font> -->
+<!-- 				</div> -->
+<!-- 			</div> -->
+		</div>
+		<!-- content 끝 -->
+		<!-- Footer 시작 -->
+		<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+			<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+			<nd2-include data-src="MainCusBottom.html"></nd2-include>
+		</div>	
+		<!-- Footer 끝 -->
+	</div>

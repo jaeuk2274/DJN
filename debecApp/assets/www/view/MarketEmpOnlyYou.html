@@ -1,0 +1,28 @@
+<div data-role="page" class="padding" id="onlyYouPage" style="background-color:#F3F3F3;">
+	<nd2-include data-src="MainEmpPanelLeft.html"></nd2-include>
+	<nd2-include data-src="MainEmpPanelRight.html"></nd2-include>
+
+	<div data-role="header" data-position="fixed">
+		<a href="#empLeftPanel" class="ui-btn ui-btn-left" ><i class="zmdi zmdi-dehaze zmd-fw"></i></a>
+		<h1 class="font-lg font-center" onclick="$.mobile.changePage(MainEmpFrame.html')">DEBEC</h1>		
+		<a href="#empRightPanel" class="ui-btn ui-btn-right" ><i class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div>
+			<nd2-include data-src="MarketSearchMarket.html"/>
+		</div>
+		<div data-position="fixed" data-tap-toggle="false">
+			<nd2-include data-src="MarketEmpNavBarMarket.html"/>
+		</div>
+	</div>
+	
+	<div id="onlyYouContent">
+	</div>
+
+	<div id="content" class="ui-content" data-inset="false" style="padding-bottom: 0px;padding-left: 0px;padding-right: 0px;">
+		<ul id="prodctList" data-role="listview" style="margin-bottom: 0px;">
+		</ul>
+	</div>
+	
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<nd2-include data-src="MainEmpBottom.html"></nd2-include>
+	</div>		
+</div>

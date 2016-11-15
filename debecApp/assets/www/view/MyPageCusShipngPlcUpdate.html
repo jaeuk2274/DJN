@@ -1,0 +1,38 @@
+<div data-role="page" id="shipngPlcUpdatePage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #9E9E9E;
+			border-right: 1px solid #9E9E9E;			
+		}
+		li{
+			border-bottom: 1px solid #9E9E9E;
+		}
+		.ui-input-text:after{
+			width:88%;
+		}
+		.ui-input-text{
+			margin: 0 0 0 0;
+		}
+	</style>	
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="MyPageCusShipngPlcList.html" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">배송지 수정</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">		
+		<div class="font-md">배송지 수정</div>
+		<hr>
+		
+			<div data-role="content" style="padding:0px;">
+				<form name="shipngPlcUpdate" id="shipngPlcUpdate" method="POST">
+					<div id="shipngUpdateFrm" data-role="content" style="padding:0px;">
+			    	</div>
+			    </form>	
+			    <a onclick="shipngUpdate()" class="ui-btn font-btn" style="background-color:#F3F3F3; border:1px solid #D5D5D5"><b>수정</b></a>
+			</div>
+	</div>
+	<!-- content 끝 -->
+</div>

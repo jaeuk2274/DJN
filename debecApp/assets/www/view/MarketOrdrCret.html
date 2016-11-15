@@ -1,0 +1,153 @@
+<div data-role="page" id="ordrCretPage" style="background-color:#F3F3F3">
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>		
+		<h1 class="font-lg font-center">주문 / 결제</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<div data-role="content" style="margin-bottom: 0px;">
+	<div>
+		<font class="font-md">배송지 정보</font>
+	</div>
+	<form id="ordrCretInsert" name="ordrCretInsert">
+		<input type="hidden" id="pamntProdct">
+		<input type="hidden" id="pricSum">
+		<div class="nd2-card" style="margin-bottom: 20px; background-color:#ffffff">
+			<div class="card-supporting-text">
+				<div class="row col-xs-12">
+					<div class="ui-select" style="width: 100%;">
+						<div id="shippingPlaceSelectDiv" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow font-btn">
+							<label> 배송지 1</label>
+							<select name="select-1" id="shippingPlaceSelect" data-mini="true" data-inline="true" onchange="javascript:selectChange(this);">
+								<option>배송지 1</option>
+								<option>배송지 2</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<input type="text" name="recvrNme" id="recvrNme" value="" data-clear-btn="true" placeholder="이름을 입력하세요.">
+					</div>
+				</div>
+				<div id="loadtext" class="col-xs-12">
+				</div>
+				<div class="row">
+					<div class="col-xs-12">	
+						<input type="text" name="recvrMobl" id="recvrMobl" value="" data-clear-btn="true" placeholder="연락처를 입력하세요.">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-7">
+						<input type="text" name="recvrPostcd" id="recvrPostcd" value="" data-clear-btn="true" placeholder="우편번호">
+					</div>
+					<div  class="col-xs-5" >
+						<a href="" class="ui-btn ui-btn-raised" onclick="ordrAddrsPage()"style="font-size: 13px;">우편번호 찾기</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">	
+						<input type="text" name="recvrAddrss" id="recvrAddrss" value="" data-clear-btn="true" placeholder="주소">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">	
+						<input type="text" name="recvrDetlAddress" id="recvrDetlAddress" value="" data-clear-btn="true" placeholder="상세주소">
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">	
+						<input type="text" name="reqmnt" id="reqmnt" value="" data-clear-btn="true" placeholder="희망사항을 입력하세요.">
+					</div>
+				</div>
+			</div>
+			
+			<h4 class="font-md" style="margin-left: 10px;">희망 배송 시간</h4>		
+				<div class="row" style="margin-left: 10px;">
+					<div class="col-xs-4">
+						<div class="ui-select">
+							<div id="" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">
+								<label id="hopDelvrPMAM" >오전</label>
+								<select name="select-1"  data-mini="true" data-inline="true" onchange="javascript:hopDelvrTimChange(this);">
+									<option>오전</option>
+									<option>오후</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row col-xs-4">
+						<div class="ui-select">
+							<div id="hopDelvrHdiv" class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">
+								<label>09시</label>
+								<select name="select-1" id="hopDelvrH" data-mini="true" data-inline="true" onchange="javascript:selectChange(this);">
+									<option>09시</option>
+									<option>10시</option>
+									<option>11시</option>
+									<option>12시</option>	
+								</select>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row col-xs-4">
+						<div class="ui-select">
+							<div class="ui-btn ui-icon-carat-d ui-btn-icon-right ui-corner-all ui-shadow">
+								<label>00분</label>
+								<select name="select-1" id="hopDelvrM" data-mini="true" data-inline="true" onchange="javascript:selectChange(this);">
+									<option>00분</option>
+									<option>30분</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+		</div>
+			
+		<div>
+			<font class="font-md">결제 정보</font>
+		</div>
+		<div class="nd2-card" style="background-color:#ffffff;">
+			<div class="card-supporting-text">
+				<div class="row">
+					<div class="col-xs-5">
+						<font class="font-md">총 결제 금액: </font>
+					</div>
+					<div id="ordrCretPredictSumPrice" class="col-xs-7 end-xs">
+						<font class="font-lg"><b>20,000원</b></font>
+					</div>
+				</div>
+				<p class="font-md" style="margin-top: 20px; padding-bottom:5%;">결제 방식</p>
+				<div class="row">
+					<fieldset data-role="controlgroup">
+						<label for="card" style="float:left;">카드결제</label>
+						<input style="margin:0px" type="radio" name="pamntMethd" id="card" value="카드결제"  style="margin-top: 0px;" checked >
+						<label for="cash" style="float:left;">현금결제</label> 
+						<input style="margin:0px" type="radio" name="pamntMethd" id="cash" value="현금결제"/>	
+						<label for="simple" style="float:left;">간편결제</label> 
+						<input style="margin:0px" type="radio" name="pamntMethd" id="simple" value="간편결제"/>	
+					</fieldset>
+					
+				</div>
+				<p class="font-md" style="margin-top: 20px; padding-bottom:5%;">수령 방식</p>
+				<div class="row">
+					<fieldset data-role="controlgroup">
+						<label for="delivery" style="float:left;">배달</label> 
+						<input type="radio" name="recvMethd" id="delivery" value="배달" style="margin-top: 0px;" checked >	
+						<label for="receive" style="float:left;">직접 수령</label>
+						<input type="radio" name="recvMethd"  id="receive" value="직접 수령" style="margin-top: 0px;" >
+					</fieldset>
+				</div>
+			</div>
+			<div class="cm_buy_btn">
+			<ul>			
+<!-- 				<li><a href="AGSMobile_start.html" onclick="ordrCret()" class="btn_ty1 font-btn">주 문</a></li> -->
+<!-- 				<li><a href="ordrCret.html" onclick="ordrCret()" class="btn_ty1 font-btn">주 문</a></li> -->
+				<li><a class="ui-btn ui-btn-raised clr-primary" class="font-sm" style="font-size: 20px" onclick="ordrCret()">주 문</a></li>
+<!-- 				<li><a href="http://192.168.0.148:9002/AGSMobile_start.do" onclick="ordrCret()" class="btn_ty1 font-btn">주 문</a></li> -->
+			</ul>
+		</div>
+		</div>
+		</form>
+	</div>
+</div>

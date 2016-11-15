@@ -1,0 +1,32 @@
+<div data-role="page" id="searchCusId">
+	<style>
+	.ui-input-text:after{
+		width:90%;
+	}
+	</style>
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left" onclick="sessionDelete()"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">아이디 · 비밀번호 찾기</h1>	
+	</div>
+	<div role="main" class="ui-content" data-inset="false">
+		<div class="col-xs-12 col-xs-6 col-md-4">
+			<form id="insertCusJoinFrm" method="POST">
+			<h4 style="border-bottom:1px solid #2196F3; margin-top:0; padding-bottom:5%;">회원정보 입력</h4>		
+				<div class="box" style="border-bottom:1px solid #ddd;">
+					<div class="row">
+						<div class="col-xs-12">
+							고객님께서 가입하신 아이디입니다.
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							아이디
+						</div>
+						<div class="col-xs-6" id="SearchId">
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

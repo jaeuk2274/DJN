@@ -1,0 +1,52 @@
+<div data-role="page" id="empDebecChoiceMainPage" class="padding" style="background-color:#F3F3F3">
+	<nd2-include data-src="MainEmpPanelLeft.html"></nd2-include>
+	<nd2-include data-src="MainEmpPanelRight.html"></nd2-include>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="#empLeftPanel" class="ui-btn ui-btn-left" ><i class="zmdi zmdi-dehaze zmd-fw"></i></a>
+		<h1 class="font-lg font-center" onclick="$.mobile.changePage('MainEmpFrame.html')">DEBEC</h1>		
+		<a href="#empRightPanel" class="ui-btn ui-btn-right" ><i class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div>
+			<nd2-include data-src="MarketSearchMarket.html"/>
+		</div>
+		<div data-position="fixed" data-tap-toggle="false">
+			<nd2-include data-src="MarketEmpNavBarMarket.html"/>
+		</div>
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div class="row" data-inset="false">
+		<div>
+			<img src="../img/debec_choice.png" style="width:100%;height:100%"/>
+		</div>
+	</div>
+	<!-- MDL 판넬 메뉴 -->
+	<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+		<div class="mdl-tabs__tab-bar">
+			<a href="#hotdl" class="mdl-tabs__tab is-active">핫딜</a>
+			<a href="#fresh" class="mdl-tabs__tab">신선식품</a>
+			<a href="#packg" class="mdl-tabs__tab">패키지</a>
+		</div>
+		<!-- 첫번째 탭 시작 -->
+		<div class="mdl-tabs__panel is-active" id="hotdl">
+			<nd2-include data-src="MarketEmpDebecChoiceHotdl.html"></nd2-include>
+		</div>		
+		<!-- 두번째 탭 시작 -->
+		<div class="mdl-tabs__panel" id="fresh">
+			<nd2-include data-src="MarketEmpDebecChoiceFresh.html"></nd2-include>
+		</div>
+		<!-- 세번째 탭 시작 -->
+		<div class="mdl-tabs__panel" id="packg">
+			<nd2-include data-src="MarketEmpDebecChoicePackg.html"></nd2-include>
+		</div>
+	</div>
+	<!-- MDL 판넬 메뉴 -->
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MainEmpBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

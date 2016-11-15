@@ -1,0 +1,119 @@
+<div data-role="page" id="cusOrdrReadPage" class="nd2-no-menu-swipe">
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">주문 상세보기</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">			
+		<a id="ordrStatSeq" href="#" class="ui-btn clr-btn-light-green">주문접수</a>		
+		<div data-role="content" style="padding-left:0px; padding-right:0px; padding-bottom:2px">  
+			<table width="100%">
+				<tr>
+					<td>
+						<font id="ordrDat">2016-07-19</font>
+					</td>
+					<td style="float:right">
+						<font id="ordrNumbrSeq">주문번호 20160719</font>
+					</td>
+				</tr>
+			</table>
+
+	    	<div data-role="content" style="border:1px solid gray;">  
+	    		<table width="100%">
+					<tr>
+						<td width="40%">
+							총 결제 금액
+						</td>
+						<td width="60%">
+							<font id="allPric" class="font-md">15,400원</font>
+						</td>
+					</tr>
+				</table>
+				<hr size="1" noshade style= border-style:dotted">
+	    		<table data-role="table" id="table-column-toggle" data-mode="" class="ui-responsive table-stroke">  		    	 	  	
+					<tr style="height:40px">
+						<td width="40%">
+							받는 사람
+						</td>
+						<td width="60%">
+							<font id="recvrNme" class="font-md">김민아</font>
+						</td>
+					</tr>
+					<tr style="height:40px">
+						<td width="40%">
+							희망배송 시간
+						</td>
+						<td width="60%">
+							<font id="hopDelvrDat" class="font-md">오전 11시 30분</font>
+						</td>
+					</tr>
+					<tr style="height:40px">
+						<th width="40%">
+							전화번호
+						</th>
+						<td width="60%">
+							<font id="recvrMobl" class="font-md">010-1234-5678</font>
+						</td>
+					</tr>
+					<tr style="height:40px">
+						<th width="40%">
+							받는주소
+						</th>
+						<td width="60%">
+							<font id="recvrAddrss" class="font-md">대구 달서구 호산동 359-8 경원빌딩 405호 </font>
+						</td>
+					</tr>
+				</table>	    	
+	    	</div>
+		</div>
+		
+		<div id="empCotent" data-role="content" style="border:1px solid gray; ">  
+			<table data-role="table" id="table-column-toggle" data-mode="" class="ui-responsive table-stroke">
+				<tr style="height:43px">
+					<td rowspan="2" width="20%" height="80px">
+						<div style="width:100%; height:100%; border:1px solid gray">
+							<img id="empImg" src="../../../img/1.jpg" width="100%" height="100%">
+						</div>
+					</td>
+					<th>
+						이름
+					</th>
+					<td>
+						<font id="empNme" class="font-md">김민아</font>
+					</td>
+				</tr>
+				<tr style="height:43px">					
+					<th>
+						연락처
+					</th>
+					<td>
+						<font id="empMobl" class="font-md"> 010-6123-4511</font>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="3" width="100%" height="100px">
+						<div style="width:100%; height:100%; border:1px solid gray">
+							<img id="cartImg1" src="../../../img/1.jpg" width="100%" height="150px">
+						</div>
+					</td>
+				</tr>
+			</table>		
+		</div>
+		<div id="recmndDiv"></div>
+		<br>
+		
+		
+		<div data-role="content" style="border:1px solid gray;">  
+			<ul id="ordrReadProdctList" data-role="listview" data-icon="false">
+				<li data-role="list-divider">
+					상품 리스트
+				</li>
+			</ul>
+		
+			<a id="cusOrdrCancelButton" onclick="cusOrdrCancel()" class="ui-btn clr-btn-light-green font-btn">주문취소</a>
+		</div>
+	</div>		
+	<!-- content 끝 -->
+</div>

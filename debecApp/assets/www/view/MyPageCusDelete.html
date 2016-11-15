@@ -1,0 +1,40 @@
+<div data-role="page" id="cusDeletePage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #9E9E9E;
+			border-right: 1px solid #9E9E9E;			
+		}
+		li{
+			border-bottom: 1px solid #9E9E9E;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">회원탈퇴</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">				
+	    <div data-role="content" style="padding:0">
+	    	<h4><strong>회원탈퇴</strong></h4>
+	    	<h6>정보를 안전하게 보호하기 위해 본인의 비밀번호를 다시 한번 입력해주세요.</h6>
+			<hr>
+			<form id="cusDeleteFrm">
+			<ul data-role="listview" data-inset="true">
+				<li class="ui-field-contain">
+				    <label for="name">아이디</label>
+				    <input type="text" name="custmrId" id="custmrId" value="coilie6" readonly>
+			    </li>
+			    <li class="ui-field-contain">
+				    <label for="name">비밀번호</label>
+				    <input type="text" name="custmrPw" id="custmrPw" value="" placeholder="비밀번호를 입력하세요.">
+			    </li>
+		    </ul>
+		    </form>
+		    <a onclick="cusDelete()" class="ui-btn font-btn" style="background-color:#F3F3F3; border:1px solid #D5D5D5"><b>확인</b></a>
+		</div>		
+	</div>
+	<!-- content 끝 -->
+</div>

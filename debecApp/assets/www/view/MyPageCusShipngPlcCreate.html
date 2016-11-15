@@ -1,0 +1,72 @@
+<div data-role="page" id="shipngPlcInsertPage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #9E9E9E;
+			border-right: 1px solid #9E9E9E;			
+		}
+		li{
+			border-bottom: 1px solid #9E9E9E;
+		}
+		.ui-input-text:after{
+			width:88%;
+		}
+		.ui-input-text{
+			margin: 0 0 0 0;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="MyPageCusShipngPlcList.html" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">배송지 등록</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">		
+		<div class="font-md">배송지 등록</div>
+		<hr>
+		<form name="shipngPlcFrm" id="shipngPlcFrm" method="POST">
+			<div data-role="content" style="padding:0px;">      
+			<input type="hidden" name="custmrSeq" id="shipngCusSeq"> 
+			<input type="hidden" name="existCheck" id="insertShipngCheck">
+				<ul data-role="listview" data-inset="true">
+					<li class="ui-field-contain">
+					    <label for="name">배송지 이름</label>
+					    <input type="text" name="shipngPlcNme" id="shipngPlcName" placeholder="배송지 이름을 입력하세요.">
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="name">수령자</label>
+					    <input type="text" name="recvrNme" id="shipngRecvrName" placeholder="수령자 이름을 입력하세요.">
+				    </li>
+				    <li class="ui-field-contain">
+				   		<a onClick="shipngAddrsPage()" class="ui-btn ui-btn-raised" class="font-sm" style="font-size: 16px; text-align: center;">우편번호찾기</a>
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="name">우편번호</label>
+					    <input type="text" name="shipngPlcPostcod" id="shipngPlcPostNum" readonly>
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="name">기본주소</label>
+					    <input type="text" name="shipngPlcAdrs" id="shipngPlcPostAdrs" readonly>
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="name">상세주소</label>
+					    <input type="text" name="shipngPlcDetalAdrs" id="shipngPlcPostDetlAdrs" placeholder="상세주소를 입력하세요.">
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="name">연락처</label>
+					    <input type="text" name="recvrMobl" id="shipngRecvrTel_hp" placeholder="수령자의 연락처를 입력하세요.">
+				    </li>
+				    <li class="ui-field-contain">
+				    	<fieldset data-role="controlgroup" style="width:50%">
+							<input type="checkbox" id="shipngCheckInsert">
+								<label for="shipngCheckInsert">기본 배송지로 선택</label>
+						</fieldset>	
+				    </li>
+			    </ul>	
+			    <a onclick="shipngPlcCret()" class="ui-btn font-btn" style="background-color:#F3F3F3; border:1px solid #D5D5D5"><b>등록</b></a>
+			</div>
+		</form>
+	<!-- content 끝 -->
+	</div>
+</div>

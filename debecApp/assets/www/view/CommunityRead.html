@@ -1,0 +1,30 @@
+<div data-role="page" id="communityReadPage" style="background-color:#F3F3F3"> 
+	<nd2-include data-src="CommunityReadPanel.html"></nd2-include>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="javascript:communityReadBack()" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>	
+		<h1 class="font-lg font-center" id="boardTitl">담소방 상세보기</h1>
+		<a href="#communityPanel" class="ui-btn ui-btn-right" ><i class="zmdi zmdi-more-vert"></i></a>		
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->	
+	<form id="communityForm">	
+		<div class="col-xs-12 col-sm-6 col-md-4 row" style="padding-top:5px; padding-bottom:25px; padding-right: .9rem; padding-left: .9rem;" >	
+			<input type="hidden" name="boardSeq" id="boardSeq" value="0"  style="display:inline-block;">
+			<input type="hidden" name="custmrSeq" id="custmrSeq" value="0" style="display:inline-block;">
+			<!-- 리스트 시작 -->
+			<div id="communityReadList" data-role="listview" data-icon="false" style="width: 100%;">
+	
+			</div>
+		</div>
+		<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+			<div class="col-xs-10" style="display:inline-block;">
+				<input type="text" name="talk" id="talk" data-clear-btn="true" style="min-height: 3.0em; width: 250px;" placeholder="대화를 입력해주세요.">
+			</div>
+			<div class="col-xs-2" style="display:inline-block;">
+				<a href="javascript:talkCreate()" class="ui-btn ui-btn-raised font-btn" style="display:inline-block; width:45px; margin-top:10px;">쓰기</a>
+			</div>
+		</div>	
+	</form>	
+	<!-- content 끝 -->
+</div>

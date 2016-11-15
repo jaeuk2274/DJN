@@ -1,0 +1,70 @@
+<div data-role="page" id="cusMyPageSetupReadPage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #9E9E9E;
+			border-right: 1px solid #9E9E9E;			
+		}
+		li{
+			border-bottom: 1px solid #9E9E9E;
+		}
+		.ui-input-text:after{
+			width:88%;
+		}
+		.ui-input-text{
+			margin: 0 0 0 0;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">개인정보 관리</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s">				
+		    <div data-role="content">
+		   		<form id="custmrInfoUpdateFrm" name="custmrInfoUpdateFrm">
+		    	<div class="font-md"><strong>개인정보 관리</strong></div>
+				<hr>
+				
+				<ul data-role="listview" data-inset="true">
+					<li class="ui-field-contain">
+					    <label for="nme">이름</label>
+					    <input type="text" name="custmrNme" id="custmrNme" value="" readonly>
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="id">아이디</label>
+					    <input type="text" name="custmrId" id="custmrId" value="" readonly>
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="mobl">휴대폰</label>
+					    <input type="text" name="custmrMobl" id="custmrMobl" value="" readonly>
+				    </li>
+				    <li class="ui-field-contain">
+					    <label for="">이메일</label>
+					    <input type="text" name="custmrEml" id="custmrEml" value="" readonly>
+				    </li> 
+			    </ul>
+			    <a onclick="changeCusMyPageInfo()" id="updateBtnCus" class="ui-btn ui-btn-raised font-btn">수정</a>
+			    <a onclick="finishCusMyPageInfo()" id="finishBtnCus" class="ui-btn ui-btn-raised font-btn" style="display:none">완료</a>
+			    </form>
+			</div>	
+			<div data-role="content">
+				<form id="custmrPwUpdateFrm" name="custmrPwUpdateFrm">
+			    	<div class="font-md"><strong>비밀번호 변경</strong></div>
+					<hr>
+					<ul data-role="listview" data-inset="true" style="margin-bottom:0">
+						<li><input type="password" id="curntPw" value="" placeholder="현재 비밀번호를 입력하세요"></li>
+						<li><input type="password" name="pw" id="pw" value="" placeholder="새 비밀번호를 입력하세요."></li>
+						<li><input type="password" id="pw2" value="" placeholder="새 비밀번호를 다시 입력하세요"></li>
+				    </ul>
+				    <font size="1" color="red">*5~20자의 영문, 특수문자를 포함하여 사용 가능합니다.</font>
+				    <input type="hidden" id="empSeq" name="empSeq" value="">
+				    <a onclick="updateCusPw()" class="ui-btn font-btn" style="background-color:#F3F3F3; border:1px solid #D5D5D5; margin-top:1em">확인</a>
+			    </form>
+			</div>	
+			
+	</div>
+	<!-- content 끝 -->
+</div>

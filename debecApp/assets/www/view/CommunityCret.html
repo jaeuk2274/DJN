@@ -1,0 +1,28 @@
+<script type="text/javascript" src="../../js/community.js"></script>
+
+<div data-role="page" id="communityCretPage" class="nd2-no-menu-swipe">	
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>		
+		<h1 class="font-lg font-center">담소방 만들기</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" style="background-color:#F3F3F3">
+		<form name="communityCretForm" id="communityCretForm" method="post">
+			<div class="col-xs-12 col-sm-6 col-md-4" style="padding-top:25px; padding-bottom:25px; padding-right: .9rem; padding-left: .9rem;">	
+<!-- 				<div align="center"> -->
+<!-- 					<a><img src="http://image.fileslink.com/367ade431265cbd0/x.png" style="height:180px; width:180px; border-radius:50%; margin-bottom:30px "></a> -->
+<!-- 				</div>				 -->
+				<label for="name2b" style="margin-bottom:10px"><font class="font-sm">담소방 이름</font></label>			
+				<input type="text" name="boardTitl" id="boardTitl" value="" data-clear-btn="true" placeholder="최대 10자까지 입력 가능합니다." style="min-height:3.0em;" autofocus required onKeyUp="if(this.value.length>10){ this.value = this.value.substring(0, 10);}">
+				<label for="name2b" style="margin-bottom:10px"><font class="font-sm">담소방 소개</font></label>
+				<input type="text" name="boardIntrodun" id="boardIntrodun" value="" data-clear-btn="true" placeholder="최대 25자까지 입력 가능합니다." style="min-height:3.0em;" onKeyUp="if(this.value.length>25) {this.value = this.value.substring(0, 25);}">
+				<label for="name2b" style="margin-bottom:10px"><font class="font-sm">비밀번호 (쉿 ! 아는 사람들끼리만 공유하고싶다면)</font></label>
+				<input type="password" name="boardPw" id="boardPw" value="" data-clear-btn="true" placeholder="최대 10까지 입력 가능합니다." style="min-height:3.0em;" onKeyUp="if(this.value.length>10){ this.value = this.value.substring(0, 10);}">
+				<a href="javascript:communityCret()" class="ui-btn ui-btn-raised clr-primary waves-effect waves-button waves-effect waves-button font-btn"><b>담소방 만들기</b></a>
+			</div>
+		</form>
+	</div> 
+	<!-- content 끝 -->
+</div>

@@ -1,0 +1,75 @@
+<div data-role="page" id="myRecpListPage" class="nd2-no-menu-swipe">
+	<style>
+	ul{
+		border-top: 2px solid #8BC34A;
+		border-left: 1px solid #9E9E9E;
+		border-right: 1px solid #9E9E9E;			
+	}
+	li{
+		border-bottom: 1px solid #9E9E9E;
+	}
+	.ui-input-text:after{
+		width:88%;
+	}
+	.ui-input-text{
+		margin: 0 0 0 0;
+	}		
+	.ui-autocomplete
+	{  
+		margin-left: 2%;
+		margin-top:14%; 
+		width: 94%;
+		z-index: 2;
+		border:2px solid gray;
+		BORDER-COLLAPSE: collapse;
+	}  
+	.ui-menu-item 
+	{ 
+		border:0.1px solid gray;
+		height:30px;
+		padding-top: 1.5%;
+		padding-left: 5px;
+		background-color:white;
+	} 
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center" onclick="$.mobile.changePage('MainCusFrame.html')">나의 레시피 목록</h1>	
+		<a href="#recpPopupDialog" id = "recpDialogBtn" class="ui-btn ui-btn-right" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-transition="pop"><i class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div id="heading-1" class="ui-body ui-header">
+			<form method="post" action="">
+				<div class="row">
+					 <div class="col-xs-10">
+						<input type="search" name="recpSechText" id="recpSechText">
+						<input type="hidden" name="pageType" id="pageType">
+					</div>
+					<div class="ui-input-btn ui-btn ui-icon-search ui-btn-icon-notext col-xs-2" >
+						<input data-enhanced="true" type="button" value="Submit" id="recpSearchBtn" name="recpSearchBtn" onclick="javascript:myRecpSearch()"/>
+					</div>
+				</div>
+			</form>	
+		</div>
+	</div>
+	<!-- Header 끝 -->				
+	<!-- content 시작 -->
+	<div data-role="popup" id="recpPopupDialog">         
+		<div data-role="header">
+			<h1 class='nd-title'>레시피 메뉴</h1>
+      	</div>
+	    <div data-role="content">         
+			<a href="RecpCret.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 레시피 작성</a>
+			<a href="RecpMyRecpList.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 나의 레시피 관리</a>
+	    </div>
+   </div>
+	<div role="main" class="ui-content" data-inset="false" id="myRecpList">
+		
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+      <!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+      <nd2-include id="recpFooter" data-src="MainCusBottom.html"></nd2-include>
+   </div>
+	<!-- Footer 끝 -->
+</div>

@@ -1,0 +1,131 @@
+<div data-role="page" id="empOrdrReadPage" class="nd2-no-menu-swipe">
+	<style>
+	.ui-input-text:after{
+		width:88%;
+	}		
+	.filebox label {
+	 display: inline-block;
+	  padding-left:58px;
+	  padding-right:58px;
+	  padding-top:17.5px;
+	  padding-bottom:17.5px;
+	  color: #999;
+	  line-height: normal;
+	  vertical-align: middle;
+	  background-color: #fdfdfd;
+	  cursor: pointer;
+	  border-bottom-color: #e2e2e2;
+	  border-radius: .25em;
+	}
+	
+	.filebox input[type="file"] {  /* 파일 필드 숨기기 */
+	  position: absolute;
+	  width: 1px;
+	  height: 1px;
+	  padding: 0;
+	  margin: -1px;
+	  overflow: hidden;
+	  clip:rect(0,0,0,0);
+	  border: 0;
+	}
+	
+	.filebox.bs3-primary label {
+	  color: #fff;
+	  background-color: #89C348;
+	    border-color: #2e6da4;
+	}
+	.ui-input-text:after{
+	 display:none;
+	}
+	.img-center{
+		display:block;
+		margin:0 auto;
+		vertical-align:middle;
+	}
+	@-webkit-keyframes marquee {
+		0% {text-indent:100%;}
+		100% {text-indent:-150%;}
+	}
+	
+	input.marquee {
+		-webkit-animation: marquee 8s infinite;
+		-webkit-animation-timing-function: linear;
+	}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">주문 상세 내역</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">
+	    <div data-role="content">
+			<font id="ordrDat" style="float:left" size="2"></font><font id="ordrNumbrSeq" style="float:right" size="2"></font>
+		</div>
+		<div data-role="content">			
+		    <a href="#" id="ordrStatSeq" class="ui-btn ui-btn-raised"></a>
+		</div>
+		<div data-role="content">
+			<ul id="empOrdrReadList" data-role="listview" data-inset="true">
+				
+			</ul>
+		</div>
+		<div data-role="content">
+			<ul data-role="listview" data-inset="true">
+				<li data-role="fieldcontain">
+		        	<label for="recvrNme">고객 이름</label>
+		        	<input type="text" name="recvrNme" id="recvrNme" value="" disabled/>
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="recvrAddrss" id="map">고객 주소<i class="zmdi zmdi-pin zmd-fw"></i></label>
+		        	<input type="text" name="recvrAddrss" class="marquee" id="recvrAddrss" value="" disabled/>	        	
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="recvrDetlAddrss">고객 상세 주소</label>
+		        	<input type="text" name="recvrDetlAddrss" id="recvrDetlAddrss" value="" disabled/>	        	
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="hopDelvrDat">희망배송시간</label>
+		        	<input type="text" name="hopDelvrDat" id="hopDelvrDat" value="" disabled/>
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="allPric">총 결제금액</label>
+		        	<input type="text" name="allPric" id="allPric" value="" disabled/>
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="recvrMobl">전화번호</label>
+		        	<input type="text" name="recvrMobl" id="recvrMobl" value="" disabled/>
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="nme">배달원 이름</label>
+		        	<input type="text" name="nme" id="nme" value="" disabled/>
+				</li>
+				<li data-role="fieldcontain">
+		        	<label for="empMobl">배달원 연락처</label>
+		        	<input type="text" name="empMobl" id="empMobl" value="" disabled/>
+				</li>
+			</ul>
+		</div>
+		<div data-role="content">
+			<img src="" id="cartImg1" width="100%" height="50%">
+		</div>
+		<div data-role="content">							
+	    	<form id ="ordrFileFrm" name="ordrFileFrm" enctype="multipart/form-data">
+		    	<div class="ui-grid-a ui-responsive">	    		
+				    <div style="width:50%; float:left" class="ui-block-a">
+				    	<a onclick="capturePhoto()" style="padding-top: 16px; padding-bottom: 16px;" class="ui-btn ui-mini ui-btn-raised clr-primary">사진 촬영</a>
+				    </div>
+				    <div style="width:50%; float:left" class="ui-block-b">
+				    	<div class="filebox bs3-primary ui-btn-raised">    
+							<label for="ordrImgFile">업로드</label>                		
+			           		<input type="file" id="ordrImgFile" name="ordrImgFile" accept="image/*" onchange="javascript:ordrImgUpload()" >
+			           		<input type="hidden" name="ordrNumbrSeq" id="ordrSeq">
+			           	</div>
+				    </div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<!-- content 끝 -->
+</div>

@@ -1,0 +1,40 @@
+<div data-role="page" id="mainPage" class="nd2-no-menu-swipe">	
+	<nd2-include data-src="EmpPanelLeft.html"></nd2-include>
+	<nd2-include data-src="EmpPanelRight.html"></nd2-include>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="#empLeftPanel" class="ui-btn ui-btn-left" ><i class="zmdi zmdi-dehaze zmd-fw"></i></a>
+		<h1 class="font-lg font-center" onclick="$.mobile.changePage('../main/Main.html')">DEBEC</h1>
+		<a href="#empRightPanel" class="ui-btn ui-btn-right" ><i class="zmdi zmdi-apps zmd-fw"></i></a>
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" style="padding-top:0px">
+		<ul data-role="nd2tabs" data-swipe="true" style="margin:0px">
+			<li data-tab="home" data-tab-active="true" style="color:black; font-weight:bold; padding:0px 33px;">홈</li>
+			<li data-tab="djn" style="color:black; font-weight:bold; padding:0px 33px" onclick="javascript:thisMonthDJN()">대신 장봐주는 남자</li>
+			<li data-tab="event" style="color:black; font-weight:bold; padding:0px 33px">이벤트</li>
+		</ul>
+		<hr style="margin:5px; padding:0px"/>
+<!-- 	홈 -->
+		<div data-role="nd2tab" data-tab="home">    
+			<nd2-include data-src="Home.html"></nd2-include>
+		</div>	
+<!-- 	대신 장봐주는 남자 -->
+		<div data-role="nd2tab" data-tab="djn">       			
+			<nd2-include data-src="ThisMonthDJN.html"></nd2-include>
+		</div>
+<!-- 	이벤트 -->
+		<div data-role="nd2tab" data-tab="event" style="background-color:black;">
+			<nd2-include data-src="Event.html"></nd2-include>
+		</div>
+    </div>
+    <!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="Bottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->    
+</div>

@@ -1,0 +1,23 @@
+<div data-role="page" id="communityUpdatePage" class="nd2-no-menu-swipe">	
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>	
+		<h1 class="font-lg font-center">담소방 변경하기</h1>	
+	</div>	
+	<div role="main" style="background-color:#F3F3F3">	
+		<form name="communityUpdateForm" id="communityUpdateForm" method="post">
+			<input type="hidden" name="boardSeq" id="boardSeq" value="0">
+			<div class="col-xs-12 col-sm-6 col-md-4" style="padding-top:25px; padding-bottom:25px; padding-right: .9rem; padding-left: .9rem;">	
+				<div align="center">
+<!-- 					<a><img src="http://image.fileslink.com/367ade431265cbd0/x.png" id="boardImg" style="height:180px; width:180px; border-radius:50%; margin-bottom:30px "></a> -->
+				</div>				
+				<label for="name2b" style="margin-bottom:10px"><font size="2">담소방 이름</font></label>			
+				<input type="text" name="boardTitl" id="boardTitl" value="" data-clear-btn="true" placeholder="최대 10자까지 입력 가능합니다." style="min-height: 3.0em;">
+				<label for="name2b" style="margin-bottom:10px"><font size="2">담소방 소개</font></label>
+				<input type="text" name="boardIntrodun" id="boardIntrodun" value="" data-clear-btn="true" placeholder="최대 25자까지 입력 가능합니다." style="min-height: 3.0em;">
+				<label for="name2b" style="margin-bottom:10px"><font size="2">비밀번호 (쉿 ! 아는 사람들끼만 공유하고싶다면)</font></label>
+				<input type="password" name="boardPw" id="boardPw" value="" data-clear-btn="true" placeholder="최대 10까지 입력 가능합니다." style="min-height: 3.0em;">
+				<a href="javascript:communityUpdate()" class="ui-btn ui-btn-raised clr-primary waves-effect waves-button waves-effect waves-button font-btn"><b>담소방 변경하기</b></a>
+			</div>
+		</form>
+	</div>
+</div>

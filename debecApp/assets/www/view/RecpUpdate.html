@@ -1,0 +1,140 @@
+<div data-role="page" id="recpUpdatePage" class="nd2-no-menu-swipe">
+	<style>	
+	/* 	ul li  */
+	ul{
+		border-top: 2px solid #8BC34A;
+		border-left: 1px solid #9E9E9E;
+		border-right: 1px solid #9E9E9E;			
+	}
+	li{
+		border-bottom: 1px solid #9E9E9E;
+	}
+	.ui-input-text:after{
+		width:90%;
+	}
+	.ui-input-text{
+		margin: 0 0 0 0;
+	}
+	
+	/* 	체크 박스  */
+	input[type=checkbox].custom-check{ 
+	    position: absolute; overflow:hidden; width:10px; height:10px; 
+	    clip:rect(0 0 0 0);margin:-1px;padding:0;border:0; 
+	} 
+	 
+	input[type=checkbox].custom-check + label.custom-check{ 
+	    display:inline-block; 
+	    padding-left:5em; 
+	} 
+	 
+	input[type=checkbox].custom-check:checked + label.custom-check:before{ 
+	    position:absolute; margin-left:-5em; 
+	    content:'✔'; 
+	}
+	.filebox label {
+	 display: inline-block;
+	  padding-left:58px;
+	  padding-right:58px;
+	  padding-top:17.5px;
+	  padding-bottom:17.5px;
+	  color: #999;
+	  line-height: normal;
+	  vertical-align: middle;
+	  background-color: #fdfdfd;
+	  cursor: pointer;
+	  border-bottom-color: #e2e2e2;
+	  border-radius: .25em;
+	}
+	
+	.filebox input[type="file"] {  /* 파일 필드 숨기기 */
+	  position: absolute;
+	  width: 1px;
+	  height: 1px;
+	  padding: 0;
+	  margin: -1px;
+	  overflow: hidden;
+	  clip:rect(0,0,0,0);
+	  border: 0;
+	}
+	
+	.filebox.bs3-primary label {
+	  color: #fff;
+	  background-color: #89C348;
+	    border-color: #2e6da4;
+	}
+	.ui-input-text:after{
+	 display:none;
+	}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="RecpRead.html" id="recpUpdateBack" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">레시피 수정</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">
+		<div data-role="content" style="padding:0px;">       
+			<ul data-role="listview" data-inset="true">
+				<li class="ui-field-contain">
+				    <label for="recpTitl">글 제목</label>
+				    <input type="hidden" name="recpSeq" id="recpSeq" value="" placeholder="글 제목을 입력하세요.">
+				    <input type="text" name="recpTitl" id="recpTitl" value="" placeholder="글 제목을 입력하세요.">
+				</li><li class="ui-field-contain">
+			    	<div style="width:100%; height:300px; border:1px solid gray">
+						<img id="recpImg" name="recpImg"  src="../../img/noImg.jpg" width="100%" height="300px">
+					</div>
+				</li>
+				<li class="ui-field-contain">
+					<div class="row">
+					    <div class="col-xs-6">
+				            <div class="box">
+				               <a onclick="capturePhoto()" class="ui-btn ui-mini ui-btn-raised clr-primary nd2-btn-icon-block"><i class='zmdi zmdi-camera-alt'></i><br>사진 촬영</a>		
+				            </div>
+						</div>
+						    <div class="col-xs-6"> 
+		                       	<form id = "recpFileFrm" name = "recpFileFrm" enctype="multipart/form-data">
+						            <div class="box">      
+								        <div class="filebox bs3-primary">    
+			                          			<label for="recpImgFile">업로드</label>                		
+			                       				<input type="file" id="recpImgFile" name="recpImgFile" accept="image/*" onchange="recpImgUpload(0,0)" > 
+			                       		</div>
+						            </div>
+									<input type="hidden" id="tempNum" name="tempNum" value="0">
+									<input type="hidden" id="memSeq" name="memSeq" value="0">
+									<input type="hidden" id="memType" name="memType" value="0"> 
+					     		</form> 
+				         </div>
+			         </div>
+         		</li>
+				<li class="ui-field-contain">
+				    <label for="name">글 내용</label>
+				    <input type="text" name="recpCnt" id="recpCnt" value="" placeholder="글 내용을 입력하세요.">
+				</li>
+				<li class="font-sm">
+				    레시피 상품 선택
+				<hr>
+			    </li>
+			    <li id="recpProdctList" class="ui-li-static ui-body-inherit">
+								
+			    		
+						
+
+			    </li>
+			    <li>
+					<a style="border:5px dashed #8BC34A" style="border:5px dashed #8BC34A" onclick="javascript:recpProdctSearchRead(1)">
+						 <i class="zmdi zmdi-plus zmd-2x"></i>
+					</a>
+			    </li>
+			    <li id="resultPricLi" >
+			    	
+			    </li>
+			    <li class="font-sm">
+			    	<a onclick="javascript:recpUpdate()" class="ui-btn waves-effect waves-button waves-effect waves-button clr-btn-amber font-btn">레시피 수정</a>
+			    </li>
+			 </ul>
+		    
+		</div>   
+       </div>
+       <!-- content 끝 -->
+</div>

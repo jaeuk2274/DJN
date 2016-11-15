@@ -1,0 +1,42 @@
+<div data-role="page" id="empOrdrCancelListPage" class="nd2-no-menu-swipe">
+	<style>
+		.mdl-tabs__tab{
+			width:50%;
+			padding:0;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">주문 취소 목록</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">	    
+		<!-- MDL 판넬 메뉴 -->
+		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+			<div class="mdl-tabs__tab-bar">
+				<a href="#normal" class="mdl-tabs__tab is-active">일반</a>
+				<a href="#dahamgae" class="mdl-tabs__tab">공동구매</a>
+			</div>
+			<div class="mdl-tabs__panel is-active" id="normal">				
+				<div id="ordrCancelList">
+				</div>
+			</div>
+			<!-- 두번째 탭 시작 -->
+			<div class="mdl-tabs__panel" id="dahamgae">			
+		        <div id="ordrCancelList2">
+				</div>
+			</div>	
+		</div>
+	    <!-- MDL 판넬 메뉴 -->
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MyPageEmpBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'/>
+	<meta name='viewport' content='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'/>
+	
+		<!-- 제이쿼리 모바일 스타일시트 링크 -->
+	<link rel="stylesheet" href="../library/jquerymobile/jquery.mobile-1.4.5.min.css" /> 
+	
+	<!-- nativedroid2에 필요한 스타일시트 파일 -->
+	<link rel="stylesheet" href="../library/font-awesome/font-awesome.min.css" />    
+	<link rel="stylesheet" href="../library/waves/waves.min.css" />
+	<link rel="stylesheet" href="../library/wow/animate.css" />
+	<link rel="stylesheet" href="../css/nativedroid2.css" />
+	<link rel="stylesheet" href="../css/nativedroid2.color.light-green.css" />
+	<link rel="stylesheet" href="../css/flexboxgrid.min.css"/>
+	<link rel="stylesheet" href="../css/dahamgae.css"/>
+	
+	<!-- 제이쿼리 모바일 자바스크립트 링크 -->
+	<!-- jquery.ui.min.js는 <nd2-include> 실행을 위해서 반드시 jquery.mobile.min.js 보다 먼저 배치해야 합니다. -->
+	<script src="../library/jquery/jquery.min.js"></script>
+	<script src="../library/jquery-ui/jquery-ui.min.js"></script>
+	<script src="../library/jquerymobile/jquery.mobile-1.4.5.js"></script>
+	
+	<!-- nativedroid2에 필요한 자바스크립트 파일 -->
+	<script src="../library/waves/waves.min.js"></script>
+	<script src="../library/wow/wow.min.js"></script>
+	<script src="../js/nativedroid2.js"></script>
+	<script src="../js/nd2settings.js"></script> 
+	<script src="../cordova.js"></script>
+	
+	<!-- MDL 사용 -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.indigo-pink.min.css">
+	<script src="../js/material.min.js"></script>
+	
+	<!-- 구글 차트 -->
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body onload="start()">  
+<!-- 로그인폼 id변경 ( index화면이랑 겹침 ) -->
+<form method="post" id="loginForm">
+	<input type="hidden" id="loginHtmlToken" name="custmrToken">
+	<div data-role="page" style="background-image:url(../img/loginMain.jpg); background-size: cover; background-repeat: no-repeat;">
+		<div role="main" class="ui-content" data-inset="false">
+			<div style="background-color: #F3F3F3; margin-top: 120px;" class="nd2-card">
+				<div data-role="content" data-position="fixed" class="ui-content" data-inset="false">
+					<fieldset data-role="controlgroup">
+						<label for="cus" style="float:left; background-color: #F3F3F3;" class="font-sm">고객</label>
+						<input type="radio" name="selectLogin" style="margin-top: 0px;" value="2" id="cus" checked>
+						<label for="admin" class="font-sm" style="background-color: #F3F3F3;">관리자</label>
+						<input type="radio" name="selectLogin" id="admin" value="1">	
+					</fieldset>
+					<div style="float: top">
+						<input type="text" name="empId" id="cusId" data-clear-btn="true" placeholder="아이디" class="font-sm" style="height: 40px; background-color: #F3F3F3;" autocomplete="off">
+						<input type="password" name="empPw" id="cusPw" data-clear-btn="true" placeholder="비밀번호" class="font-sm" style="height: 40px; background-color: #F3F3F3;" autocomplete="off">
+					</div>
+					<fieldset data-role="controlgroup">
+						<div align="center">
+							<div style="float: left;">
+								<input type="checkbox" name="chk_auto_login" id="chk_auto_login" style="background-color: #F3F3F3;" value="1">
+								<label for="chk_auto_login" class="font-sm" style="background-color: #F3F3F3;">로그인 상태 유지</label>
+							</div>
+							<div style="float: left;">
+								<input type="checkbox" name="chk_save_id" id="chk_save_id" style="background-color: #F3F3F3;">
+								<label for="chk_save_id" class="font-sm" style="background-color: #F3F3F3;">아이디 저장</label>
+							</div>
+						</div>
+					</fieldset>	
+					<a onclick="javascript:login()" class="ui-btn ui-btn-raised clr-primary" class="font-sm" style="font-size: 20px; margin-top: 8px; height: 30px;">로그인</a>
+					<a href="LoginSearchCus.html" class="ui-btn ui-btn-raised" class="font-sm" style="font-size: 13px; margin-top: 8px; float: left; margin-right: 2px; width: 150px;">아이디 · 비밀번호 찾기</a>
+					<a href="LoginAgremt.html" class="ui-btn ui-btn-raised" class="font-sm" style="font-size: 13px; margin-top: 8px;">회원가입</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+<!-- 개인이 사용하는 JS들 -->
+<!-- 담소방 관련 js -->
+<script type="text/javascript" src="../js/community/community.js"></script>
+<script type="text/javascript" src="../js/community/communityEmp.js"></script>
+<!-- 메인 관련 js -->
+<script type="text/javascript" src="../js/main/event.js"></script>
+<script type="text/javascript" src="../js/main/home.js"></script>
+<script type="text/javascript" src="../js/main/thisMonthDJN.js"></script>
+<!-- mypage 관련 js -->
+<script type="text/javascript" src="../js/myPg/emp/empMyPage.js"></script>
+<script type="text/javascript" src="../js/myPg/emp/empPanel.js"></script>
+<script type="text/javascript" src="../js/myPg/cus/cusMyPage.js"></script>
+<script type="text/javascript" src="../js/myPg/cus/cart.js"></script>
+<script type="text/javascript" src="../js/myPg/cus/cusPanel.js"></script>
+<script type="text/javascript" src="../js/myPg/cus/djn.js"></script>
+<script type="text/javascript" src="../js/myPg/cus/ordr.js"></script>
+<script type="text/javascript" src="../js/myPg/cus/shipngPlc.js"></script>
+<!-- 레시피 관련 js -->
+<script type="text/javascript" src="../js/recp/recp.js"></script>
+<!-- martket 관련 js -->
+<script type="text/javascript" src="../js/market/market.js"></script>
+<script type="text/javascript" src="../js/market/debecFestival.js"></script>
+<script type="text/javascript" src="../js/market/dahamgae.js"></script>
+<script type="text/javascript" src="../js/market/onlyYou.js"></script>
+<script type="text/javascript" src="../js/market/debecChoice.js"></script>
+<!-- 각 페이지 패널 탭 관련 js -->
+<script type="text/javascript" src="../js/login/pageshow.js"></script>
+<!-- 회원가입 관련 js -->
+<script type="text/javascript" src="../js/login/join.js"></script>
+<script type="text/javascript" src="../js/login/login.js"></script>
+<!-- 푸시알림 관련 js -->
+<script type="text/javascript" src="../js/login/push.js"></script>
+<script src="//d1p7wdleee1q2z.cloudfront.net/post/search.min.js"></script>
+
+<!-- 카메라 관련 js -->
+<script src="../js/camera.js"></script>
+<!-- 페이지 ㄹ됭 관련 js -->
+<script src="../js/loading.js"></script>
+<script>	
+function selectChange(tag) {
+   var ordQty = $(tag).val();
+   $(tag).siblings('label').text(ordQty);
+};
+</script>
+</body>
+</html>

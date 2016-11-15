@@ -1,0 +1,67 @@
+<div data-role="page" id="empShipngListPage" class="nd2-no-menu-swipe">
+	<style>
+		table{
+		width:100%;
+		}
+		.mdl-tabs__tab{
+			width:50%;
+			padding:0;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">배송 목록</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+    <div role="main" class="ui-content" data-inset="false" style="padding-left: 7px; padding-right:7px;">	
+	    <!-- MDL 판넬 메뉴 -->
+		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+			<div class="mdl-tabs__tab-bar">
+				<a href="#normal" class="mdl-tabs__tab is-active">일반</a>
+				<a href="#dahamgae" class="mdl-tabs__tab">공동구매</a>
+			</div>
+			<div class="mdl-tabs__panel is-active" id="normal">
+				<fieldset data-role="controlgroup" data-type="horizontal" class="center-xs">
+		           	<input style="float:left;" type="radio" name="ordrStatSeq" id="ordrStatAll" value="0">
+		           	<label for="ordrStatAll" style="float:left; font-size:16px;">전체</label>
+		           	<input style="float:left;" type="radio" name="ordrStatSeq" id="ordrStatAccept" value="1">
+		           	<label for="ordrStatAccept" style="float:left; font-size:16px;">주문 접수</label>
+		           	<input style="float:left;" type="radio" name="ordrStatSeq" id="ordrStatShipng" value="2">
+		           	<label for="ordrStatShipng" style="float:left; font-size:16px;">배송중</label>
+		           	<input style="float:left;" type="radio" name="ordrStatSeq" id="ordrStatFinish" value="3">
+		           	<label for="ordrStatFinish" style="float:left; font-size:16px;">배송완료</label>             
+		        </fieldset>
+				
+				<div id="empShipngFrame">
+				</div>
+			</div>
+			<!-- 두번째 탭 시작 -->
+			<div class="mdl-tabs__panel" id="dahamgae">			
+				<fieldset data-role="controlgroup" data-type="horizontal" class="center-xs">
+		           	<input style="float:left;" type="radio" name="ordrStatSeq2" id="ordrStatAll2" value="0">
+		           	<label for="ordrStatAll2" style="float:left; font-size:16px;">전체</label>
+		           	<input style="float:left;" type="radio" name="ordrStatSeq2" id="ordrStatAccept2" value="1">
+		           	<label for="ordrStatAccept2" style="float:left; font-size:16px;">주문 접수</label>
+		           	<input style="float:left;" type="radio" name="ordrStatSeq2" id="ordrStatShipng2" value="2">
+		           	<label for="ordrStatShipng2" style="float:left; font-size:16px;">배송중</label>
+		           	<input style="float:left;" type="radio" name="ordrStatSeq2" id="ordrStatFinish2" value="3">
+		           	<label for="ordrStatFinish2" style="float:left; font-size:16px;">배송완료</label>             
+		        </fieldset>
+		        
+		        <div id="empShipngFrame2">
+				</div>
+			</div>	
+		</div>
+	    <!-- MDL 판넬 메뉴 -->
+    </div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MyPageEmpBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

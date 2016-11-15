@@ -1,0 +1,66 @@
+<div data-role="page" id="recptTitlSearchPage" class="nd2-no-menu-swipe">
+	<style>		
+	/* 	ul li  */
+	ul{
+		border-top: 2px solid #8BC34A;
+		border-left: 1px solid #9E9E9E;
+		border-right: 1px solid #9E9E9E;			
+	}
+	li{
+		border-bottom: 1px solid #9E9E9E;
+	}
+	.ui-input-text:after{
+		width:88%;
+	}
+	.ui-input-text{
+		margin: 0 0 0 0;
+	}
+	
+	/* 	체크 박스  */
+	input[type=checkbox].custom-check{ 
+	    position: absolute; overflow:hidden; width:10px; height:10px; 
+	    clip:rect(0 0 0 0);margin:-1px;padding:0;border:0; 
+	} 
+	 
+	input[type=checkbox].custom-check + label.custom-check{ 
+	    display:inline-block; 
+	    padding-left:5em; 
+	} 
+	 
+	input[type=checkbox].custom-check:checked + label.custom-check:before{ 
+	    position:absolute; margin-left:-5em; 
+	    content:'✔'; 
+	}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">레시피 검색</h1>
+		<a href="#recpPopupDialog" id = "recpDialogBtn"  class="ui-btn ui-btn-right" data-rel="popup" data-position-to="window" data-role="button" data-inline="true" data-transition="pop"><i class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div>
+			<nd2-include data-src="RecpSearchRecp.html"/>
+		</div>
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	
+	<div data-role="popup" id="recpPopupDialog">         
+		<div data-role="header">
+			<h1 class='nd-title'>레시피 메뉴</h1>
+      	</div>
+	    <div data-role="content">         
+			<a href="RecpCret.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 레시피 작성</a>
+			<a href="RecpMyRecpList.html" data-role="button" data-inline="true" class="ui-btn ui-btn-primary"><i class='zmdi zmdi-check'></i> 나의 레시피 관리</a>
+	    </div>
+   </div>
+	<div role="main" class="ui-content" data-inset="false" id="RecptTitlSearchList">
+		
+    </div>
+       <!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+      <!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+      <nd2-include id="recpFooter" data-src="MainCusBottom.html"></nd2-include>
+   </div>
+	<!-- Footer 끝 -->
+</div>

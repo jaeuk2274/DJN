@@ -1,0 +1,85 @@
+<div data-role="page" id="empProdctReadPage" class="padding">
+	<nd2-include data-src="MainEmpPanelLeft.html"></nd2-include>
+	<nd2-include data-src="MainEmpPanelRight.html"></nd2-include>
+
+	<div data-role="header" data-position="fixed">
+		<a href="#empLeftPanel" class="ui-btn ui-btn-left"><i
+			class="zmdi zmdi-dehaze zmd-fw"></i></a>
+		<h1 class="font-lg font-center"
+			onclick="$.mobile.changePage('MainEmpFrame.html')">DEBEC</h1>
+		<a href="#empRightPanel" class="ui-btn ui-btn-right"><i
+			class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div>
+			<nd2-include data-src="MarketSearchMarket.html" />
+		</div>
+		<div class="prodct_tit">
+			<h1 class="font-lg font-center"
+				style="margin-top: 0px; margin-bottom: 0px;">직원 상품 상세</h1>
+			<div class="prodct_tit_lft">
+				<a data-rel="back" class="ui-btn ui-btn-left"
+					style="top: 0px; margin-top: 0px; height: 24px;"> <img
+					class="back-img"
+					src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png">
+				</a>
+			</div>
+		</div>
+	</div>
+	<div id="prodctCount" class="opt_em"></div>
+	<div class="ui-content" data-inset="false">
+
+		<div id="prodctTitle" class="article-title"></div>
+
+		<div id="prodctMainImg" style="height: 375px;"></div>
+
+		<div id="prodctCart" class="opt_em"></div>
+
+		<div id="prodctPric" class="opt_em"></div>
+
+		<div id="prodctBuy" class="buy_btn"></div>
+	</div>
+
+	<div class="dtl_tabwrap">
+		<ul class="dtl_tab">
+			<li class="on"><a href="#" id="descEvnt"
+				onclick="javascript:changItemTab('desc');"> <span class="tx">상세정보</span>
+			</a></li>
+			<li class=""><a href="#" id="deliveryEvnt"
+				onclick="javascript:changItemTab('delivery');"> <span class="tx">배송/교환/환불</span>
+			</a></li>
+		</ul>
+
+		<div id="detailDescTab" class="dtl_tabcont on">
+			<div class="dtl_tabcont_bx">
+				<div id="prodctDetailImg" class="dtl_noti_area"></div>
+			</div>
+			<hr />
+			<div data-role="content">
+				<div id="appReltnProdctContent"></div>
+				<div id="appReltnProdct" class="row center-xs"></div>
+			</div>
+		</div>
+
+		<div id="deliveryInfoTab" class="dtl_tabcont">
+			<div class="detail_sub ty2">
+				<div id="deliveryAgremt"></div>
+				<div id="exchngAgremt"></div>
+			</div>
+		</div>
+	</div>
+	<div style="background-color: #F3F3F3;">
+		<span class="mall_name">대백마트 파호점<span class="sp_head ico_arr">&nbsp;</span></span>
+		<address>
+			대표자 : 안혜숙, 김대용 &nbsp;&nbsp;&nbsp;사업자등록번호: <br>주소: 대구광역시 달서구
+			달구벌대로 199길 7 (파호동)
+		</address>
+		<dl class="cos_box">
+			<dt>전화번호</dt>
+			<dd>
+				<a href="tel:1588-4349" class="btn_icn">1588-4349</a>
+			</dd>
+		</dl>
+	</div>
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<nd2-include data-src="MainEmpBottom.html"></nd2-include>
+	</div>
+</div>

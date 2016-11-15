@@ -1,0 +1,151 @@
+<div data-role="page" id="cusMyPageMainPage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #F6F6F6;
+			border-right: 1px solid #F6F6F6;			
+		}
+		li{
+			border-bottom: 1px solid #F6F6F6 !important;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">MY PAGE</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">
+		<div id="myPageCusNme" class="font-md"></div>
+		<hr>			
+	    <div>
+		    <ul data-role="listview" data-inset="true">
+		        <li class="font-md"><a href="MyPageCusOrdrList.html" class="ui-btn ui-btn-inline clr-btn-accent-light-green font-center">배송조회 </a></li>
+		        <li class="font-center">
+			        <div class="row">
+						<div style="width:26%">
+							<div class="box">
+								<a onclick="selectCusOrdrList(1)" class="ui-btn ui-bottom-sheet-link nd2-btn-icon-block">
+								<p id="cusOrdrFinish"></p>
+								<p>주문완료</p>
+								</a>
+							</div>
+						</div>
+						<div style="width:12%">
+							<div class="box" style="margin-top:100%;">
+								<i class="zmdi zmdi-arrow-forward zmd-2x"></i>
+							</div>
+						</div>
+						<div style="width:24%">
+							<div class="box">
+								<a onclick="selectCusOrdrList(2)" class="ui-btn ui-bottom-sheet-link nd2-btn-icon-block">
+								<p id="cusShipng"></p>
+								<p>배송중</p>
+								</a>
+							</div>
+						</div>
+						<div style="width:12%;">
+							<div class="box" style="margin-top:100%;">
+								<i class="zmdi zmdi-arrow-forward zmd-2x"></i>
+							</div>
+						</div>
+						<div style="width:26%">
+							<div class="box">
+								<a onclick="selectCusOrdrList(3)" class="ui-btn ui-bottom-sheet-link nd2-btn-icon-block">
+								<p id="cusShipngFinish"></p>
+								<p>배송완료</p>
+								</a>
+							</div>
+						</div>
+					</div>
+				</li>        
+		    </ul>
+		</div>		
+		<div>
+		    <ul data-role="listview" data-inset="true">
+		        <li style="text-align:center;">
+			        <div class="row">
+						<div class="col-xs-6" align="center" style="padding:0px">
+							<a href="MyPageCusCart.html" style="padding:0" class="ui-btn ui-bottom-sheet-link nd2-btn-icon-block">
+								<div class="box">
+									<table width=100%>
+										<tr>
+											<td style="float:left" colspan="2">
+												<p class="font-md">장바구니 관리</p>
+											</td>
+										</tr>
+										<tr>
+											<td style="float:left">
+												<i class="zmdi zmdi-shopping-cart zmd-2x"></i>
+											</td>
+											<td>
+												<p id="cartCount" class="font-md" style="color:red">0 건</p>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</a>
+						</div>
+						<div class="col-xs-6" align="center" style="padding:0">
+							<a href="MyPageCusHistory.html" style="padding:0" class="ui-btn ui-bottom-sheet-link nd2-btn-icon-block">
+								<div class="box">
+									<table width=100%>
+										<tr>
+											<td style="float:left" colspan="2">
+												<p class="font-md">히스토리 관리</p>
+											</td>
+										</tr>
+										<tr>
+											<td style="float:left">
+												<i class="zmdi zmdi-eye zmd-2x"></i>
+											</td>
+											<td>
+												<p id="historyCount" class="font-md" style="color:red">0 건</p>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</a>
+						</div>
+					</div>
+				</li>     	    
+		    </ul>
+		</div>
+		
+	    <div>
+		    <div class="font-md">주문/배송 관리</div>
+		    <ul class="font-sm" data-role="listview" data-inset="true">
+		        <li><a onclick="selectCusOrdrList(0)" class="font-sm">주문 목록</a></li>
+		        <li><a onclick="selectCusOrdrList(4)" class="font-sm">주문 취소 내역</a></li>	        
+		    </ul>
+	    </div>	    
+	    
+	    <div>
+		    <div class="font-md">기타 관리</div>
+		    <ul class="font-sm" data-role="listview" data-inset="true">
+		    	<li><a href="MyPageCusShipngPlcList.html" class="font-sm">배송지 관리</a></li>	  
+<!-- 		        <li><a href="MarketCusDahamgae.html" class="font-sm">공동구매</a></li> -->
+<!-- 		        <li><a href="CommunityList.html" class="font-sm">커뮤니티</a></li>	  -->
+		        <li><a href="RecpMyRecpList.html" class="font-sm">나의 레시피</a></li>	
+		        <li><a href="MyPageEmpDjn.html" class="font-sm">대신 장봐주는 남자</a></li>	        
+		    </ul>
+		</div>		
+
+	    <div>
+		    <div class="font-md">환경 설정</div>
+		    <ul data-role="listview" data-inset="true">
+		        <li><a href="MyPageCusSetup.html" class="font-sm">환경 설정</a></li>       
+		        <li><a href="MyPageCusDelete.html" class="font-sm">회원 탈퇴</a></li>  
+		    </ul>
+		</div>
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MyPageCusBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

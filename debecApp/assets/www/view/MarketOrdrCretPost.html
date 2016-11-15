@@ -1,0 +1,29 @@
+<div data-role="page" id="marketOrdrCretPostPage">
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1>우편번호 찾기</h1>
+	</div>	
+	<form name="form" id="form" method="post">
+		<input type="hidden" name="currentPage" value="1"/>				<!-- 요청 변수 설정 (현재 페이지) -->
+		<input type="hidden" name="countPerPage" value="10"/>				<!-- 요청 변수 설정 (페이지당 출력 개수) -->
+		<input type="hidden" name="confmKey" value="U01TX0FVVEgyMDE2MDkyNzIyMzAwNDE1NDEy"/>		<!-- 요청 변수 설정 (승인키) -->
+		<input type="text" name="keyword" value=""/>						<!-- 요청 변수 설정 (키워드) -->
+		<input type="button" onClick="ordrGetAddr();" value="주소 검색하기"/>
+		<div>찾고 싶으신 주소의 동(읍/면)이름을 입력해 주세요.<br>
+			예)청담1동, 한강로3가, 수지읍
+		</div>
+		<div id="list"> <!-- 검색 결과 리스트 출력 영역 --> </div>
+		<div id="postDetailDisplay" style="display: none;">
+			<div id="sendZipNo"></div>
+			<div id="sendRoadAddr"></div>
+			<div><input type="text" id="postDetail" placeholder="상세주소를 입력해주세요."></div>
+			<div><input type="button" value="확인" onclick="ordrPostAdrrsDetail()"></div>
+			<input type="hidden" id="htmlType">
+		</div>
+	</form>
+<!-- 	<div id="postJoinid" style="display: none"></div> -->
+<!-- 	<div id="postJoinpw" style="display: none"></div> -->
+<!-- 	<div id="postJoinnme" style="display: none"></div> -->
+<!-- 	<div id="postReJoinPw" style="display: none"></div> -->
+<!-- 	<div id="postJoinMobile" style="display: none"></div> -->
+</div>

@@ -1,0 +1,54 @@
+<div data-role="page" id="empSetupPage" class="nd2-no-menu-swipe">
+	<style>
+		ul{
+			border-top: 2px solid #8BC34A;
+			border-left: 1px solid #F6F6F6;
+			border-right: 1px solid #F6F6F6;			
+		}
+		li{
+			border-bottom: 1px solid #F6F6F6 !important;
+		}
+	</style>
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">환경설정</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">				
+	    <div data-role="content">
+	    	<div class="font-md">로그아웃</div>
+			<hr>	
+			<a onclick="empLogout()" class="ui-btn ui-btn-raised font-btn">로그아웃</a>		   
+		</div>
+	    <div data-role="content">
+	    	<div class="font-md">개인정보 관리</div>
+			<hr>	
+			<a href="MyPageEmpSetupConfirm.html" class="ui-btn ui-btn-raised font-btn">개인정보 수정</a>		   
+		</div>
+		<div data-role="content">
+	    	<div class="font-md">환경설정</div>
+			<hr>
+			<ul data-role="listview" data-inset="true">
+		        <li>
+		        	<span style="margin-top:3%; float:left">주문알림</span>        	
+		        	<span style="float:right">
+						<select id="pushCheck" data-role="flipswitch" onchange="javascript:empPushCheck()">
+							<option value="N">Off</option>
+							<option value="Y">On</option>
+						</select>
+					</span>
+		        </li>		        
+		    </ul>			   
+		</div>
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MyPageEmpBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

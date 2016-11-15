@@ -1,0 +1,30 @@
+<div data-role="panel" id="empLeftPanel" data-display="overlay" data-position-fixed="true" >
+	<style>
+		.mdl-tabs__tab{
+			width:50%;
+			padding:0;
+		}
+	</style>
+	<p><h6 id="empNme" style="display:inline"></h6><span style="float:right" onclick="logout()" >로그아웃<i class="zmdi zmdi-power-off zmd-fw"></i></span><p>                   
+    <hr style="margin-bottom:0">
+    <!-- MDL 판넬 메뉴 -->
+	<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+		<div class="mdl-tabs__tab-bar">
+			<a href="#event_tab" class="mdl-tabs__tab is-active">행사 상품</a>
+			<a href="#all_tab" class="mdl-tabs__tab">전체 상품</a>
+		</div>
+		<!-- 행사 상품 -->
+		<div class="mdl-tabs__panel is-active" id="event_tab">
+			<table id="empLeftPanelEventProdct">
+			</table>
+		</div>		
+		<!-- 전체 상품 -->
+		<div class="mdl-tabs__panel" id="all_tab">
+			<div id ="empLeftPanelCatgr">
+			<div data-role="collapsible" data-inset="false"  data-collapsed-icon="carat-d" data-expanded-icon="carat-d" data-iconpos="right">
+
+			</div>			
+		</div>
+	</div>
+    <!-- MDL 판넬 메뉴 -->
+</div>

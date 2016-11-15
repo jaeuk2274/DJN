@@ -1,0 +1,41 @@
+<div data-role="page" id="SearchProdctListPage" class="padding">
+	<nd2-include data-src="MainEmpPanelLeft.html"></nd2-include>
+	<nd2-include data-src="MainEmpPanelRight.html"></nd2-include>
+
+	<div data-role="header" data-position="fixed">
+		<a href="#empLeftPanel" class="ui-btn ui-btn-left" ><i class="zmdi zmdi-dehaze zmd-fw"></i></a>
+		<h1 class="font-lg font-center" onclick="$.mobile.changePage('MainEmpFrame.html')">DEBEC</h1>		
+		<a href="#empRightPanel" class="ui-btn ui-btn-right" ><i class="zmdi zmdi-apps zmd-fw"></i></a>
+		<div>
+			<div id="heading-1" class="ui-body ui-header">
+				<form method="post" action="">
+					<div class="row">
+						 <div class="col-xs-10">
+							<div class="ui-input-search ui-body-inherit ui-corner-all ui-shadow-inset ui-input-has-clear"><input type="text" data-type="search" name="prodctSechText" id="prodctSechText"><a href="#" tabindex="-1" aria-hidden="true" class="ui-input-clear ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all waves-effect waves-button waves-effect waves-button waves-effect waves-button ui-input-clear-hidden" title="Clear text">Clear text</a></div>
+						</div>
+						<div class="ui-input-btn ui-btn ui-icon-search ui-btn-icon-notext col-xs-2">
+							<input data-enhanced="true" type="button" value="Submit" id="prodctSechBtn" onclick="javascript:appReProdctSearch()">
+						</div>
+					</div>
+				</form>	
+			</div>
+		</div>
+		<div class="prodct_tit">
+			<h1 id="prodctSechTitle" class="font-lg font-center" style="margin-top: 0px; margin-bottom: 0px;">	
+			</h1>
+			<a data-rel="back" class="ui-btn ui-btn-left"  style="margin-top: 0px; margin-bottom: 0px;">
+				<img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png">
+			</a>
+		</div>
+	</div>
+	
+	<div id="content" class="ui-content" data-inset="false" style="margin-top: 13px; padding-bottom: 0px;padding-left: 0px;padding-right: 0px;">
+		<ul id="prodctList" data-role="listview" style="margin-bottom: 0px;">
+		</ul>
+		<hr style='margin-top: 0px;'>
+	</div>
+	
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<nd2-include data-src="MainEmpBottom.html"></nd2-include>
+	</div>		
+</div>

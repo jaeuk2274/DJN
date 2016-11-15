@@ -1,0 +1,74 @@
+<div data-role="page" id="djnPage" class="nd2-no-menu-swipe">
+<!-- 	<script type="text/javascript" src="../../../js/jsapi.js"></script> -->
+	<script>
+// 		alert("구글차트 작동");
+// 	    google.setOnLoadCallback(drawChart);
+// 	    function drawChart() {
+// 	    	alert("122345");
+// 	      var data = google.visualization.arrayToDataTable([
+// 	        ['기준', '비율'],
+// 	        ['칭찬합시다',        40],
+// 	        ['고객추천',         25],
+// 	        ['배달횟수',     25],
+// 	        ['직원추천',    10]
+// 	      ]);
+	
+// 	      var chart = new google.visualization.ImagePieChart(document.getElementById('chart_div'));
+	
+// 	      chart.draw(data, {width: 430, height: 240, title: '포인트 산정 기준'});
+// 	    }	
+	</script>	
+	
+
+
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">이 달의 대장남</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">				
+	    <div data-role="content" style="padding:0">
+	    	<h4 style="margin:0"><strong>대장남이란?</strong></h4>
+	    	<h6 style="margin:5px">대백 마트의 새로운 마스코트로써  '대신 장봐주는 남자' 라는 슬로건으로 고객감동을 실현하는 직원 및 서비스를 말합니다.</h6>
+			<hr>			 
+<!-- 				<div class="center-xs" style="width:100%; border:1px solid green; padding-left:10%; padding-right:11%" > -->
+<!-- 	               <div style="width:30%; border:1px solid red; float:left;" data-role="controlgroup" data-type="horizontal"> -->
+<!-- 	                  <a href="#" class="ui-btn" style="display:line-block; width:20%"><i class="zmdi zmdi-chevron-left zmd-2x"></i><i class="zmdi zmdi-chevron-left zmd-2x"></i></a> -->
+<!-- 	                  <a href="#" class="ui-btn" style="display:line-block; width:20"><i class="zmdi zmdi-chevron-left zmd-2x"></i></a> -->
+<!-- 	               </div> -->
+<!-- 	               <div style="width:20%; float:left; border:1px solid red"> -->
+<!-- 	                  <H3> <br> 2016년 7월 </H3>  -->
+<!-- 	               </div> -->
+	                
+<!-- 	                 <div style="width:30%; border:1px solid red; float:left;" data-role="controlgroup" data-type="horizontal"> -->
+<!-- 	                  <a href="#" class="ui-btn" style="display:line-block; width:20%"><i class="zmdi zmdi-chevron-right zmd-2x"></i><i class="zmdi zmdi-chevron-right zmd-2x"></i></a> -->
+<!-- 	                  <a href="#" class="ui-btn" style="display:line-block; width:20"><i class="zmdi zmdi-chevron-right zmd-2x"></i></a> -->
+<!-- 	               </div> -->
+<!-- 	            </div> -->
+		<div class="font-lg center-xs"><strong>2016년 9월</strong></div>
+		
+	 
+		</div>
+		<div data-role="content" style="padding:0">  
+
+	    	<div style="border:1px solid gray;" align="center">    	
+           		<img src="../../../img/1.jpg" width="100%" height="150px">	
+           		<p style="margin:0">시상일 <br>           	
+           		사원 / 배달 및 매장관리</p>
+	    	</div>
+           	<div style="border:1px solid gray;" align="center">   
+           		<p><b>대장남 포인트 산정기준</b> <br>           	
+           		칭찬합시다 40% / 고객추천 25% <br>
+           		배달횟수 25% / 직원추천 10% </p>
+			</div>	    	
+	    	<div style="border:1px solid gray;" align="center">  
+      			<div id="piechart" style="height:240px;"></div>
+			</div>
+		</div>	
+	</div>
+	<!-- content 끝 -->
+</div>
+</body>
+</html>

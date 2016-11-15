@@ -1,0 +1,26 @@
+<div data-role="page" id="shipngPlcListPage" class="nd2-no-menu-swipe">
+	<!-- Header 시작 -->
+	<div data-role="header" data-position="fixed">
+		<a href="CusMyPageMain.html" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1 class="font-lg font-center">배송지 관리</h1>	
+	</div>
+	<!-- Header 끝 -->
+	<!-- content 시작 -->
+	<div role="main" class="ui-content" data-inset="false">	
+		<div class="font-md">배송지 관리</div>
+		<hr>
+		<a onclick="ShipngPlcCreate()" class="ui-btn font-btn" style="background-color:#F3F3F3; border:1px solid #D5D5D5"><b>배송지 추가</b></a>	
+		<form id="shipngPlcList" method="post">
+			<div data-role="content" id="shipngList" style="padding-left:0px; padding-right:0px;">
+			</div>
+		</form>
+	</div>
+	<!-- content 끝 -->
+	<!-- Footer 시작 -->
+	<!-- data-tap-toggle="false"를 해서 토글 기능을 제거합니다. -->
+	<div data-role="footer" data-position="fixed" data-tap-toggle="false">
+		<!-- 하단 툴바 메뉴를 HTML로 바인딩합니다. -->
+		<nd2-include data-src="MyPageCusBottom.html"></nd2-include>
+	</div>	
+	<!-- Footer 끝 -->
+</div>

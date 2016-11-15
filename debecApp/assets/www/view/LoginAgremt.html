@@ -1,0 +1,46 @@
+<div data-role="page" id="agremt">
+	<div data-role="header" data-position="fixed">
+		<a data-rel="back" class="ui-btn ui-btn-left"><img class="back-img" src="http://image.fileslink.com/367affb98f51b8/arrowhead-thin-outline-to-the-left.png"></a>
+		<h1>이용약관</h1>
+	</div>	
+	<div role="main" class="ui-content" data-inset="false">		
+		<div class="col-xs-12 col-xs-6 col-md-4">
+			<form id="joinAgremt" method="POST">
+			<h5 style="border-bottom:1px solid #2196F3; margin-top:0; padding-bottom:5%;">개인정보 취급 방침 이용약관</h5>	
+				<div class="box" style="border-bottom:1px solid #ddd;">
+					<textarea rows="2" disabled>제1장 총칙<br>제1조 (목적)</textarea>
+				</div>
+				<fieldset data-role="controlgroup">
+					<label for="agree" style="float:left;" class="font-sm">동의</label>
+					<input type="radio" name="selectLogin" style="margin-top: 0px;" value="2" id="agree">
+					<label for="disagree" class="font-sm">동의안함</label>
+					<input type="radio" name="selectLogin" id="disagree" value="1">	
+				</fieldset>
+				<div id="agremtLabel" class="col-xs-12" style="color: red"></div>
+				<div align="right">
+					<div>
+						<a href="LoginJoinAgremt.html" class="font-sm" style="font-size: 13px; margin-top: 8px;">자세히</a>
+					</div>
+				</div>
+			<h5 style="border-bottom:1px solid #2196F3; margin-top:0; padding-bottom:5%;">개인정보 수집 및 이용 동의[회원가입시] 이용약관</h5>	
+				<div class="box" style="border-bottom:1px solid #ddd;">
+					<textarea rows="2" disabled>제1장 총칙 
+					제1조 (목적)</textarea>
+				</div>
+				<fieldset data-role="controlgroup">
+					<label for="agree1" style="float:left;" class="font-sm">동의</label>
+					<input type="radio" name="selectLogin1" style="margin-top: 0px;" value="2" id="agree1">
+					<label for="disagree1" class="font-sm">동의안함</label>
+					<input type="radio" name="selectLogin1" id="disagree1" value="1">	
+				</fieldset>
+				<div align="right">
+					<div>
+						<a href="LoginJoinAgremt1.html" class="font-sm" style="font-size: 13px; margin-top: 8px;">자세히</a>
+					</div>
+				</div>
+				<div id="agremtLabel1" class="col-xs-12" style="color: red"></div>
+			</form>
+			<a onclick="agremtCheck()" class="ui-btn ui-btn-raised clr-primary" class="font-sm" style="font-size: 20px; margin-top: 8px; height: 30px;">확인</a>
+		</div>
+	</div>
+</div>
