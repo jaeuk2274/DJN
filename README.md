@@ -1,5 +1,5 @@
 # DJN (DaeJangNam)
-Custom Order Delivery Integrated Management System
+# 맞춤형 주문배달 통합관리시스템 (Custom Order Delivery Integrated Management System)
 
 <아이디어부터 사업계획서, 발표, 개발까지 맞춤형 주문배달 통합관리시스템> : http://jaeuk2274.tistory.com/20 
 
